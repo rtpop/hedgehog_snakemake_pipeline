@@ -5,3 +5,9 @@ src: "src"
 sisana_container: "container_name" # remember to change once container is made
 eland_container: "container_name"
 analysis_container: "container_name"
+
+# Input
+data_dir: "data"
+
+# Params
+sisana_config: "sisana/params.yml"

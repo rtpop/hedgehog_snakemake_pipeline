@@ -1,0 +1,7 @@
+# Code directory
+src: "src"
+
+# Containers
+sisana_container: "container_name" # remember to change once container is made
+eland_container: "container_name"
+analysis_container: "container_name"

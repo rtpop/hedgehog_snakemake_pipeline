@@ -21,28 +21,32 @@ ANALYSIS_CONTAINER = config["analysis_container"]
 # Directories
 DATA_dir = config["data_dir"]
 SISANA_DIR = config["sisana_dir"]
-
-# Input files
-SISANA_CONFIG = config["sisana_config"]
-
-# Output files
-EXPRESSION_FILTERED = os.path.join(SISANA_DIR, "/output/preprocess/", "{filename}_filtered.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "/output/preprocess/", "{filename}_filtered.txt")
-PPI_PRIOR_FILTERED = os.path.join(SISANA_DIR, "/output/preprocess/", "{filename}_filtered.txt")
-STATS = os.path.join(SISANA_DIR, "/output/preprocess/", "{filename}_filtering_statistics.txt")
+SISANA_OUTPUT_DIR = os.path.join(SISANA_DIR, "output") # might want to change later as user can change output dir in the sisana params, but it'll do for now
 
 # Other params
 EXP = config["exp_file"]
 MOTIF_PRIOR = config["motif_prior_file"]
 PPI_PRIOR = config["ppi_prior_file"]
 
+# Input files
+SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
+
+# Output files
+EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtered.txt")
+MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
+PPI_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
+STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statistics.txt")
+PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
+
+
 ## Rule ALL##
 rule all:
     input: 
-        expand(EXPRESSION_FILTERED, filename = EXP), \
-        expand(MOTIF_PRIOR_FILTERED, filename = MOTIF_PRIOR), \
-        expand(PPI_PRIOR_FILTERED, filename = PPI_PRIOR), \
-        expand(STATS, filename = EXP)
+        EXPRESSION_FILTERED, \
+        MOTIF_PRIOR_FILTERED, \
+        PPI_PRIOR_FILTERED, \
+        STATS, \
+        PANDA_NET
 
 ## Rules ##
 rule run_sisana:
@@ -66,20 +70,23 @@ rule run_sisana:
     PPI_PRIOR_FILTERED:
         A TXT file with filtered PPI prior.
     STATS:
-        A file containing information about genes filtered.    
+        A file containing information about genes filtered.
+    PANDA_NET:
+        A TXT file with the PANDA network.
     """
     input:
-        sisana_config = SISANA_CONFIG
+        SISANA_CONFIG
     output:
         EXPRESSION_FILTERED, \
         MOTIF_PRIOR_FILTERED, \
-        PPI_PRIOR
+        PPI_PRIOR_FILTERED, \
+        STATS, \
+        PANDA_NET
+
     message: 
         "; Running sisana preprocess on {input}."
-    params:
-
     shell:
         """
-        sisana preprocess {input.sisana_config}
-        sisana generate {input.sisana_config}
+        sisana preprocess {input}
+        sisana generate {input}
         """

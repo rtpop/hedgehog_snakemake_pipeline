@@ -1,4 +1,6 @@
+##################
 ### HOW TO RUN ###
+##################
 
 # Run from directory containing Snakefile
 # snakemake --cores 1 ### For running
@@ -6,13 +8,19 @@
 # snakemake --cores 1 -np ### For dry run
 
 ###################
+#### Libraries ####
+###################
 
-# Libraries
 import os 
 import sys
 import glob
 from pathlib import Path
 import time
+
+
+###################
+#### Parameters ###
+###################
 
 # Config
 global CONFIG_PATH
@@ -54,10 +62,16 @@ PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
 
-## Rule ALL##
+
+###################
+###### Rules ######
+###################
+
+## Rule ALL ##
 rule all:
     input: 
-        GENE_COMMUNITIES
+        #GENE_COMMUNITIES
+        PANDA_NET
 
 ## Rules ##
 rule run_sisana:

@@ -1,5 +1,5 @@
 # Stage 1: Preprocess data to format for next stage
-# example: sisana preprocess -p params.yml
+# example: sisana preprocess params.yml
 preprocess:
   exp_file: ./sisana/data/uterus/gtex_uterus_exp.tsv # Path to expression file, which MUST CONTAIN A HEADER
   motif_file: ./sisana/data/motif_prior_names_2024.tsv # path to motif file
@@ -8,7 +8,7 @@ preprocess:
   outdir: ./sisana/output/preprocess # The directory to save the output to
 
 # Stage 2: Reconstruct networks and calculate degrees
-# example: sisana generate -p params.yml
+# example: sisana generate params.yml
 generate:
   processed_paths: ./sisana/tmp/processed_data_paths.yml # Path to yaml file containing the location of the processed data files
   method: panda # Which method to use, either "panda" to run just PANDA or "lioness", which runs PANDA first, then LIONESS

@@ -8,6 +8,7 @@ analysis_container: "container_name"
 
 # Directories
 data_dir: "data"
+output_dir: "output" # this will be a parent directory for different runs
 sisana_dir: "sisana"
 src_dir: "src"
 eland_dir: "eland"

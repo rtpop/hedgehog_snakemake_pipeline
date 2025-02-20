@@ -9,6 +9,7 @@ analysis_container: "container_name"
 # Directories
 data_dir: "data"
 sisana_dir: "sisana"
+src_dir: "src"
 
 # Input files
 sisana_config: "params.yml"

@@ -20,16 +20,20 @@ ANALYSIS_CONTAINER = config["analysis_container"]
 
 # Directories
 DATA_dir = config["data_dir"]
+OUTPUT_DIR = config["output_dir"]
 SISANA_DIR = config["sisana_dir"]
 SISANA_OUTPUT_DIR = os.path.join(SISANA_DIR, "output") # might want to change later as user can change output dir in the sisana params, but it'll do for now
 SRC = config["src_dir"]
-ELAND_DIR = config["eland_dir"]
+ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
+BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
 
 # Other params
 EXP = config["exp_file"]
 MOTIF_PRIOR = config["motif_prior_file"]
 PPI_PRIOR = config["ppi_prior_file"]
 DELIMITER = config["delimiter"]
+MAX_COMMUNITIES = config["max_communities"]
+MAX_RESOLUTION = config["max_resolution"]
 
 # Input files
 SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
@@ -42,16 +46,12 @@ STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statisti
 PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
+GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
 
 ## Rule ALL##
 rule all:
     input: 
-        EXPRESSION_FILTERED, \
-        MOTIF_PRIOR_FILTERED, \
-        PPI_PRIOR_FILTERED, \
-        STATS, \
-        PANDA_NET, \
-        PANDA_NET_FILTERED
+        GENE_COMMUNITIES
 
 ## Rules ##
 rule run_sisana:
@@ -128,4 +128,25 @@ rule process_and_filter_panda:
     shell:
         """
         python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
+        """
+
+rule run_bihidef:
+    """
+    This rule runs the BiHiDeF algorithm.
+
+    BiHiDeF is available at
+    """
+    input:
+        PANDA_NET_FILTERED
+    output:
+        gene_communities = GENE_COMMUNITIES
+    params:
+        script = os.path.join(SRC, "run_bihidef.py"), \
+        max_communities = MAX_COMMUNITIES, \
+        max_resolution = MAX_RESOLUTION
+    message:
+        "; Running BiHiDeF on {input}."
+    shell:
+        """
+        python {params.script} {input} {params.max_communities} {params.max_resolution} {output}
         """

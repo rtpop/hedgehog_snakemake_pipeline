@@ -44,6 +44,9 @@ RUN apt-get update -qq && \
                 libcairo2-dev \
                 libssl-dev
 
+# install sisana
+RUN pip install sisana
+
 ## --------------- ##
 ## Switch to shell ##
 ## --------------- ##

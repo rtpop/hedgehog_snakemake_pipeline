@@ -13,7 +13,3 @@ generate:
   processed_paths: ./tmp/processed_data_paths.yml # Path to yaml file containing the location of the processed data files
   method: panda # Which method to use, either "panda" to run just PANDA or "lioness", which runs PANDA first, then LIONESS
   outdir: ./output/network/ # output directory
-
-  # The following commands are used if you specified "lioness" for the method arg
-  compute: cpu # Whether to use "gpu" or "cpu" for computing LIONESS networks
-  ncores: 20 # Number of cores to use for calculating LIONESS networks. Must be less than or equal to the number of samples

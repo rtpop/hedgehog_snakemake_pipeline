@@ -22,11 +22,9 @@ RUN apt-cache policy \
         libfontconfig1-dev \
         libfreetype-dev \
         libfreetype6 \
-        libnss-unknown \
         librsvg2-bin \
         librsvg2-dev \
         libudunits2-dev \
-        littler \
         make \
         pkg-config \
         procps \
@@ -35,9 +33,7 @@ RUN apt-cache policy \
         libgsl-dev \
         libcurl4-gnutls-dev \
         libmysqlclient-dev \
-        libpq-dev \
-        r-cran-devtools \
-        r-cran-RcppParallel
+        libpq-dev
 
                 
 RUN apt-get update -qq && \
@@ -46,9 +42,7 @@ RUN apt-get update -qq && \
                 git \
                 libcurl4-openssl-dev \
                 libcairo2-dev \
-                littler \
-                libssl-dev \
-                libgsl-dev=2.8+dfsg-5
+                libssl-dev
 
 ## --------------- ##
 ## Switch to shell ##

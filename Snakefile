@@ -87,7 +87,8 @@ rule run_sisana:
         PPI_PRIOR_FILTERED, \
         STATS, \
         PANDA_NET
-
+    container:
+        SISANA_CONTAINER
     message: 
         "; Running sisana preprocess on {input}."
     shell:

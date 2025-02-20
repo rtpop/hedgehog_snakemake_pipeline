@@ -48,5 +48,9 @@ po/*~
 # RStudio Connect folder
 rsconnect/
 
-# Snakemake cache
+# cache
 .snakemake/
+.cache/
+
+# Data
+data/

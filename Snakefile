@@ -1,5 +1,11 @@
+### HOW TO RUN ###
+
 # Run from directory containing Snakefile
+# snakemake --cores 1 ### For running
+# snakemake --cores 1 --use-singularity --singularity-args '\-e' --cores 1  ### For running with singularity
 # snakemake --cores 1 -np ### For dry run
+
+###################
 
 # Libraries
 import os 
@@ -97,57 +103,57 @@ rule run_sisana:
         sisana generate {input}
         """
 
-rule process_and_filter_panda:
-    """
-    This rule processes and filters the PANDA network.
+# rule process_and_filter_panda:
+#     """
+#     This rule processes and filters the PANDA network.
 
-    Inputs
-    ------
-    PANDA_NET:
-        A TXT file with the PANDA network.
-    MOTIF_PRIOR_FILTERED:
-        A TXT file with filtered motif prior.
-    ------
-    Outputs
-    -------
-    PANDA_EDGELIST:
-        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-    PANDA_NET_FILTERED:
-        A TXT file with the PANDA edgelist filtered.
-    """
-    input:
-        panda = PANDA_NET, \
-        prior = MOTIF_PRIOR_FILTERED
-    output:
-        edgelist = PANDA_EDGELIST, \
-        filtered_net = PANDA_NET_FILTERED
-    params:
-        script = os.path.join(SRC, "process_and_filter_panda.py"), \
-        delimiter = DELIMITER
-    message: 
-        "; Processing and filtering PANDA network."
-    shell:
-        """
-        python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
-        """
+#     Inputs
+#     ------
+#     PANDA_NET:
+#         A TXT file with the PANDA network.
+#     MOTIF_PRIOR_FILTERED:
+#         A TXT file with filtered motif prior.
+#     ------
+#     Outputs
+#     -------
+#     PANDA_EDGELIST:
+#         A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+#     PANDA_NET_FILTERED:
+#         A TXT file with the PANDA edgelist filtered.
+#     """
+#     input:
+#         panda = PANDA_NET, \
+#         prior = MOTIF_PRIOR_FILTERED
+#     output:
+#         edgelist = PANDA_EDGELIST, \
+#         filtered_net = PANDA_NET_FILTERED
+#     params:
+#         script = os.path.join(SRC, "process_and_filter_panda.py"), \
+#         delimiter = DELIMITER
+#     message: 
+#         "; Processing and filtering PANDA network."
+#     shell:
+#         """
+#         python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
+#         """
 
-rule run_bihidef:
-    """
-    This rule runs the BiHiDeF algorithm.
+# rule run_bihidef:
+#     """
+#     This rule runs the BiHiDeF algorithm.
 
-    BiHiDeF is available at
-    """
-    input:
-        PANDA_NET_FILTERED
-    output:
-        gene_communities = GENE_COMMUNITIES
-    params:
-        script = os.path.join(SRC, "run_bihidef.py"), \
-        max_communities = MAX_COMMUNITIES, \
-        max_resolution = MAX_RESOLUTION
-    message:
-        "; Running BiHiDeF on {input}."
-    shell:
-        """
-        python {params.script} {input} {params.max_communities} {params.max_resolution} {output}
-        """
+#     BiHiDeF is available at
+#     """
+#     input:
+#         PANDA_NET_FILTERED
+#     output:
+#         gene_communities = GENE_COMMUNITIES
+#     params:
+#         script = os.path.join(SRC, "run_bihidef.py"), \
+#         max_communities = MAX_COMMUNITIES, \
+#         max_resolution = MAX_RESOLUTION
+#     message:
+#         "; Running BiHiDeF on {input}."
+#     shell:
+#         """
+#         python {params.script} {input} {params.max_communities} {params.max_resolution} {output}
+#         """

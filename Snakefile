@@ -1,15 +1,20 @@
-##################
-### HOW TO RUN ###
-##################
+##--------------------------------------------------------------------------##
+## HOW TO RUN                                                               ##
+## Run from directory containing Snakefile                                  ##
+##--------------------------------------------------------------------------##
+## For dry run                                                              ##
+## snakemake --cores 1 -np                                                  ##
+##--------------------------------------------------------------------------##
+## For local run                                                            ##
+## snakemake --cores 1                                                      ##
+##--------------------------------------------------------------------------##
+## For running with singularity container                                   ##
+## snakemake --cores 1 --use-singularity --singularity-args '\-e' --cores 1 ##
+##--------------------------------------------------------------------------##
 
-# Run from directory containing Snakefile
-# snakemake --cores 1 ### For running
-# snakemake --cores 1 --use-singularity --singularity-args '\-e' --cores 1  ### For running with singularity
-# snakemake --cores 1 -np ### For dry run
-
-###################
-#### Libraries ####
-###################
+##-----------##
+## Libraries ##
+##-----------##
 
 import os 
 import sys
@@ -17,12 +22,11 @@ import glob
 from pathlib import Path
 import time
 
+##------------##
+## Parameters ##
+##------------##
 
-###################
-#### Parameters ###
-###################
-
-# Config
+# Config file
 global CONFIG_PATH
 CONFIG_PATH = "config.yaml"
 configfile: CONFIG_PATH
@@ -63,9 +67,9 @@ PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
 
 
-###################
-###### Rules ######
-###################
+##-------##
+## Rules ##
+##-------##
 
 ## Rule ALL ##
 rule all:
@@ -73,7 +77,10 @@ rule all:
         #GENE_COMMUNITIES
         PANDA_NET
 
-## Rules ##
+##-----------------------##
+## Making PANDA networks ##
+##-----------------------##
+
 rule run_sisana:
     """
     This rule runs PANDA using the SiSaNA pipeline.

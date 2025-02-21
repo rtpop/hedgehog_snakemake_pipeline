@@ -1,7 +1,7 @@
 # Import libraries
 import argparse
 import pandas as pd
-from eland import filter_panda, process_panda
+from ELAND import eland
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Process and filter panda network.")
@@ -24,10 +24,10 @@ def main():
     args = parse_arguments()
 
     # process panda result into edgelist
-    process_panda.process_edge_list(args.input_file, args.output_file)
+    eland.process_edge_list(args.input_file, args.output_file)
     
     # filter panda network
-    fil_edges = filter_panda.filter_panda(args.prior_file, args.output_file, args.delimiter)
+    fil_edges = eland.filter_panda(args.prior_file, args.output_file, args.delimiter)
 
     # save edgelist to file
     fil_edges.to_csv(args.edgelist_file, sep=args.delimiter, index=False)

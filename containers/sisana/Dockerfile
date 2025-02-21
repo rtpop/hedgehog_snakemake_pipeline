@@ -47,9 +47,9 @@ RUN apt-get update -qq && \
 # install sisana
 # RUN pip install sisana
 # for now cloning the repo and installing it that way until bug fix gets pushed to pypi
-WORKDIR /opt/software
+WORKDIR /usr/local/bin
 RUN git clone https://github.com/kuijjerlab/sisana.git
-WORKDIR /opt/software/sisana
+WORKDIR sisana
 RUN pip install .
 WORKDIR /opt
 

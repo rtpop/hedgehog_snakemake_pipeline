@@ -51,6 +51,7 @@ rsconnect/
 # cache
 .snakemake/
 .cache/
+.config/
 
 # Data
 data/

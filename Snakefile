@@ -32,8 +32,7 @@ CONFIG_PATH = "config.yaml"
 configfile: CONFIG_PATH
 
 # Containers
-SISANA_CONTAINER = config["sisana_container"]
-ELAND_CONTAINER = config["eland_container"]
+PYTHON_CONTAINER = config["python_container"]
 ANALYSIS_CONTAINER = config["analysis_container"]
 
 # Directories
@@ -115,7 +114,7 @@ rule run_sisana:
         STATS, \
         PANDA_NET
     container:
-        SISANA_CONTAINER
+        PYTHON_CONTAINER
     message: 
         "; Running sisana preprocess on {input}."
     shell:
@@ -124,39 +123,45 @@ rule run_sisana:
         sisana generate {input}
         """
 
-# rule process_and_filter_panda:
-#     """
-#     This rule processes and filters the PANDA network.
+##-------------------------------------##
+## Filtering PANDA network for BiHiDef ##
+##-------------------------------------##
 
-#     Inputs
-#     ------
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     MOTIF_PRIOR_FILTERED:
-#         A TXT file with filtered motif prior.
-#     ------
-#     Outputs
-#     -------
-#     PANDA_EDGELIST:
-#         A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-#     PANDA_NET_FILTERED:
-#         A TXT file with the PANDA edgelist filtered.
-#     """
-#     input:
-#         panda = PANDA_NET, \
-#         prior = MOTIF_PRIOR_FILTERED
-#     output:
-#         edgelist = PANDA_EDGELIST, \
-#         filtered_net = PANDA_NET_FILTERED
-#     params:
-#         script = os.path.join(SRC, "process_and_filter_panda.py"), \
-#         delimiter = DELIMITER
-#     message: 
-#         "; Processing and filtering PANDA network."
-#     shell:
-#         """
-#         python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
-#         """
+rule process_and_filter_panda:
+    """
+    This rule processes and filters the PANDA network.
+
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR_FILTERED:
+        A TXT file with filtered motif prior.
+    ------
+    Outputs
+    -------
+    PANDA_EDGELIST:
+        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+    PANDA_NET_FILTERED:
+        A TXT file with the PANDA edgelist filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        prior = MOTIF_PRIOR_FILTERED
+    output:
+        edgelist = PANDA_EDGELIST, \
+        filtered_net = PANDA_NET_FILTERED
+    params:
+        script = os.path.join(SRC, "process_and_filter_panda.py"), \
+        delimiter = DELIMITER
+    container:
+        PYTHON_CONTAINER
+    message: 
+        "; Processing and filtering PANDA network."
+    shell:
+        """
+        python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
+        """
 
 # rule run_bihidef:
 #     """

@@ -1,8 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-sisana_container: "docker://rtpop/sisana:0.0.2" # remember to change once container is made
-eland_container: "container_name"
+python_container: "docker://rtpop/sisana:0.0.3" # remember to change once container is made
 analysis_container: "container_name"
 
 ##-------------##

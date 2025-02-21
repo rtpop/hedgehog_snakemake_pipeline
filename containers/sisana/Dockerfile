@@ -45,15 +45,9 @@ RUN apt-get update -qq && \
                 libssl-dev
 
 # install sisana
-# RUN pip install sisana
-# for now cloning the repo and installing it that way until bug fix gets pushed to pypi
-WORKDIR /usr/local/bin
-RUN git clone https://github.com/kuijjerlab/sisana.git
-WORKDIR sisana
-RUN pip install .
-WORKDIR /opt
+RUN pip install sisana
 
-## --------------- ## 
+## --------------- ##
 ## Switch to shell ##
 ## --------------- ##
 

@@ -40,4 +40,4 @@ max_communities: 2
 ##------------------##
 ## Other parameters ##
 ##------------------##
-delimiter: "\t" # delimiter for input & output files
+delimiter: " " # delimiter for input & output files

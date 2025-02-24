@@ -60,7 +60,7 @@ EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filt
 MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
 PPI_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
 STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statistics.txt")
-PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
+PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_output.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
@@ -74,54 +74,54 @@ GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
 rule all:
     input: 
         #GENE_COMMUNITIES
-        PANDA_NET
+        PANDA_NET_FILTERED
 
 ##-----------------------##
 ## Making PANDA networks ##
 ##-----------------------##
 
-rule run_sisana:
-    """
-    This rule runs PANDA using the SiSaNA pipeline.
+# rule run_sisana:
+#     """
+#     This rule runs PANDA using the SiSaNA pipeline.
 
-    SiSaNA is available at
-    https://github.com/kuijjerlab/sisana
+#     SiSaNA is available at
+#     https://github.com/kuijjerlab/sisana
 
-    Inputs
-    ------
-    SISANA_CONFIG:
-        Config yml file for SiSaNA.
-    ------
-    Outputs
-    -------
-    EXPRESSION_FILTERED:
-        A TXT file with filtered expression.
-    MOTIF_PRIOR_FILTERED:
-        A TXT file with filtered motif prior.
-    PPI_PRIOR_FILTERED:
-        A TXT file with filtered PPI prior.
-    STATS:
-        A file containing information about genes filtered.
-    PANDA_NET:
-        A TXT file with the PANDA network.
-    """
-    input:
-        SISANA_CONFIG
-    output:
-        EXPRESSION_FILTERED, \
-        MOTIF_PRIOR_FILTERED, \
-        PPI_PRIOR_FILTERED, \
-        STATS, \
-        PANDA_NET
-    container:
-        PYTHON_CONTAINER
-    message: 
-        "; Running sisana preprocess on {input}."
-    shell:
-        """
-        sisana preprocess {input}
-        sisana generate {input}
-        """
+#     Inputs
+#     ------
+#     SISANA_CONFIG:
+#         Config yml file for SiSaNA.
+#     ------
+#     Outputs
+#     -------
+#     EXPRESSION_FILTERED:
+#         A TXT file with filtered expression.
+#     MOTIF_PRIOR_FILTERED:
+#         A TXT file with filtered motif prior.
+#     PPI_PRIOR_FILTERED:
+#         A TXT file with filtered PPI prior.
+#     STATS:
+#         A file containing information about genes filtered.
+#     PANDA_NET:
+#         A TXT file with the PANDA network.
+#     """
+#     input:
+#         SISANA_CONFIG
+#     output:
+#         EXPRESSION_FILTERED, \
+#         MOTIF_PRIOR_FILTERED, \
+#         PPI_PRIOR_FILTERED, \
+#         STATS, \
+#         PANDA_NET
+#     container:
+#         PYTHON_CONTAINER
+#     message: 
+#         "; Running sisana preprocess on {input}."
+#     shell:
+#         """
+#         sisana preprocess {input}
+#         sisana generate {input}
+#         """
 
 ##-------------------------------------##
 ## Filtering PANDA network for BiHiDef ##
@@ -160,8 +160,13 @@ rule process_and_filter_panda:
         "; Processing and filtering PANDA network."
     shell:
         """
-        python params.script {input.panda} {output.edgelist} {input.prior} {output.filtered_net} {params.delimiter}
+        echo "Running script with params: script={params.script}, input.panda={input.prior}, output.edgelist={output.edgelist}, delimiter={params.delimiter}"
+        python {params.script} process_edge_list {input.panda} {output.edgelist} '{params.delimiter}'
+        python {params.script} filter_panda {input.prior} {output.edgelist} '{params.delimiter}'
+        python {params.script} to_csv {output.filtered_net}
         """
+
+
 
 # rule run_bihidef:
 #     """

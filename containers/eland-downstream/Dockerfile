@@ -1,7 +1,7 @@
 FROM r-base:4.4.2
 
 ## build with 
-## sudo docker build --file containers/eland-downstream/Dockerfile --no-cache -t rtpop/eland-downstream:0.0.1 --progress=plain . 2>&1 | tee eland-downstream:0.0.1
+## sudo docker build --file containers/eland-downstream/Dockerfile --no-cache -t rtpop/eland-downstream:0.0.1 --progress=plain . 2>&1 | tee containers/eland-downstream/logs/eland-downstream:0.0.1
 
 ## --------------------------- ##
 ## Install system requirements ##
@@ -58,7 +58,7 @@ COPY containers/eland-downstream/requirements.R /opt/requirements.R
 ## Install package requirements ##
 ## ---------------------------- ##
 
-RUN Rscript requirements.R
+RUN Rscript /opt/requirements.R
 
 ## --------------- ##
 ## Switch to shell ##

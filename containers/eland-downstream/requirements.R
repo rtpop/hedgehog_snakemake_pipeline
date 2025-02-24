@@ -16,9 +16,9 @@ required_packages_cran = c(
     # "this.path",      # For creating relative paths
     # "tidyr",          # For tidying data
     "ggplot2",        # For creating plots
-    "sessioninfo"
+    "sessioninfo",    # For session information
     "pheatmap",       # For drawing heatmaps
-    "RColorBrewer",   # For color palettes for heatmaps
+    "RColorBrewer"   # For color palettes for heatmaps
     # stylo,            # For cosine distance calculation
     # vegan           # For binomial distance calculation
 )
@@ -29,7 +29,7 @@ install.packages(
 
 ## Bioconductor packages:
 required_packages_bioconductor <- c(
-    "topGO",          # For Gene Ontology analysis
+    "topGO"          # For Gene Ontology analysis
 )
 
 BiocManager::install(

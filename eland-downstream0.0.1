@@ -1,835 +1,0 @@
-#0 building with "default" instance using docker driver
-
-#1 [internal] load build definition from Dockerfile
-#1 transferring dockerfile: 1.51kB done
-#1 DONE 0.0s
-
-#2 [internal] load metadata for docker.io/library/r-base:4.4.2
-#2 DONE 0.4s
-
-#3 [internal] load .dockerignore
-#3 transferring context: 2B done
-#3 DONE 0.0s
-
-#4 [1/6] FROM docker.io/library/r-base:4.4.2@sha256:d3a30e5281e77e70e18fbaf8f507649d9ef401983ee352bb87ef5acf2e88cb79
-#4 CACHED
-
-#5 [internal] load build context
-#5 transferring context: 141B done
-#5 DONE 0.0s
-
-#6 [2/6] RUN apt-get update -qq &&         apt-get install -y --allow-downgrades                 apt-utils
-#6 2.787 Reading package lists...
-#6 3.434 Building dependency tree...
-#6 3.560 Reading state information...
-#6 3.700 The following package was automatically installed and is no longer required:
-#6 3.700   libapt-pkg6.0t64
-#6 3.700 Use 'apt autoremove' to remove it.
-#6 3.700 The following additional packages will be installed:
-#6 3.701   apt libapt-pkg7.0
-#6 3.718 The following NEW packages will be installed:
-#6 3.719   apt-utils libapt-pkg7.0
-#6 3.719 The following packages will be upgraded:
-#6 3.720   apt
-#6 3.762 1 upgraded, 2 newly installed, 0 to remove and 69 not upgraded.
-#6 3.762 Need to get 2,876 kB of archives.
-#6 3.762 After this operation, 5,221 kB of additional disk space will be used.
-#6 3.762 Get:1 http://deb.debian.org/debian sid/main amd64 libapt-pkg7.0 amd64 2.9.30 [1,104 kB]
-#6 3.822 Get:2 http://deb.debian.org/debian sid/main amd64 apt amd64 2.9.30 [1,440 kB]
-#6 3.897 Get:3 http://deb.debian.org/debian sid/main amd64 apt-utils amd64 2.9.30 [332 kB]
-#6 4.060 debconf: unable to initialize frontend: Dialog
-#6 4.060 debconf: (TERM is not set, so the dialog frontend is not usable.)
-#6 4.060 debconf: falling back to frontend: Readline
-#6 4.066 debconf: unable to initialize frontend: Readline
-#6 4.066 debconf: (This frontend requires a controlling tty.)
-#6 4.066 debconf: falling back to frontend: Teletype
-#6 4.069 dpkg-preconfigure: unable to re-open stdin: 
-#6 4.100 Fetched 2,876 kB in 0s (15.3 MB/s)
-#6 4.128 Selecting previously unselected package libapt-pkg7.0:amd64.
-#6 4.128 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19496 files and directories currently installed.)
-#6 4.178 Preparing to unpack .../libapt-pkg7.0_2.9.30_amd64.deb ...
-#6 4.185 Unpacking libapt-pkg7.0:amd64 (2.9.30) ...
-#6 4.292 Setting up libapt-pkg7.0:amd64 (2.9.30) ...
-#6 4.337 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19545 files and directories currently installed.)
-#6 4.345 Preparing to unpack .../archives/apt_2.9.30_amd64.deb ...
-#6 4.378 Unpacking apt (2.9.30) over (2.9.23) ...
-#6 4.877 Setting up apt (2.9.30) ...
-#6 5.108 Selecting previously unselected package apt-utils.
-#6 5.108 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19546 files and directories currently installed.)
-#6 5.117 Preparing to unpack .../apt-utils_2.9.30_amd64.deb ...
-#6 5.120 Unpacking apt-utils (2.9.30) ...
-#6 5.172 Setting up apt-utils (2.9.30) ...
-#6 5.183 Processing triggers for libc-bin (2.40-6) ...
-#6 DONE 5.4s
-
-#7 [3/6] RUN apt-cache policy         apt-utils         build-essential         freetype2-demos         freetype2-doc         git         libcurl4-openssl-dev         libcairo2-dev         libfontconfig1-dev         libfreetype-dev         libfreetype6         librsvg2-bin         librsvg2-dev         libudunits2-dev         littlr         make         pkg-config         procps         libssl-dev         libopenmpi-dev         libgsl-dev         libcurl4-gnutls-dev         libmysqlclient-dev         libpq-dev
-#7 0.944 apt-utils:
-#7 0.944   Installed: 2.9.30
-#7 0.944   Candidate: 2.9.30
-#7 0.944   Version table:
-#7 0.944  *** 2.9.30 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945         100 /var/lib/dpkg/status
-#7 0.945 build-essential:
-#7 0.945   Installed: 12.12
-#7 0.945   Candidate: 12.12
-#7 0.945   Version table:
-#7 0.945  *** 12.12 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945         100 /var/lib/dpkg/status
-#7 0.945 freetype2-demos:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.13.3+dfsg-1
-#7 0.945   Version table:
-#7 0.945      2.13.3+dfsg-1 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 freetype2-doc:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.13.3+dfsg-1
-#7 0.945   Version table:
-#7 0.945      2.13.3+dfsg-1 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 git:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 1:2.47.2-0.1
-#7 0.945   Version table:
-#7 0.945      1:2.47.2-0.1 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 libcurl4-openssl-dev:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 8.12.1-2
-#7 0.945   Version table:
-#7 0.945      8.12.1-2 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 libcairo2-dev:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 1.18.2-2
-#7 0.945   Version table:
-#7 0.945      1.18.2-2 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 libfontconfig1-dev:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.15.0-2
-#7 0.945   Version table:
-#7 0.945      2.15.0-2 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 libfreetype-dev:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.13.3+dfsg-1
-#7 0.945   Version table:
-#7 0.945      2.13.3+dfsg-1 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 libfreetype6:
-#7 0.945   Installed: 2.13.3+dfsg-1
-#7 0.945   Candidate: 2.13.3+dfsg-1
-#7 0.945   Version table:
-#7 0.945  *** 2.13.3+dfsg-1 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945         100 /var/lib/dpkg/status
-#7 0.945 librsvg2-bin:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.59.90+dfsg-2
-#7 0.945   Version table:
-#7 0.945      2.59.90+dfsg-2 990
-#7 0.945         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.945         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.945 librsvg2-dev:
-#7 0.945   Installed: (none)
-#7 0.945   Candidate: 2.59.90+dfsg-2
-#7 0.945   Version table:
-#7 0.945      2.59.90+dfsg-2 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 libudunits2-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 2.2.28-7
-#7 0.946   Version table:
-#7 0.946      2.2.28-7 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 make:
-#7 0.946   Installed: 4.4.1-1
-#7 0.946   Candidate: 4.4.1-1
-#7 0.946   Version table:
-#7 0.946  *** 4.4.1-1 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946         100 /var/lib/dpkg/status
-#7 0.946 pkg-config:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 1.8.1-4
-#7 0.946   Version table:
-#7 0.946      1.8.1-4 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 procps:
-#7 0.946   Installed: 2:4.0.4-7
-#7 0.946   Candidate: 2:4.0.4-7
-#7 0.946   Version table:
-#7 0.946  *** 2:4.0.4-7 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946         100 /var/lib/dpkg/status
-#7 0.946 libssl-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 3.4.1-1
-#7 0.946   Version table:
-#7 0.946      3.4.1-1 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 libopenmpi-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 5.0.7-1
-#7 0.946   Version table:
-#7 0.946      5.0.7-1 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 libgsl-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 2.8+dfsg-5
-#7 0.946   Version table:
-#7 0.946      2.8+dfsg-5 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 libcurl4-gnutls-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 8.12.1-2
-#7 0.946   Version table:
-#7 0.946      8.12.1-2 990
-#7 0.946         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.946         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 0.946 libmysqlclient-dev:
-#7 0.946   Installed: (none)
-#7 0.946   Candidate: 8.0.41-3
-#7 0.946   Version table:
-#7 0.946      8.0.41-3 500
-#7 0.947         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.947 libpq-dev:
-#7 0.947   Installed: (none)
-#7 0.947   Candidate: 17.3-3
-#7 0.947   Version table:
-#7 0.947      17.4-1 500
-#7 0.947         500 http://http.debian.net/debian sid/main amd64 Packages
-#7 0.947      17.3-3 990
-#7 0.949         990 http://deb.debian.org/debian testing/main amd64 Packages
-#7 DONE 1.0s
-
-#8 [4/6] RUN apt-get update -qq &&         apt-get install -y --allow-downgrades                 build-essential                 git                 libcurl4-openssl-dev                 libcairo2-dev                 libssl-dev
-#8 1.025 Reading package lists...
-#8 1.631 Building dependency tree...
-#8 1.758 Reading state information...
-#8 1.909 build-essential is already the newest version (12.12).
-#8 1.909 build-essential set to manually installed.
-#8 1.909 The following package was automatically installed and is no longer required:
-#8 1.909   libapt-pkg6.0t64
-#8 1.909 Use 'apt autoremove' to remove it.
-#8 1.909 The following additional packages will be installed:
-#8 1.910   bsdutils comerr-dev girepository-tools git-man krb5-multidev libblkid-dev
-#8 1.910   libblkid1 libbrotli-dev libcairo-gobject2 libcairo-script-interpreter2
-#8 1.910   libcurl3t64-gnutls libcurl4t64 libelf1t64 liberror-perl libevent-2.1-7t64
-#8 1.910   libexpat1-dev libffi-dev libffi8 libfontconfig-dev libfreetype-dev
-#8 1.910   libgio-2.0-dev libgio-2.0-dev-bin libgirepository-2.0-0 libglib2.0-0t64
-#8 1.910   libglib2.0-bin libglib2.0-data libglib2.0-dev libglib2.0-dev-bin libgmp-dev
-#8 1.910   libgmpxx4ldbl libgnutls-dane0t64 libgnutls-openssl27t64 libgnutls28-dev
-#8 1.910   libgnutls30t64 libgssrpc4t64 libice-dev libidn2-dev libkadm5clnt-mit12
-#8 1.910   libkadm5srv-mit12 libkdb5-10t64 libkrb5-dev libldap-dev liblzo2-2
-#8 1.910   libmount-dev libmount1 libnghttp2-dev libnghttp3-9 libnghttp3-dev
-#8 1.910   libngtcp2-16 libngtcp2-crypto-gnutls8 libp11-kit-dev libpixman-1-dev
-#8 1.910   libpsl-dev libpython3-stdlib libpython3.13-minimal libpython3.13-stdlib
-#8 1.910   librtmp-dev libselinux1 libselinux1-dev libsepol-dev libsepol2 libsm-dev
-#8 1.910   libsmartcols1 libsqlite3-0 libssh2-1-dev libssl3t64 libsysprof-capture-4-dev
-#8 1.910   libtasn1-6 libtasn1-6-dev libunbound8 libuuid1 libx11-dev libxau-dev
-#8 1.910   libxcb-render0-dev libxcb-shm0-dev libxcb1-dev libxdmcp-dev libxext-dev
-#8 1.910   libxrender-dev libzstd-dev login media-types mount native-architecture
-#8 1.911   netbase nettle-dev openssl openssl-provider-legacy python3 python3-minimal
-#8 1.911   python3-packaging python3.13 python3.13-minimal util-linux uuid-dev
-#8 1.911   x11proto-core-dev x11proto-dev xorg-sgml-doctools xtrans-dev
-#8 1.912 Suggested packages:
-#8 1.912   doc-base gettext-base git-doc git-email git-gui gitk gitweb git-cvs
-#8 1.912   git-mediawiki git-svn krb5-doc libcairo2-doc libcurl4-doc libidn-dev
-#8 1.912   freetype2-doc gir1.2-glib-2.0-dev libglib2.0-doc libgdk-pixbuf2.0-bin
-#8 1.912   libxml2-utils gmp-doc libgmp10-doc libmpfr-dev dns-root-data gnutls-bin
-#8 1.912   gnutls-doc krb5-user libice-doc libnghttp2-doc p11-kit-doc libsm-doc
-#8 1.912   libssl-doc libx11-doc libxcb-doc libxext-doc python3-doc python3-tk
-#8 1.912   python3-venv python3.13-venv python3.13-doc binfmt-support
-#8 1.912 Recommended packages:
-#8 1.912   ssh-client libtasn1-doc
-#8 2.755 The following NEW packages will be installed:
-#8 2.755   comerr-dev girepository-tools git git-man krb5-multidev libblkid-dev
-#8 2.755   libbrotli-dev libcairo-gobject2 libcairo-script-interpreter2 libcairo2-dev
-#8 2.755   libcurl3t64-gnutls libcurl4-openssl-dev libelf1t64 liberror-perl
-#8 2.755   libevent-2.1-7t64 libexpat1-dev libffi-dev libfontconfig-dev libfreetype-dev
-#8 2.755   libgio-2.0-dev libgio-2.0-dev-bin libgirepository-2.0-0 libglib2.0-bin
-#8 2.755   libglib2.0-data libglib2.0-dev libglib2.0-dev-bin libgmp-dev libgmpxx4ldbl
-#8 2.755   libgnutls-dane0t64 libgnutls-openssl27t64 libgnutls28-dev libgssrpc4t64
-#8 2.755   libice-dev libidn2-dev libkadm5clnt-mit12 libkadm5srv-mit12 libkdb5-10t64
-#8 2.755   libkrb5-dev libldap-dev liblzo2-2 libmount-dev libnghttp2-dev libnghttp3-9
-#8 2.755   libnghttp3-dev libngtcp2-16 libngtcp2-crypto-gnutls8 libp11-kit-dev
-#8 2.755   libpixman-1-dev libpsl-dev libpython3-stdlib libpython3.13-minimal
-#8 2.756   libpython3.13-stdlib librtmp-dev libselinux1-dev libsepol-dev libsm-dev
-#8 2.756   libsqlite3-0 libssh2-1-dev libssl-dev libsysprof-capture-4-dev
-#8 2.756   libtasn1-6-dev libunbound8 libx11-dev libxau-dev libxcb-render0-dev
-#8 2.756   libxcb-shm0-dev libxcb1-dev libxdmcp-dev libxext-dev libxrender-dev
-#8 2.756   libzstd-dev media-types native-architecture netbase nettle-dev python3
-#8 2.756   python3-minimal python3-packaging python3.13 python3.13-minimal uuid-dev
-#8 2.756   x11proto-core-dev x11proto-dev xorg-sgml-doctools xtrans-dev
-#8 2.757 The following packages will be upgraded:
-#8 2.757   bsdutils libblkid1 libcurl4t64 libffi8 libglib2.0-0t64 libgnutls30t64
-#8 2.758   libmount1 libselinux1 libsepol2 libsmartcols1 libssl3t64 libtasn1-6 libuuid1
-#8 2.758   login mount openssl openssl-provider-legacy util-linux
-#8 2.791 18 upgraded, 85 newly installed, 0 to remove and 51 not upgraded.
-#8 2.791 Need to get 48.2 MB of archives.
-#8 2.791 After this operation, 161 MB of additional disk space will be used.
-#8 2.791 Get:2 http://deb.debian.org/debian testing/main amd64 media-types all 10.1.0 [26.9 kB]
-#8 2.795 Get:3 http://deb.debian.org/debian testing/main amd64 libglib2.0-0t64 amd64 2.83.3-2 [1,511 kB]
-#8 2.875 Get:8 http://deb.debian.org/debian testing/main amd64 libgirepository-2.0-0 amd64 2.83.3-2 [140 kB]
-#8 2.881 Get:10 http://deb.debian.org/debian testing/main amd64 girepository-tools amd64 2.83.3-2 [147 kB]
-#8 2.890 Get:11 http://deb.debian.org/debian testing/main amd64 libgio-2.0-dev amd64 2.83.3-2 [1,684 kB]
-#8 2.982 Get:17 http://deb.debian.org/debian testing/main amd64 libglib2.0-data all 2.83.3-2 [1,282 kB]
-#8 3.051 Get:21 http://deb.debian.org/debian testing/main amd64 libglib2.0-bin amd64 2.83.3-2 [128 kB]
-#8 3.058 Get:22 http://deb.debian.org/debian testing/main amd64 libgio-2.0-dev-bin amd64 2.83.3-2 [164 kB]
-#8 3.067 Get:24 http://deb.debian.org/debian testing/main amd64 libglib2.0-dev-bin amd64 2.83.3-2 [52.5 kB]
-#8 3.069 Get:25 http://deb.debian.org/debian testing/main amd64 libglib2.0-dev amd64 2.83.3-2 [53.3 kB]
-#8 3.072 Get:26 http://deb.debian.org/debian testing/main amd64 nettle-dev amd64 3.10-1+b1 [1,317 kB]
-#8 3.144 Get:1 http://deb.debian.org/debian sid/main amd64 bsdutils amd64 1:2.40.4-4 [106 kB]
-#8 3.150 Get:4 http://deb.debian.org/debian sid/main amd64 libuuid1 amd64 2.40.4-4 [36.5 kB]
-#8 3.152 Get:5 http://deb.debian.org/debian sid/main amd64 libblkid1 amd64 2.40.4-4 [169 kB]
-#8 3.161 Get:6 http://deb.debian.org/debian sid/main amd64 libmount1 amd64 2.40.4-4 [200 kB]
-#8 3.172 Get:7 http://deb.debian.org/debian sid/main amd64 libsmartcols1 amd64 2.40.4-4 [140 kB]
-#8 3.179 Get:9 http://deb.debian.org/debian sid/main amd64 util-linux amd64 2.40.4-4 [1,206 kB]
-#8 3.244 Get:12 http://deb.debian.org/debian sid/main amd64 mount amd64 2.40.4-4 [156 kB]
-#8 3.253 Get:13 http://deb.debian.org/debian sid/main amd64 libselinux1 amd64 3.8-3 [84.6 kB]
-#8 3.260 Get:14 http://deb.debian.org/debian sid/main amd64 login amd64 1:4.16.0-2+really2.40.4-4 [88.7 kB]
-#8 3.262 Get:15 http://deb.debian.org/debian sid/main amd64 openssl-provider-legacy amd64 3.4.1-1 [302 kB]
-#8 3.280 Get:16 http://deb.debian.org/debian sid/main amd64 libssl3t64 amd64 3.4.1-1 [2,304 kB]
-#8 3.405 Get:18 http://deb.debian.org/debian sid/main amd64 libpython3.13-minimal amd64 3.13.2-1 [859 kB]
-#8 3.450 Get:19 http://deb.debian.org/debian sid/main amd64 python3.13-minimal amd64 3.13.2-1 [2,205 kB]
-#8 3.570 Get:20 http://deb.debian.org/debian sid/main amd64 python3-minimal amd64 3.13.1-2 [27.0 kB]
-#8 3.571 Get:23 http://deb.debian.org/debian sid/main amd64 netbase all 6.4 [12.8 kB]
-#8 3.572 Get:27 http://deb.debian.org/debian sid/main amd64 libffi8 amd64 3.4.7-1 [23.9 kB]
-#8 3.573 Get:28 http://deb.debian.org/debian sid/main amd64 libsqlite3-0 amd64 3.46.1-1 [913 kB]
-#8 3.623 Get:29 http://deb.debian.org/debian sid/main amd64 libpython3.13-stdlib amd64 3.13.2-1 [1,979 kB]
-#8 3.730 Get:30 http://deb.debian.org/debian sid/main amd64 python3.13 amd64 3.13.2-1 [745 kB]
-#8 3.771 Get:31 http://deb.debian.org/debian sid/main amd64 libpython3-stdlib amd64 3.13.1-2 [9,952 B]
-#8 3.771 Get:32 http://deb.debian.org/debian sid/main amd64 python3 amd64 3.13.1-2 [28.0 kB]
-#8 3.772 Get:33 http://deb.debian.org/debian sid/main amd64 comerr-dev amd64 2.1-1.47.2-1 [55.7 kB]
-#8 3.775 Get:34 http://deb.debian.org/debian sid/main amd64 native-architecture all 0.2.5 [2,204 B]
-#8 3.776 Get:35 http://deb.debian.org/debian sid/main amd64 libtasn1-6 amd64 4.20.0-2 [49.9 kB]
-#8 3.778 Get:36 http://deb.debian.org/debian sid/main amd64 libgnutls30t64 amd64 3.8.9-2 [1,464 kB]
-#8 4.102 Get:37 http://deb.debian.org/debian sid/main amd64 libnghttp3-9 amd64 1.6.0-2 [64.8 kB]
-#8 4.105 Get:38 http://deb.debian.org/debian sid/main amd64 libngtcp2-16 amd64 1.9.1-1 [119 kB]
-#8 1.558 Get:39 http://deb.debian.org/debian sid/main amd64 libngtcp2-crypto-gnutls8 amd64 1.9.1-1 [18.5 kB]
-#8 1.577 Get:40 http://deb.debian.org/debian sid/main amd64 libcurl3t64-gnutls amd64 8.12.1-2 [365 kB]
-#8 1.601 Get:41 http://deb.debian.org/debian sid/main amd64 liberror-perl all 0.17029-2 [29.0 kB]
-#8 1.610 Get:42 http://deb.debian.org/debian sid/main amd64 git-man all 1:2.47.2-0.1 [2,205 kB]
-#8 1.733 Get:43 http://deb.debian.org/debian sid/main amd64 git amd64 1:2.47.2-0.1 [8,788 kB]
-#8 2.212 Get:44 http://deb.debian.org/debian sid/main amd64 libgssrpc4t64 amd64 1.21.3-4 [60.0 kB]
-#8 2.215 Get:45 http://deb.debian.org/debian sid/main amd64 libkadm5clnt-mit12 amd64 1.21.3-4 [42.2 kB]
-#8 2.217 Get:46 http://deb.debian.org/debian sid/main amd64 libkdb5-10t64 amd64 1.21.3-4 [42.4 kB]
-#8 2.218 Get:47 http://deb.debian.org/debian sid/main amd64 libkadm5srv-mit12 amd64 1.21.3-4 [54.2 kB]
-#8 2.220 Get:48 http://deb.debian.org/debian sid/main amd64 krb5-multidev amd64 1.21.3-4 [126 kB]
-#8 2.228 Get:49 http://deb.debian.org/debian sid/main amd64 uuid-dev amd64 2.40.4-4 [47.7 kB]
-#8 2.233 Get:50 http://deb.debian.org/debian sid/main amd64 libblkid-dev amd64 2.40.4-4 [205 kB]
-#8 2.250 Get:51 http://deb.debian.org/debian sid/main amd64 libbrotli-dev amd64 1.1.0-2+b6 [316 kB]
-#8 2.271 Get:52 http://deb.debian.org/debian sid/main amd64 libcairo-gobject2 amd64 1.18.2-2 [130 kB]
-#8 2.283 Get:53 http://deb.debian.org/debian sid/main amd64 liblzo2-2 amd64 2.10-3+b1 [55.1 kB]
-#8 2.291 Get:54 http://deb.debian.org/debian sid/main amd64 libcairo-script-interpreter2 amd64 1.18.2-2 [58.8 kB]
-#8 2.301 Get:55 http://deb.debian.org/debian sid/main amd64 libexpat1-dev amd64 2.6.4-1 [158 kB]
-#8 2.312 Get:56 http://deb.debian.org/debian sid/main amd64 libfreetype-dev amd64 2.13.3+dfsg-1 [622 kB]
-#8 2.346 Get:57 http://deb.debian.org/debian sid/main amd64 libfontconfig-dev amd64 2.15.0-2 [414 kB]
-#8 2.370 Get:58 http://deb.debian.org/debian sid/main amd64 libffi-dev amd64 3.4.7-1 [60.8 kB]
-#8 2.379 Get:59 http://deb.debian.org/debian sid/main amd64 libsepol2 amd64 3.8-1 [296 kB]
-#8 2.399 Get:60 http://deb.debian.org/debian sid/main amd64 libsepol-dev amd64 3.8-1 [372 kB]
-#8 2.422 Get:61 http://deb.debian.org/debian sid/main amd64 libselinux1-dev amd64 3.8-3 [168 kB]
-#8 2.435 Get:62 http://deb.debian.org/debian sid/main amd64 libmount-dev amd64 2.40.4-4 [29.6 kB]
-#8 2.443 Get:63 http://deb.debian.org/debian sid/main amd64 libsysprof-capture-4-dev amd64 48~beta-2 [48.0 kB]
-#8 2.454 Get:64 http://deb.debian.org/debian sid/main amd64 libelf1t64 amd64 0.192-4 [189 kB]
-#8 2.468 Get:65 http://deb.debian.org/debian sid/main amd64 python3-packaging all 24.2-1 [55.3 kB]
-#8 2.477 Get:66 http://deb.debian.org/debian sid/main amd64 libpixman-1-dev amd64 0.44.0-3 [11.4 kB]
-#8 2.486 Get:67 http://deb.debian.org/debian sid/main amd64 xorg-sgml-doctools all 1:1.11-1.1 [22.1 kB]
-#8 2.495 Get:68 http://deb.debian.org/debian sid/main amd64 x11proto-dev all 2024.1-1 [603 kB]
-#8 2.528 Get:69 http://deb.debian.org/debian sid/main amd64 x11proto-core-dev all 2024.1-1 [3,312 B]
-#8 2.538 Get:70 http://deb.debian.org/debian sid/main amd64 libice-dev amd64 2:1.1.1-1 [73.8 kB]
-#8 2.546 Get:71 http://deb.debian.org/debian sid/main amd64 libsm-dev amd64 2:1.2.4-1 [37.7 kB]
-#8 2.559 Get:72 http://deb.debian.org/debian sid/main amd64 libxau-dev amd64 1:1.0.11-1 [23.6 kB]
-#8 2.568 Get:73 http://deb.debian.org/debian sid/main amd64 libxdmcp-dev amd64 1:1.1.5-1 [44.3 kB]
-#8 2.577 Get:74 http://deb.debian.org/debian sid/main amd64 xtrans-dev all 1.4.0-1 [98.7 kB]
-#8 2.587 Get:75 http://deb.debian.org/debian sid/main amd64 libxcb1-dev amd64 1.17.0-2+b1 [181 kB]
-#8 2.597 Get:76 http://deb.debian.org/debian sid/main amd64 libx11-dev amd64 2:1.8.10-2 [891 kB]
-#8 2.645 Get:77 http://deb.debian.org/debian sid/main amd64 libxcb-render0-dev amd64 1.17.0-2+b1 [118 kB]
-#8 2.656 Get:78 http://deb.debian.org/debian sid/main amd64 libxcb-shm0-dev amd64 1.17.0-2+b1 [108 kB]
-#8 2.667 Get:79 http://deb.debian.org/debian sid/main amd64 libxext-dev amd64 2:1.3.4-1+b3 [104 kB]
-#8 2.677 Get:80 http://deb.debian.org/debian sid/main amd64 libxrender-dev amd64 1:0.9.10-1.1+b4 [35.8 kB]
-#8 2.687 Get:81 http://deb.debian.org/debian sid/main amd64 libcairo2-dev amd64 1.18.2-2 [43.0 kB]
-#8 2.722 Get:82 http://deb.debian.org/debian sid/main amd64 libcurl4t64 amd64 8.12.1-2 [369 kB]
-#8 2.743 Get:83 http://deb.debian.org/debian sid/main amd64 libidn2-dev amd64 2.3.7-2+b1 [123 kB]
-#8 2.748 Get:84 http://deb.debian.org/debian sid/main amd64 libkrb5-dev amd64 1.21.3-4 [15.9 kB]
-#8 2.749 Get:85 http://deb.debian.org/debian sid/main amd64 libldap-dev amd64 2.6.9+dfsg-1 [307 kB]
-#8 2.765 Get:86 http://deb.debian.org/debian sid/main amd64 libnghttp2-dev amd64 1.64.0-1 [115 kB]
-#8 2.771 Get:87 http://deb.debian.org/debian sid/main amd64 libnghttp3-dev amd64 1.6.0-2 [88.5 kB]
-#8 2.783 Get:88 http://deb.debian.org/debian sid/main amd64 libpsl-dev amd64 0.21.2-1.1+b1 [77.6 kB]
-#8 2.792 Get:89 http://deb.debian.org/debian sid/main amd64 libgmpxx4ldbl amd64 2:6.3.0+dfsg-3 [329 kB]
-#8 2.836 Get:90 http://deb.debian.org/debian sid/main amd64 libgmp-dev amd64 2:6.3.0+dfsg-3 [642 kB]
-#8 2.869 Get:91 http://deb.debian.org/debian sid/main amd64 libevent-2.1-7t64 amd64 2.1.12-stable-10+b1 [182 kB]
-#8 2.877 Get:92 http://deb.debian.org/debian sid/main amd64 libunbound8 amd64 1.22.0-1+b1 [598 kB]
-#8 2.909 Get:93 http://deb.debian.org/debian sid/main amd64 libgnutls-dane0t64 amd64 3.8.9-2 [455 kB]
-#8 2.935 Get:94 http://deb.debian.org/debian sid/main amd64 libgnutls-openssl27t64 amd64 3.8.9-2 [455 kB]
-#8 2.962 Get:95 http://deb.debian.org/debian sid/main amd64 libp11-kit-dev amd64 0.25.5-3 [208 kB]
-#8 2.974 Get:96 http://deb.debian.org/debian sid/main amd64 libtasn1-6-dev amd64 4.20.0-2 [99.2 kB]
-#8 2.980 Get:97 http://deb.debian.org/debian sid/main amd64 libgnutls28-dev amd64 3.8.9-2 [1,401 kB]
-#8 3.059 Get:98 http://deb.debian.org/debian sid/main amd64 librtmp-dev amd64 2.4+20151223.gitfa8646d.1-2+b5 [68.0 kB]
-#8 3.066 Get:99 http://deb.debian.org/debian sid/main amd64 libssl-dev amd64 3.4.1-1 [2,787 kB]
-#8 3.218 Get:100 http://deb.debian.org/debian sid/main amd64 libssh2-1-dev amd64 1.11.1-1 [393 kB]
-#8 3.238 Get:101 http://deb.debian.org/debian sid/main amd64 libzstd-dev amd64 1.5.6+dfsg-2 [365 kB]
-#8 3.257 Get:102 http://deb.debian.org/debian sid/main amd64 libcurl4-openssl-dev amd64 8.12.1-2 [483 kB]
-#8 3.286 Get:103 http://deb.debian.org/debian sid/main amd64 openssl amd64 3.4.1-1 [1,427 kB]
-#8 3.486 debconf: unable to initialize frontend: Dialog
-#8 3.486 debconf: (TERM is not set, so the dialog frontend is not usable.)
-#8 3.486 debconf: falling back to frontend: Readline
-#8 3.491 debconf: unable to initialize frontend: Readline
-#8 3.491 debconf: (This frontend requires a controlling tty.)
-#8 3.491 debconf: falling back to frontend: Teletype
-#8 3.494 dpkg-preconfigure: unable to re-open stdin: 
-#8 3.526 Fetched 48.2 MB in 3s (16.6 MB/s)
-#8 3.541 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 3.550 Preparing to unpack .../bsdutils_1%3a2.40.4-4_amd64.deb ...
-#8 3.560 Unpacking bsdutils (1:2.40.4-4) over (1:2.40.4-2) ...
-#8 3.649 Setting up bsdutils (1:2.40.4-4) ...
-#8 3.691 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 3.700 Preparing to unpack .../libuuid1_2.40.4-4_amd64.deb ...
-#8 3.714 Unpacking libuuid1:amd64 (2.40.4-4) over (2.40.4-2) ...
-#8 3.759 Setting up libuuid1:amd64 (2.40.4-4) ...
-#8 3.799 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 3.809 Preparing to unpack .../libblkid1_2.40.4-4_amd64.deb ...
-#8 3.820 Unpacking libblkid1:amd64 (2.40.4-4) over (2.40.4-2) ...
-#8 3.871 Setting up libblkid1:amd64 (2.40.4-4) ...
-#8 3.909 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 3.916 Preparing to unpack .../libmount1_2.40.4-4_amd64.deb ...
-#8 3.926 Unpacking libmount1:amd64 (2.40.4-4) over (2.40.4-2) ...
-#8 3.982 Setting up libmount1:amd64 (2.40.4-4) ...
-#8 4.017 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 4.024 Preparing to unpack .../libsmartcols1_2.40.4-4_amd64.deb ...
-#8 4.034 Unpacking libsmartcols1:amd64 (2.40.4-4) over (2.40.4-2) ...
-#8 4.083 Setting up libsmartcols1:amd64 (2.40.4-4) ...
-#8 4.121 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19628 files and directories currently installed.)
-#8 4.128 Preparing to unpack .../util-linux_2.40.4-4_amd64.deb ...
-#8 4.140 Unpacking util-linux (2.40.4-4) over (2.40.4-2) ...
-#8 4.805 Setting up util-linux (2.40.4-4) ...
-#8 4.968 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19625 files and directories currently installed.)
-#8 4.976 Preparing to unpack .../mount_2.40.4-4_amd64.deb ...
-#8 4.987 Unpacking mount (2.40.4-4) over (2.40.4-2) ...
-#8 5.078 Preparing to unpack .../libselinux1_3.8-3_amd64.deb ...
-#8 5.089 Unpacking libselinux1:amd64 (3.8-3) over (3.7-3.1) ...
-#8 5.132 Setting up libselinux1:amd64 (3.8-3) ...
-#8 5.141 /var/lib/dpkg/info/libselinux1:amd64.postinst: 6: sestatus: not found
-#8 5.177 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19625 files and directories currently installed.)
-#8 5.185 Preparing to unpack .../login_1%3a4.16.0-2+really2.40.4-4_amd64.deb ...
-#8 5.209 Unpacking login (1:4.16.0-2+really2.40.4-4) over (1:4.16.0-2+really2.40.4-2) ...
-#8 5.290 Preparing to unpack .../openssl-provider-legacy_3.4.1-1_amd64.deb ...
-#8 5.300 Unpacking openssl-provider-legacy (3.4.1-1) over (3.4.0-2) ...
-#8 5.349 Setting up openssl-provider-legacy (3.4.1-1) ...
-#8 5.385 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19625 files and directories currently installed.)
-#8 5.394 Preparing to unpack .../libssl3t64_3.4.1-1_amd64.deb ...
-#8 5.405 Unpacking libssl3t64:amd64 (3.4.1-1) over (3.4.0-2) ...
-#8 5.536 Setting up libssl3t64:amd64 (3.4.1-1) ...
-#8 5.573 Selecting previously unselected package libpython3.13-minimal:amd64.
-#8 5.573 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19625 files and directories currently installed.)
-#8 5.581 Preparing to unpack .../libpython3.13-minimal_3.13.2-1_amd64.deb ...
-#8 5.584 Unpacking libpython3.13-minimal:amd64 (3.13.2-1) ...
-#8 5.674 Selecting previously unselected package python3.13-minimal.
-#8 5.676 Preparing to unpack .../python3.13-minimal_3.13.2-1_amd64.deb ...
-#8 5.684 Unpacking python3.13-minimal (3.13.2-1) ...
-#8 5.784 Setting up libpython3.13-minimal:amd64 (3.13.2-1) ...
-#8 5.799 Setting up python3.13-minimal (3.13.2-1) ...
-#8 6.396 Selecting previously unselected package python3-minimal.
-#8 6.396 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 19950 files and directories currently installed.)
-#8 6.405 Preparing to unpack .../0-python3-minimal_3.13.1-2_amd64.deb ...
-#8 6.409 Unpacking python3-minimal (3.13.1-2) ...
-#8 6.441 Selecting previously unselected package media-types.
-#8 6.443 Preparing to unpack .../1-media-types_10.1.0_all.deb ...
-#8 6.446 Unpacking media-types (10.1.0) ...
-#8 6.480 Selecting previously unselected package netbase.
-#8 6.482 Preparing to unpack .../2-netbase_6.4_all.deb ...
-#8 6.485 Unpacking netbase (6.4) ...
-#8 6.523 Preparing to unpack .../3-libffi8_3.4.7-1_amd64.deb ...
-#8 6.534 Unpacking libffi8:amd64 (3.4.7-1) over (3.4.6-1) ...
-#8 6.577 Selecting previously unselected package libsqlite3-0:amd64.
-#8 6.579 Preparing to unpack .../4-libsqlite3-0_3.46.1-1_amd64.deb ...
-#8 6.584 Unpacking libsqlite3-0:amd64 (3.46.1-1) ...
-#8 6.637 Selecting previously unselected package libpython3.13-stdlib:amd64.
-#8 6.639 Preparing to unpack .../5-libpython3.13-stdlib_3.13.2-1_amd64.deb ...
-#8 6.643 Unpacking libpython3.13-stdlib:amd64 (3.13.2-1) ...
-#8 6.765 Selecting previously unselected package python3.13.
-#8 6.767 Preparing to unpack .../6-python3.13_3.13.2-1_amd64.deb ...
-#8 6.770 Unpacking python3.13 (3.13.2-1) ...
-#8 6.801 Selecting previously unselected package libpython3-stdlib:amd64.
-#8 6.803 Preparing to unpack .../7-libpython3-stdlib_3.13.1-2_amd64.deb ...
-#8 6.806 Unpacking libpython3-stdlib:amd64 (3.13.1-2) ...
-#8 6.837 Setting up python3-minimal (3.13.1-2) ...
-#8 6.976 Selecting previously unselected package python3.
-#8 6.976 (Reading database ... (Reading database ... 5%(Reading database ... 10%(Reading database ... 15%(Reading database ... 20%(Reading database ... 25%(Reading database ... 30%(Reading database ... 35%(Reading database ... 40%(Reading database ... 45%(Reading database ... 50%(Reading database ... 55%(Reading database ... 60%(Reading database ... 65%(Reading database ... 70%(Reading database ... 75%(Reading database ... 80%(Reading database ... 85%(Reading database ... 90%(Reading database ... 95%(Reading database ... 100%(Reading database ... 20414 files and directories currently installed.)
-#8 6.984 Preparing to unpack .../00-python3_3.13.1-2_amd64.deb ...
-#8 6.989 Unpacking python3 (3.13.1-2) ...
-#8 7.022 Selecting previously unselected package comerr-dev:amd64.
-#8 7.024 Preparing to unpack .../01-comerr-dev_2.1-1.47.2-1_amd64.deb ...
-#8 7.029 Unpacking comerr-dev:amd64 (2.1-1.47.2-1) ...
-#8 7.061 Selecting previously unselected package native-architecture.
-#8 7.063 Preparing to unpack .../02-native-architecture_0.2.5_all.deb ...
-#8 7.066 Unpacking native-architecture (0.2.5) ...
-#8 7.103 Preparing to unpack .../03-libglib2.0-0t64_2.83.3-2_amd64.deb ...
-#8 7.115 Unpacking libglib2.0-0t64:amd64 (2.83.3-2) over (2.82.4-2) ...
-#8 7.214 Selecting previously unselected package libgirepository-2.0-0:amd64.
-#8 7.215 Preparing to unpack .../04-libgirepository-2.0-0_2.83.3-2_amd64.deb ...
-#8 7.219 Unpacking libgirepository-2.0-0:amd64 (2.83.3-2) ...
-#8 7.250 Selecting previously unselected package girepository-tools:amd64.
-#8 7.252 Preparing to unpack .../05-girepository-tools_2.83.3-2_amd64.deb ...
-#8 7.255 Unpacking girepository-tools:amd64 (2.83.3-2) ...
-#8 7.290 Preparing to unpack .../06-libtasn1-6_4.20.0-2_amd64.deb ...
-#8 7.304 Unpacking libtasn1-6:amd64 (4.20.0-2) over (4.19.0-3+b3) ...
-#8 7.357 Preparing to unpack .../07-libgnutls30t64_3.8.9-2_amd64.deb ...
-#8 7.367 Unpacking libgnutls30t64:amd64 (3.8.9-2) over (3.8.8-2) ...
-#8 7.510 Selecting previously unselected package libnghttp3-9:amd64.
-#8 7.512 Preparing to unpack .../08-libnghttp3-9_1.6.0-2_amd64.deb ...
-#8 7.515 Unpacking libnghttp3-9:amd64 (1.6.0-2) ...
-#8 7.548 Selecting previously unselected package libngtcp2-16:amd64.
-#8 7.549 Preparing to unpack .../09-libngtcp2-16_1.9.1-1_amd64.deb ...
-#8 7.553 Unpacking libngtcp2-16:amd64 (1.9.1-1) ...
-#8 7.589 Selecting previously unselected package libngtcp2-crypto-gnutls8:amd64.
-#8 7.591 Preparing to unpack .../10-libngtcp2-crypto-gnutls8_1.9.1-1_amd64.deb ...
-#8 7.595 Unpacking libngtcp2-crypto-gnutls8:amd64 (1.9.1-1) ...
-#8 7.624 Selecting previously unselected package libcurl3t64-gnutls:amd64.
-#8 7.626 Preparing to unpack .../11-libcurl3t64-gnutls_8.12.1-2_amd64.deb ...
-#8 7.629 Unpacking libcurl3t64-gnutls:amd64 (8.12.1-2) ...
-#8 7.665 Selecting previously unselected package liberror-perl.
-#8 7.666 Preparing to unpack .../12-liberror-perl_0.17029-2_all.deb ...
-#8 7.670 Unpacking liberror-perl (0.17029-2) ...
-#8 7.699 Selecting previously unselected package git-man.
-#8 7.701 Preparing to unpack .../13-git-man_1%3a2.47.2-0.1_all.deb ...
-#8 7.705 Unpacking git-man (1:2.47.2-0.1) ...
-#8 7.776 Selecting previously unselected package git.
-#8 7.778 Preparing to unpack .../14-git_1%3a2.47.2-0.1_amd64.deb ...
-#8 7.785 Unpacking git (1:2.47.2-0.1) ...
-#8 8.161 Selecting previously unselected package libgssrpc4t64:amd64.
-#8 8.163 Preparing to unpack .../15-libgssrpc4t64_1.21.3-4_amd64.deb ...
-#8 8.167 Unpacking libgssrpc4t64:amd64 (1.21.3-4) ...
-#8 8.202 Selecting previously unselected package libkadm5clnt-mit12:amd64.
-#8 8.204 Preparing to unpack .../16-libkadm5clnt-mit12_1.21.3-4_amd64.deb ...
-#8 8.208 Unpacking libkadm5clnt-mit12:amd64 (1.21.3-4) ...
-#8 8.239 Selecting previously unselected package libkdb5-10t64:amd64.
-#8 8.241 Preparing to unpack .../17-libkdb5-10t64_1.21.3-4_amd64.deb ...
-#8 8.245 Unpacking libkdb5-10t64:amd64 (1.21.3-4) ...
-#8 8.277 Selecting previously unselected package libkadm5srv-mit12:amd64.
-#8 8.279 Preparing to unpack .../18-libkadm5srv-mit12_1.21.3-4_amd64.deb ...
-#8 8.283 Unpacking libkadm5srv-mit12:amd64 (1.21.3-4) ...
-#8 8.310 Selecting previously unselected package krb5-multidev:amd64.
-#8 8.312 Preparing to unpack .../19-krb5-multidev_1.21.3-4_amd64.deb ...
-#8 8.315 Unpacking krb5-multidev:amd64 (1.21.3-4) ...
-#8 8.355 Selecting previously unselected package uuid-dev:amd64.
-#8 8.357 Preparing to unpack .../20-uuid-dev_2.40.4-4_amd64.deb ...
-#8 8.361 Unpacking uuid-dev:amd64 (2.40.4-4) ...
-#8 8.391 Selecting previously unselected package libblkid-dev:amd64.
-#8 8.393 Preparing to unpack .../21-libblkid-dev_2.40.4-4_amd64.deb ...
-#8 8.397 Unpacking libblkid-dev:amd64 (2.40.4-4) ...
-#8 8.430 Selecting previously unselected package libbrotli-dev:amd64.
-#8 8.432 Preparing to unpack .../22-libbrotli-dev_1.1.0-2+b6_amd64.deb ...
-#8 8.436 Unpacking libbrotli-dev:amd64 (1.1.0-2+b6) ...
-#8 8.481 Selecting previously unselected package libcairo-gobject2:amd64.
-#8 8.483 Preparing to unpack .../23-libcairo-gobject2_1.18.2-2_amd64.deb ...
-#8 8.486 Unpacking libcairo-gobject2:amd64 (1.18.2-2) ...
-#8 8.522 Selecting previously unselected package liblzo2-2:amd64.
-#8 8.524 Preparing to unpack .../24-liblzo2-2_2.10-3+b1_amd64.deb ...
-#8 8.527 Unpacking liblzo2-2:amd64 (2.10-3+b1) ...
-#8 8.574 Selecting previously unselected package libcairo-script-interpreter2:amd64.
-#8 8.575 Preparing to unpack .../25-libcairo-script-interpreter2_1.18.2-2_amd64.deb ...
-#8 8.579 Unpacking libcairo-script-interpreter2:amd64 (1.18.2-2) ...
-#8 8.605 Selecting previously unselected package libexpat1-dev:amd64.
-#8 8.607 Preparing to unpack .../26-libexpat1-dev_2.6.4-1_amd64.deb ...
-#8 8.612 Unpacking libexpat1-dev:amd64 (2.6.4-1) ...
-#8 8.643 Selecting previously unselected package libfreetype-dev:amd64.
-#8 8.645 Preparing to unpack .../27-libfreetype-dev_2.13.3+dfsg-1_amd64.deb ...
-#8 8.648 Unpacking libfreetype-dev:amd64 (2.13.3+dfsg-1) ...
-#8 8.693 Selecting previously unselected package libfontconfig-dev:amd64.
-#8 8.695 Preparing to unpack .../28-libfontconfig-dev_2.15.0-2_amd64.deb ...
-#8 8.698 Unpacking libfontconfig-dev:amd64 (2.15.0-2) ...
-#8 8.729 Selecting previously unselected package libffi-dev:amd64.
-#8 8.731 Preparing to unpack .../29-libffi-dev_3.4.7-1_amd64.deb ...
-#8 8.735 Unpacking libffi-dev:amd64 (3.4.7-1) ...
-#8 8.775 Preparing to unpack .../30-libsepol2_3.8-1_amd64.deb ...
-#8 8.785 Unpacking libsepol2:amd64 (3.8-1) over (3.7-1) ...
-#8 8.834 Selecting previously unselected package libsepol-dev:amd64.
-#8 8.836 Preparing to unpack .../31-libsepol-dev_3.8-1_amd64.deb ...
-#8 8.839 Unpacking libsepol-dev:amd64 (3.8-1) ...
-#8 8.880 Selecting previously unselected package libselinux1-dev:amd64.
-#8 8.882 Preparing to unpack .../32-libselinux1-dev_3.8-3_amd64.deb ...
-#8 8.886 Unpacking libselinux1-dev:amd64 (3.8-3) ...
-#8 8.939 Selecting previously unselected package libmount-dev:amd64.
-#8 8.941 Preparing to unpack .../33-libmount-dev_2.40.4-4_amd64.deb ...
-#8 8.944 Unpacking libmount-dev:amd64 (2.40.4-4) ...
-#8 8.970 Selecting previously unselected package libsysprof-capture-4-dev:amd64.
-#8 8.972 Preparing to unpack .../34-libsysprof-capture-4-dev_48~beta-2_amd64.deb ...
-#8 8.975 Unpacking libsysprof-capture-4-dev:amd64 (48~beta-2) ...
-#8 9.008 Selecting previously unselected package libgio-2.0-dev:amd64.
-#8 9.009 Preparing to unpack .../35-libgio-2.0-dev_2.83.3-2_amd64.deb ...
-#8 9.014 Unpacking libgio-2.0-dev:amd64 (2.83.3-2) ...
-#8 9.118 Selecting previously unselected package libglib2.0-data.
-#8 9.120 Preparing to unpack .../36-libglib2.0-data_2.83.3-2_all.deb ...
-#8 9.124 Unpacking libglib2.0-data (2.83.3-2) ...
-#8 9.248 Selecting previously unselected package libelf1t64:amd64.
-#8 9.250 Preparing to unpack .../37-libelf1t64_0.192-4_amd64.deb ...
-#8 9.254 Unpacking libelf1t64:amd64 (0.192-4) ...
-#8 9.293 Selecting previously unselected package libglib2.0-bin.
-#8 9.296 Preparing to unpack .../38-libglib2.0-bin_2.83.3-2_amd64.deb ...
-#8 9.299 Unpacking libglib2.0-bin (2.83.3-2) ...
-#8 9.333 Selecting previously unselected package python3-packaging.
-#8 9.334 Preparing to unpack .../39-python3-packaging_24.2-1_all.deb ...
-#8 9.338 Unpacking python3-packaging (24.2-1) ...
-#8 9.370 Selecting previously unselected package libgio-2.0-dev-bin.
-#8 9.372 Preparing to unpack .../40-libgio-2.0-dev-bin_2.83.3-2_amd64.deb ...
-#8 9.376 Unpacking libgio-2.0-dev-bin (2.83.3-2) ...
-#8 9.410 Selecting previously unselected package libglib2.0-dev-bin.
-#8 9.412 Preparing to unpack .../41-libglib2.0-dev-bin_2.83.3-2_amd64.deb ...
-#8 9.416 Unpacking libglib2.0-dev-bin (2.83.3-2) ...
-#8 9.443 Selecting previously unselected package libglib2.0-dev:amd64.
-#8 9.444 Preparing to unpack .../42-libglib2.0-dev_2.83.3-2_amd64.deb ...
-#8 9.448 Unpacking libglib2.0-dev:amd64 (2.83.3-2) ...
-#8 9.474 Selecting previously unselected package libpixman-1-dev:amd64.
-#8 9.476 Preparing to unpack .../43-libpixman-1-dev_0.44.0-3_amd64.deb ...
-#8 9.480 Unpacking libpixman-1-dev:amd64 (0.44.0-3) ...
-#8 9.507 Selecting previously unselected package xorg-sgml-doctools.
-#8 9.509 Preparing to unpack .../44-xorg-sgml-doctools_1%3a1.11-1.1_all.deb ...
-#8 9.512 Unpacking xorg-sgml-doctools (1:1.11-1.1) ...
-#8 9.541 Selecting previously unselected package x11proto-dev.
-#8 9.543 Preparing to unpack .../45-x11proto-dev_2024.1-1_all.deb ...
-#8 9.546 Unpacking x11proto-dev (2024.1-1) ...
-#8 9.610 Selecting previously unselected package x11proto-core-dev.
-#8 9.613 Preparing to unpack .../46-x11proto-core-dev_2024.1-1_all.deb ...
-#8 9.617 Unpacking x11proto-core-dev (2024.1-1) ...
-#8 9.644 Selecting previously unselected package libice-dev:amd64.
-#8 9.646 Preparing to unpack .../47-libice-dev_2%3a1.1.1-1_amd64.deb ...
-#8 9.650 Unpacking libice-dev:amd64 (2:1.1.1-1) ...
-#8 9.680 Selecting previously unselected package libsm-dev:amd64.
-#8 9.682 Preparing to unpack .../48-libsm-dev_2%3a1.2.4-1_amd64.deb ...
-#8 9.685 Unpacking libsm-dev:amd64 (2:1.2.4-1) ...
-#8 9.714 Selecting previously unselected package libxau-dev:amd64.
-#8 9.716 Preparing to unpack .../49-libxau-dev_1%3a1.0.11-1_amd64.deb ...
-#8 9.719 Unpacking libxau-dev:amd64 (1:1.0.11-1) ...
-#8 9.745 Selecting previously unselected package libxdmcp-dev:amd64.
-#8 9.747 Preparing to unpack .../50-libxdmcp-dev_1%3a1.1.5-1_amd64.deb ...
-#8 9.750 Unpacking libxdmcp-dev:amd64 (1:1.1.5-1) ...
-#8 9.778 Selecting previously unselected package xtrans-dev.
-#8 9.780 Preparing to unpack .../51-xtrans-dev_1.4.0-1_all.deb ...
-#8 9.784 Unpacking xtrans-dev (1.4.0-1) ...
-#8 9.813 Selecting previously unselected package libxcb1-dev:amd64.
-#8 9.815 Preparing to unpack .../52-libxcb1-dev_1.17.0-2+b1_amd64.deb ...
-#8 9.819 Unpacking libxcb1-dev:amd64 (1.17.0-2+b1) ...
-#8 9.851 Selecting previously unselected package libx11-dev:amd64.
-#8 9.853 Preparing to unpack .../53-libx11-dev_2%3a1.8.10-2_amd64.deb ...
-#8 9.857 Unpacking libx11-dev:amd64 (2:1.8.10-2) ...
-#8 9.909 Selecting previously unselected package libxcb-render0-dev:amd64.
-#8 9.911 Preparing to unpack .../54-libxcb-render0-dev_1.17.0-2+b1_amd64.deb ...
-#8 9.915 Unpacking libxcb-render0-dev:amd64 (1.17.0-2+b1) ...
-#8 9.949 Selecting previously unselected package libxcb-shm0-dev:amd64.
-#8 9.951 Preparing to unpack .../55-libxcb-shm0-dev_1.17.0-2+b1_amd64.deb ...
-#8 9.954 Unpacking libxcb-shm0-dev:amd64 (1.17.0-2+b1) ...
-#8 9.984 Selecting previously unselected package libxext-dev:amd64.
-#8 9.986 Preparing to unpack .../56-libxext-dev_2%3a1.3.4-1+b3_amd64.deb ...
-#8 9.990 Unpacking libxext-dev:amd64 (2:1.3.4-1+b3) ...
-#8 10.03 Selecting previously unselected package libxrender-dev:amd64.
-#8 10.03 Preparing to unpack .../57-libxrender-dev_1%3a0.9.10-1.1+b4_amd64.deb ...
-#8 10.03 Unpacking libxrender-dev:amd64 (1:0.9.10-1.1+b4) ...
-#8 10.06 Selecting previously unselected package libcairo2-dev:amd64.
-#8 10.06 Preparing to unpack .../58-libcairo2-dev_1.18.2-2_amd64.deb ...
-#8 10.07 Unpacking libcairo2-dev:amd64 (1.18.2-2) ...
-#8 10.11 Preparing to unpack .../59-libcurl4t64_8.12.1-2_amd64.deb ...
-#8 10.12 Unpacking libcurl4t64:amd64 (8.12.1-2) over (8.11.1-1+b1) ...
-#8 10.17 Selecting previously unselected package libidn2-dev:amd64.
-#8 10.18 Preparing to unpack .../60-libidn2-dev_2.3.7-2+b1_amd64.deb ...
-#8 10.18 Unpacking libidn2-dev:amd64 (2.3.7-2+b1) ...
-#8 10.21 Selecting previously unselected package libkrb5-dev:amd64.
-#8 10.22 Preparing to unpack .../61-libkrb5-dev_1.21.3-4_amd64.deb ...
-#8 10.22 Unpacking libkrb5-dev:amd64 (1.21.3-4) ...
-#8 10.25 Selecting previously unselected package libldap-dev:amd64.
-#8 10.25 Preparing to unpack .../62-libldap-dev_2.6.9+dfsg-1_amd64.deb ...
-#8 10.26 Unpacking libldap-dev:amd64 (2.6.9+dfsg-1) ...
-#8 10.32 Selecting previously unselected package libnghttp2-dev:amd64.
-#8 10.32 Preparing to unpack .../63-libnghttp2-dev_1.64.0-1_amd64.deb ...
-#8 10.33 Unpacking libnghttp2-dev:amd64 (1.64.0-1) ...
-#8 10.36 Selecting previously unselected package libnghttp3-dev:amd64.
-#8 10.36 Preparing to unpack .../64-libnghttp3-dev_1.6.0-2_amd64.deb ...
-#8 10.36 Unpacking libnghttp3-dev:amd64 (1.6.0-2) ...
-#8 10.39 Selecting previously unselected package libpsl-dev:amd64.
-#8 10.39 Preparing to unpack .../65-libpsl-dev_0.21.2-1.1+b1_amd64.deb ...
-#8 10.40 Unpacking libpsl-dev:amd64 (0.21.2-1.1+b1) ...
-#8 10.43 Selecting previously unselected package libgmpxx4ldbl:amd64.
-#8 10.43 Preparing to unpack .../66-libgmpxx4ldbl_2%3a6.3.0+dfsg-3_amd64.deb ...
-#8 10.44 Unpacking libgmpxx4ldbl:amd64 (2:6.3.0+dfsg-3) ...
-#8 10.47 Selecting previously unselected package libgmp-dev:amd64.
-#8 10.47 Preparing to unpack .../67-libgmp-dev_2%3a6.3.0+dfsg-3_amd64.deb ...
-#8 10.47 Unpacking libgmp-dev:amd64 (2:6.3.0+dfsg-3) ...
-#8 10.52 Selecting previously unselected package libevent-2.1-7t64:amd64.
-#8 10.52 Preparing to unpack .../68-libevent-2.1-7t64_2.1.12-stable-10+b1_amd64.deb ...
-#8 10.52 Unpacking libevent-2.1-7t64:amd64 (2.1.12-stable-10+b1) ...
-#8 10.56 Selecting previously unselected package libunbound8:amd64.
-#8 10.56 Preparing to unpack .../69-libunbound8_1.22.0-1+b1_amd64.deb ...
-#8 10.57 Unpacking libunbound8:amd64 (1.22.0-1+b1) ...
-#8 10.62 Selecting previously unselected package libgnutls-dane0t64:amd64.
-#8 10.62 Preparing to unpack .../70-libgnutls-dane0t64_3.8.9-2_amd64.deb ...
-#8 10.62 Unpacking libgnutls-dane0t64:amd64 (3.8.9-2) ...
-#8 10.65 Selecting previously unselected package libgnutls-openssl27t64:amd64.
-#8 10.66 Preparing to unpack .../71-libgnutls-openssl27t64_3.8.9-2_amd64.deb ...
-#8 10.66 Unpacking libgnutls-openssl27t64:amd64 (3.8.9-2) ...
-#8 10.69 Selecting previously unselected package libp11-kit-dev:amd64.
-#8 10.69 Preparing to unpack .../72-libp11-kit-dev_0.25.5-3_amd64.deb ...
-#8 10.70 Unpacking libp11-kit-dev:amd64 (0.25.5-3) ...
-#8 10.73 Selecting previously unselected package libtasn1-6-dev:amd64.
-#8 10.73 Preparing to unpack .../73-libtasn1-6-dev_4.20.0-2_amd64.deb ...
-#8 10.73 Unpacking libtasn1-6-dev:amd64 (4.20.0-2) ...
-#8 10.77 Selecting previously unselected package nettle-dev:amd64.
-#8 10.77 Preparing to unpack .../74-nettle-dev_3.10-1+b1_amd64.deb ...
-#8 10.77 Unpacking nettle-dev:amd64 (3.10-1+b1) ...
-#8 10.82 Selecting previously unselected package libgnutls28-dev:amd64.
-#8 10.83 Preparing to unpack .../75-libgnutls28-dev_3.8.9-2_amd64.deb ...
-#8 10.83 Unpacking libgnutls28-dev:amd64 (3.8.9-2) ...
-#8 10.89 Selecting previously unselected package librtmp-dev:amd64.
-#8 10.89 Preparing to unpack .../76-librtmp-dev_2.4+20151223.gitfa8646d.1-2+b5_amd64.deb ...
-#8 10.90 Unpacking librtmp-dev:amd64 (2.4+20151223.gitfa8646d.1-2+b5) ...
-#8 10.93 Selecting previously unselected package libssl-dev:amd64.
-#8 10.93 Preparing to unpack .../77-libssl-dev_3.4.1-1_amd64.deb ...
-#8 10.93 Unpacking libssl-dev:amd64 (3.4.1-1) ...
-#8 11.05 Selecting previously unselected package libssh2-1-dev:amd64.
-#8 11.05 Preparing to unpack .../78-libssh2-1-dev_1.11.1-1_amd64.deb ...
-#8 11.06 Unpacking libssh2-1-dev:amd64 (1.11.1-1) ...
-#8 11.14 Selecting previously unselected package libzstd-dev:amd64.
-#8 11.14 Preparing to unpack .../79-libzstd-dev_1.5.6+dfsg-2_amd64.deb ...
-#8 11.15 Unpacking libzstd-dev:amd64 (1.5.6+dfsg-2) ...
-#8 11.19 Selecting previously unselected package libcurl4-openssl-dev:amd64.
-#8 11.19 Preparing to unpack .../80-libcurl4-openssl-dev_8.12.1-2_amd64.deb ...
-#8 11.19 Unpacking libcurl4-openssl-dev:amd64 (8.12.1-2) ...
-#8 11.24 Preparing to unpack .../81-openssl_3.4.1-1_amd64.deb ...
-#8 11.25 Unpacking openssl (3.4.1-1) over (3.4.0-2) ...
-#8 11.84 Setting up media-types (10.1.0) ...
-#8 11.85 Setting up libnghttp2-dev:amd64 (1.64.0-1) ...
-#8 11.87 Setting up libpixman-1-dev:amd64 (0.44.0-3) ...
-#8 11.88 Setting up native-architecture (0.2.5) ...
-#8 11.89 Setting up libzstd-dev:amd64 (1.5.6+dfsg-2) ...
-#8 11.90 Setting up libsqlite3-0:amd64 (3.46.1-1) ...
-#8 11.91 Setting up libevent-2.1-7t64:amd64 (2.1.12-stable-10+b1) ...
-#8 11.92 Setting up liblzo2-2:amd64 (2.10-3+b1) ...
-#8 11.93 Setting up libelf1t64:amd64 (0.192-4) ...
-#8 11.94 Setting up libpsl-dev:amd64 (0.21.2-1.1+b1) ...
-#8 11.95 Setting up liberror-perl (0.17029-2) ...
-#8 11.96 Setting up libsysprof-capture-4-dev:amd64 (48~beta-2) ...
-#8 11.98 Setting up xtrans-dev (1.4.0-1) ...
-#8 11.99 Setting up libglib2.0-data (2.83.3-2) ...
-#8 12.00 Setting up libunbound8:amd64 (1.22.0-1+b1) ...
-#8 12.01 Setting up libgmpxx4ldbl:amd64 (2:6.3.0+dfsg-3) ...
-#8 12.02 Setting up libexpat1-dev:amd64 (2.6.4-1) ...
-#8 12.03 Setting up libgssrpc4t64:amd64 (1.21.3-4) ...
-#8 12.04 Setting up libldap-dev:amd64 (2.6.9+dfsg-1) ...
-#8 12.05 Setting up uuid-dev:amd64 (2.40.4-4) ...
-#8 12.06 Setting up comerr-dev:amd64 (2.1-1.47.2-1) ...
-#8 12.07 Setting up libssl-dev:amd64 (3.4.1-1) ...
-#8 12.08 Setting up libsepol2:amd64 (3.8-1) ...
-#8 12.09 Setting up libsepol-dev:amd64 (3.8-1) ...
-#8 12.10 Setting up libssh2-1-dev:amd64 (1.11.1-1) ...
-#8 12.11 Setting up libidn2-dev:amd64 (2.3.7-2+b1) ...
-#8 12.13 Setting up libnghttp3-9:amd64 (1.6.0-2) ...
-#8 12.14 Setting up libnghttp3-dev:amd64 (1.6.0-2) ...
-#8 12.15 Setting up libffi8:amd64 (3.4.7-1) ...
-#8 12.17 Setting up mount (2.40.4-4) ...
-#8 12.18 Setting up libtasn1-6:amd64 (4.20.0-2) ...
-#8 12.19 Setting up git-man (1:2.47.2-0.1) ...
-#8 12.20 Setting up xorg-sgml-doctools (1:1.11-1.1) ...
-#8 12.21 Setting up netbase (6.4) ...
-#8 12.25 Setting up libngtcp2-16:amd64 (1.9.1-1) ...
-#8 12.26 Setting up libtasn1-6-dev:amd64 (4.20.0-2) ...
-#8 12.28 Setting up openssl (3.4.1-1) ...
-#8 12.29 Setting up libpython3.13-stdlib:amd64 (3.13.2-1) ...
-#8 12.30 Setting up libbrotli-dev:amd64 (1.1.0-2+b6) ...
-#8 12.31 Setting up libp11-kit-dev:amd64 (0.25.5-3) ...
-#8 12.32 Setting up libpython3-stdlib:amd64 (3.13.1-2) ...
-#8 12.34 Setting up libkadm5clnt-mit12:amd64 (1.21.3-4) ...
-#8 12.35 Setting up login (1:4.16.0-2+really2.40.4-4) ...
-#8 12.37 Setting up libgnutls30t64:amd64 (3.8.9-2) ...
-#8 12.39 Setting up x11proto-dev (2024.1-1) ...
-#8 12.40 Setting up libcairo-script-interpreter2:amd64 (1.18.2-2) ...
-#8 12.41 Setting up libgnutls-openssl27t64:amd64 (3.8.9-2) ...
-#8 12.42 Setting up libblkid-dev:amd64 (2.40.4-4) ...
-#8 12.43 Setting up libgmp-dev:amd64 (2:6.3.0+dfsg-3) ...
-#8 12.44 Setting up libxau-dev:amd64 (1:1.0.11-1) ...
-#8 12.45 Setting up nettle-dev:amd64 (3.10-1+b1) ...
-#8 12.47 Setting up libcurl4t64:amd64 (8.12.1-2) ...
-#8 12.48 Setting up libice-dev:amd64 (2:1.1.1-1) ...
-#8 12.49 Setting up libkdb5-10t64:amd64 (1.21.3-4) ...
-#8 12.50 Setting up python3.13 (3.13.2-1) ...
-#8 13.19 Setting up libsm-dev:amd64 (2:1.2.4-1) ...
-#8 13.21 Setting up libselinux1-dev:amd64 (3.8-3) ...
-#8 13.22 Setting up python3 (3.13.1-2) ...
-#8 13.23 running python rtupdate hooks for python3.13...
-#8 13.48 running python post-rtupdate hooks for python3.13...
-#8 13.55 Setting up libffi-dev:amd64 (3.4.7-1) ...
-#8 13.56 Setting up libfreetype-dev:amd64 (2.13.3+dfsg-1) ...
-#8 13.57 Setting up libxdmcp-dev:amd64 (1:1.1.5-1) ...
-#8 13.58 Setting up libglib2.0-0t64:amd64 (2.83.3-2) ...
-#8 13.59 No schema files found: doing nothing.
-#8 13.60 Setting up python3-packaging (24.2-1) ...
-#8 13.71 Setting up libgnutls-dane0t64:amd64 (3.8.9-2) ...
-#8 13.72 Setting up x11proto-core-dev (2024.1-1) ...
-#8 13.73 Setting up libkadm5srv-mit12:amd64 (1.21.3-4) ...
-#8 13.74 Setting up libcairo-gobject2:amd64 (1.18.2-2) ...
-#8 13.75 Setting up libmount-dev:amd64 (2.40.4-4) ...
-#8 13.76 Setting up libngtcp2-crypto-gnutls8:amd64 (1.9.1-1) ...
-#8 13.77 Setting up krb5-multidev:amd64 (1.21.3-4) ...
-#8 13.78 Setting up libgnutls28-dev:amd64 (3.8.9-2) ...
-#8 13.79 Setting up libgio-2.0-dev-bin (2.83.3-2) ...
-#8 13.94 Setting up libgio-2.0-dev:amd64 (2.83.3-2) ...
-#8 13.95 Setting up libxcb1-dev:amd64 (1.17.0-2+b1) ...
-#8 13.96 Setting up libgirepository-2.0-0:amd64 (2.83.3-2) ...
-#8 13.97 Setting up libfontconfig-dev:amd64 (2.15.0-2) ...
-#8 13.98 Setting up libx11-dev:amd64 (2:1.8.10-2) ...
-#8 13.99 Setting up libcurl3t64-gnutls:amd64 (8.12.1-2) ...
-#8 14.00 Setting up libglib2.0-bin (2.83.3-2) ...
-#8 14.01 Setting up libkrb5-dev:amd64 (1.21.3-4) ...
-#8 14.02 Setting up libxcb-shm0-dev:amd64 (1.17.0-2+b1) ...
-#8 14.04 Setting up librtmp-dev:amd64 (2.4+20151223.gitfa8646d.1-2+b5) ...
-#8 14.06 Setting up libxcb-render0-dev:amd64 (1.17.0-2+b1) ...
-#8 14.07 Setting up git (1:2.47.2-0.1) ...
-#8 14.09 Setting up libxext-dev:amd64 (2:1.3.4-1+b3) ...
-#8 14.10 Setting up libxrender-dev:amd64 (1:0.9.10-1.1+b4) ...
-#8 14.11 Setting up girepository-tools:amd64 (2.83.3-2) ...
-#8 14.13 Setting up libcurl4-openssl-dev:amd64 (8.12.1-2) ...
-#8 14.14 Setting up libglib2.0-dev-bin (2.83.3-2) ...
-#8 14.15 Setting up libglib2.0-dev:amd64 (2.83.3-2) ...
-#8 14.16 Setting up libcairo2-dev:amd64 (1.18.2-2) ...
-#8 14.17 Processing triggers for libc-bin (2.40-6) ...
-#8 DONE 14.4s
-
-#9 [5/6] COPY containers/eland-downstream/requirements.R /opt/requirements.R
-#9 DONE 0.0s
-
-#10 [6/6] RUN Rscript requirements.R
-#10 0.344 Fatal error: cannot open file 'requirements.R': No such file or directory
-#10 ERROR: process "/bin/sh -c Rscript requirements.R" did not complete successfully: exit code: 2
-------
- > [6/6] RUN Rscript requirements.R:
-0.344 Fatal error: cannot open file 'requirements.R': No such file or directory
-------
-Dockerfile:55
---------------------
-  53 |     ## ---------------------------- ##
-  54 |     
-  55 | >>> RUN Rscript requirements.R
-  56 |     
-  57 |     ## --------------- ##
---------------------
-ERROR: failed to solve: process "/bin/sh -c Rscript requirements.R" did not complete successfully: exit code: 2

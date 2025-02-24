@@ -17,8 +17,8 @@ required_packages_cran = c(
     # "tidyr",          # For tidying data
     "ggplot2",        # For creating plots
     "sessioninfo"
-    # "pheatmap",       # For drawing heatmaps
-    # "RColorBrewer",   # For color palettes for heatmaps
+    "pheatmap",       # For drawing heatmaps
+    "RColorBrewer",   # For color palettes for heatmaps
     # stylo,            # For cosine distance calculation
     # vegan           # For binomial distance calculation
 )

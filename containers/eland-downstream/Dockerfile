@@ -1,5 +1,8 @@
 FROM r-base:4.4.2
 
+## build with 
+## sudo docker build --file containers/eland-downstream/Dockerfile --no-cache -t rtpop/eland-downstream:0.0.1 --progress=plain . 2>&1 | tee eland-downstream:0.0.1
+
 ## --------------------------- ##
 ## Install system requirements ##
 ## --------------------------- ##
@@ -46,7 +49,7 @@ RUN apt-get update -qq && \
 ## Copy required files ##
 ## ------------------- ##
 
-COPY containers/requirements.R /opt/requirements.R
+COPY containers/eland-downstream/requirements.R ~/requirements.R
 
 ## ---------------------------- ##
 ## Install package requirements ##

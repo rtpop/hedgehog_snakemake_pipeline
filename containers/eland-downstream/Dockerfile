@@ -7,6 +7,9 @@ FROM r-base:4.4.2
 ## Install system requirements ##
 ## --------------------------- ##
 
+RUN mkdir -p /opt/software
+WORKDIR /opt
+
 RUN apt-get update -qq && \
         apt-get install -y --allow-downgrades \
                 apt-utils
@@ -49,7 +52,7 @@ RUN apt-get update -qq && \
 ## Copy required files ##
 ## ------------------- ##
 
-COPY containers/eland-downstream/requirements.R ~/requirements.R
+COPY containers/eland-downstream/requirements.R /opt/requirements.R
 
 ## ---------------------------- ##
 ## Install package requirements ##

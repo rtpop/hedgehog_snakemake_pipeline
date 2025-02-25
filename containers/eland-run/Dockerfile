@@ -44,10 +44,14 @@ RUN apt-cache policy \
 RUN apt-get update -qq && \
         apt-get install -y --allow-downgrades \
                 build-essential \
+                cmake \
                 git \
                 libcurl4-openssl-dev \
                 libcairo2-dev \
                 libssl-dev
+
+# Upgrade pip
+RUN pip install --upgrade pip
 
 ## ---------------##
 ## Install sisana ##
@@ -58,6 +62,7 @@ RUN pip install sisana
 ## ------------- ##
 ## Install eland ##
 ## ------------- ##
+
 WORKDIR /opt/software
 RUN git clone https://github.com/rtpop/ELAND.git
 WORKDIR /opt/software/ELAND

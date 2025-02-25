@@ -1,5 +1,10 @@
 FROM python:3.10.16
 
+## ------------ ##
+## How to build ##
+## ------------ ##
+# sudo docker build --file containers/eland-run/Dockerfile --no-cache -t rtpop/eland-run:tag --progress=plain . 2>&1 | tee containers/eland-run/logs/eland-run:tag
+
 ## --------------------------- ##
 ## Install system requirements ##
 ## --------------------------- ##
@@ -44,8 +49,19 @@ RUN apt-get update -qq && \
                 libcairo2-dev \
                 libssl-dev
 
-# install sisana
+## ---------------##
+## Install sisana ##
+## ---------------##
+
 RUN pip install sisana
+
+## ------------- ##
+## Install eland ##
+## ------------- ##
+WORKDIR /opt/software
+RUN git clone https://github.com/rtpop/ELAND.git
+WORKDIR /opt/software/ELAND
+RUN pip install .
 
 ## --------------- ##
 ## Switch to shell ##

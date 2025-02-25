@@ -1,7 +1,10 @@
 FROM r-base:4.4.2
 
-## build with 
-## sudo docker build --file containers/eland-downstream/Dockerfile --no-cache -t rtpop/eland-downstream:0.0.1 --progress=plain . 2>&1 | tee containers/eland-downstream/logs/eland-downstream:0.0.1
+## ------------ ##
+## How to build ##
+## ------------ ##
+
+## sudo docker build --file containers/eland-downstream/Dockerfile --no-cache -t rtpop/eland-downstream:tag --progress=plain . 2>&1 | tee containers/eland-downstream/logs/eland-downstream:tag
 
 ## --------------------------- ##
 ## Install system requirements ##

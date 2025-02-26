@@ -18,7 +18,7 @@ def main():
     args = parse_arguments()
 
     # process panda result into edgelist
-    eland.filter_panda.filter_panda(args.prior_file, args.input_file, args.output_file, sep = args.delimiter)
+    eland.filter_panda.filter_panda(args.prior_file, args.input_file, args.output_file, delimiter = args.delimiter)
 
 if __name__ == "__main__":
     main()

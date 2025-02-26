@@ -51,14 +51,24 @@ RUN apt-get update -qq && \
                 libssl-dev \
                 vim
 
-# Upgrade pip
-RUN pip install --upgrade pip
+## ------------ ##
+## Pip installs ##
+## ------------ ##
+                
+RUN pip install --upgrade pip \
+        setuptools
 
 ## ---------------##
 ## Install sisana ##
 ## ---------------##
 
-RUN pip install sisana
+# try installing from github until he pushes fixes to pypi
+WORKDIR /opt/software
+RUN git clone https://github.com/kuijjerlab/sisana.git
+WORKDIR /opt/software/sisana
+RUN pip install .
+
+#RUN pip install sisana
 
 ## ------------- ##
 ## Install eland ##
@@ -73,6 +83,7 @@ RUN pip install .
 ## Switch to shell ##
 ## --------------- ##
 
+WORKDIR ~
 ENV HOME=/home
 
 CMD ["/bin/bash"]

@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/sisana:0.0.3"
+python_container: "docker://rtpop/eland-run:0.0.4"
 analysis_container: "docker://rtpop/eland-downstream:0.0.1"
 
 ##-------------##

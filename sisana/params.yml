@@ -12,4 +12,4 @@ preprocess:
 generate:
   processed_paths: ./sisana/tmp/processed_data_paths.yml # Path to yaml file containing the location of the processed data files
   method: panda # Which method to use, either "panda" to run just PANDA or "lioness", which runs PANDA first, then LIONESS
-  outdir: ./sisana/output/network/ # output directory
+  pandafilepath: ./output/network/panda_network.txt # Path to the panda output file to be created. Must have a .txt extension.

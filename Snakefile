@@ -152,7 +152,8 @@ rule process_and_filter_panda:
         edgelist = PANDA_EDGELIST, \
         filtered_net = PANDA_NET_FILTERED
     params:
-        script = os.path.join(SRC, "process_and_filter_panda.py"), \
+        process = os.path.join(SRC, "process_panda.py"), \
+        filter = os.path.join(SRC, "filter_panda.py"), \
         delimiter = DELIMITER
     container:
         PYTHON_CONTAINER
@@ -160,10 +161,9 @@ rule process_and_filter_panda:
         "; Processing and filtering PANDA network."
     shell:
         """
-        echo "Running script with params: script={params.script}, input.panda={input.prior}, output.edgelist={output.edgelist}, delimiter={params.delimiter}"
-        python {params.script} process_edge_list {input.panda} {output.edgelist} '{params.delimiter}'
-        python {params.script} filter_panda {input.prior} {output.edgelist} '{params.delimiter}'
-        python {params.script} to_csv {output.filtered_net}
+        echo "Running script with params: script={params.script}, input.panda={input.prior}, output.edgelist={output.edgelist}, delimiter='{params.delimiter}'"
+        python {params.process} process_edge_list {input.panda} {output.edgelist} '{params.delimiter}'
+        python {params.filter} filter_panda {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
         """
 
 

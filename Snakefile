@@ -161,9 +161,10 @@ rule process_and_filter_panda:
         "; Processing and filtering PANDA network."
     shell:
         """
-        echo "Running script with params: script={params.script}, input.panda={input.prior}, output.edgelist={output.edgelist}, delimiter='{params.delimiter}'"
-        python {params.process} process_edge_list {input.panda} {output.edgelist} '{params.delimiter}'
-        python {params.filter} filter_panda {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
+        echo "Running scripts with params: process={params.process} filter={params.filter} input.panda={input.panda} \
+        input.prior={input.prior} output.edgelist={output.edgelist} output.filtered_net = output.filtered_net delimiter='{params.delimiter}'"
+        python {params.process} {input.panda} {input.prior} {output.edgelist} '{params.delimiter}'
+        python {params.filter} {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
         """
 
 

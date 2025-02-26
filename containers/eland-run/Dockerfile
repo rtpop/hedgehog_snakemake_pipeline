@@ -48,7 +48,8 @@ RUN apt-get update -qq && \
                 git \
                 libcurl4-openssl-dev \
                 libcairo2-dev \
-                libssl-dev
+                libssl-dev \
+                vim
 
 # Upgrade pip
 RUN pip install --upgrade pip

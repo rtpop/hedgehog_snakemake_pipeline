@@ -16,14 +16,16 @@ def parse_arguments():
 
 def main():
     args = parse_arguments()
-
-    # process panda result into edgelist
-    eland.process_edge_list(args.input_file, args.output_file, sep = args.delimiter)
     
-    # process prior so it's got the same separator as the panda file
+    # process prior and panda files so they have the same separator
     # because it comes out of sisana with tab delimiter
     prior = pd.read_csv(args.prior_file, sep = "\t", header=None)
     prior.to_csv(args.prior_file, sep=args.delimiter, index=False, header=False)
+    panda = pd.read_csv(args.input_file, sep = " ", header=1)
+    panda.to_csv(args.input_file, sep=args.delimiter, index=False, header=False)
+
+    # process panda result into edgelist
+    eland.process_edge_list(args.input_file, args.output_file, sep = args.delimiter)
 
 if __name__ == "__main__":
     main()

@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.6"
+python_container: "docker://rtpop/eland-run:0.0.7"
 analysis_container: "docker://rtpop/eland-downstream:0.0.1"
 
 ##-------------##
@@ -18,7 +18,7 @@ eland_dir: "eland"
 ## Input files ##
 ##-------------##
 sisana_config: "params.yml"
-exp_file: "exp_file_name"
+exp_file: "exp_no_header"
 motif_prior_file: "motif_prior_names_2024"
 ppi_prior_file: "ppi_prior_2024"
 
@@ -40,4 +40,4 @@ max_communities: 2
 ##------------------##
 ## Other parameters ##
 ##------------------##
-delimiter: " " # delimiter for input & output files
+delimiter: "," # delimiter for input & output files

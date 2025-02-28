@@ -79,6 +79,13 @@ RUN git clone https://github.com/rtpop/ELAND.git
 WORKDIR /opt/software/ELAND
 RUN pip install .
 
+## ----------------------------------------- ##
+## Force older versions of numpy and scipy   ##
+## Because otherwise hidef/bihidef complains ##
+## ----------------------------------------- ##
+
+RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0
+
 ## --------------- ##
 ## Switch to shell ##
 ## --------------- ##

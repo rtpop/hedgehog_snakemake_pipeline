@@ -25,12 +25,12 @@ ppi_prior_file: "ppi_prior_2024"
 ##--------------------##
 ## BiHiDef parameters ##
 ##--------------------##
-
+max_communities: 2 # multiplier for the maximum number of communities passed to condor
 max_resolution: 5 # the maximum resolution parameter for bihidef
 min_resolution: 0.001 # the minimum resolution parameter for bihidef (not used in the snakemake atm)
 resolution_step: 0.001 # the step size for the resolution parameter (not used in the snakemake atm)
-# a multiplier for the maximum number of communities passed to condor
 target_tag: "gene"
+regulator_tag: "TF"
 
 # the minimum and maximum number of genes in a community
 min_genes: 10

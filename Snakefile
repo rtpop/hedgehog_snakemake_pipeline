@@ -245,11 +245,11 @@ rule select_coimmunities:
         PYTHON_CONTAINER
     message:
         "; Selecting communities from {input} with params:" \
-            "--max_genes {params.max_genes}" \
-            "--min_genes {params.min_genes}" \
+            "--max_size {params.max_genes}" \
+            "--min_size {params.min_genes}" \
             "--log {COMMUNITY_STATS}"
             "output {output.SELECTED_COMMUNITIES}"
     shell:
         """
-        python {params.script} {input} {output.SELECTED_COMMUNITIES} --log {COMMUNITY_STATS}
+        python {params.script} {input} {output.SELECTED_COMMUNITIES} --log {COMMUNITY_STATS} --max_size {params.max_genes} --min_size {params.min_genes}
         """

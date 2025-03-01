@@ -49,6 +49,8 @@ TAR_TAG = config["target_tag"]
 REG_TAG = config["regulator_tag"]
 MAX_COMMUNITIES = config["max_communities"]
 MAX_RESOLUTION = config["max_resolution"]
+MAX_GENES = config["max_genes"]
+MIN_GENES = config["min_genes"]
 
 # Other params
 EXP = config["exp_file"]
@@ -68,7 +70,7 @@ PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_output.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG  + ".nodes")
-SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.txt")
+SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_DIR, TAR_TAG + "_community_stats.txt")
 
 
@@ -216,7 +218,7 @@ rule run_bihidef:
 
 rule select_coimmunities:
     """
-    This rule selects the communities from the BiHiDeF output.
+    This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
 
     Inputs
     ------
@@ -233,9 +235,12 @@ rule select_coimmunities:
     input:
         GENE_COMMUNITIES
     output:
-        SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.txt")
+        SELECTED_COMMUNITIES, \
+        COMMUNITY_STATS
     params:
-        script = os.path.join(SRC, "select_communities.py")
+        script = os.path.join(SRC, "select_communities.py"), \
+        max_genes = MAX_GENES, \
+        min_genes = MIN_GENES
     container:
         PYTHON_CONTAINER
     message:

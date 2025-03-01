@@ -27,13 +27,14 @@ ppi_prior_file: "ppi_prior_2024"
 ##--------------------##
 
 max_resolution: 5 # the maximum resolution parameter for bihidef
-# a multiplier for the maximum number of communities passed to condor. not implemented yet
-# this will be passed as the "c" parameter in condor, but I haven't figured out how I want to do it yet
-# my idea is to pass a multiplier and then within bihidef, for each resolution, do the same calculation
-# that is default in condor, but instead of the default condor multiplier, use this multiplier
-max_communities: 2
-regulator_tag: "TF"
+min_resolution: 0.001 # the minimum resolution parameter for bihidef (not used in the snakemake atm)
+resolution_step: 0.001 # the step size for the resolution parameter (not used in the snakemake atm)
+# a multiplier for the maximum number of communities passed to condor
 target_tag: "gene"
+
+# the minimum and maximum number of genes in a community
+min_genes: 10
+max_genes: 200
 
 ##-------------------##
 ## Sambar parameters ##

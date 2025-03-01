@@ -44,13 +44,17 @@ SRC = config["src_dir"]
 ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
 BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
 
+# BiHiDeF params
+TAR_TAG = config["target_tag"]
+REG_TAG = config["regulator_tag"]
+MAX_COMMUNITIES = config["max_communities"]
+MAX_RESOLUTION = config["max_resolution"]
+
 # Other params
 EXP = config["exp_file"]
 MOTIF_PRIOR = config["motif_prior_file"]
 PPI_PRIOR = config["ppi_prior_file"]
 DELIMITER = config["delimiter"]
-MAX_COMMUNITIES = config["max_communities"]
-MAX_RESOLUTION = config["max_resolution"]
 
 # Input files
 SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
@@ -63,7 +67,7 @@ STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statisti
 PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_output.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
-GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
+GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG  + ".nodes")
 
 
 ##-------##
@@ -73,7 +77,7 @@ GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, "pvg.nodes")
 ## Rule ALL ##
 rule all:
     input: 
-        #GENE_COMMUNITIES
+        GENE_COMMUNITIES, \
         PANDA_NET_FILTERED
 
 ##-----------------------##
@@ -127,65 +131,77 @@ rule all:
 ## Filtering PANDA network for BiHiDef ##
 ##-------------------------------------##
 
-rule process_and_filter_panda:
-    """
-    This rule processes and filters the PANDA network.
-
-    Inputs
-    ------
-    PANDA_NET:
-        A TXT file with the PANDA network.
-    MOTIF_PRIOR_FILTERED:
-        A TXT file with filtered motif prior.
-    ------
-    Outputs
-    -------
-    PANDA_EDGELIST:
-        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-    PANDA_NET_FILTERED:
-        A TXT file with the PANDA edgelist filtered.
-    """
-    input:
-        panda = PANDA_NET, \
-        prior = MOTIF_PRIOR_FILTERED
-    output:
-        edgelist = PANDA_EDGELIST, \
-        filtered_net = PANDA_NET_FILTERED
-    params:
-        process = os.path.join(SRC, "process_panda.py"), \
-        filter = os.path.join(SRC, "filter_panda.py"), \
-        delimiter = DELIMITER
-    container:
-        PYTHON_CONTAINER
-    message: 
-        "; Processing and filtering PANDA network."
-    shell:
-        """
-        echo "Running scripts with params: process={params.process} filter={params.filter} input.panda={input.panda} \
-        input.prior={input.prior} output.edgelist={output.edgelist} output.filtered_net = output.filtered_net delimiter='{params.delimiter}'"
-        python {params.process} {input.panda} {input.prior} {output.edgelist} '{params.delimiter}'
-        python {params.filter} {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
-        """
-
-
-
-# rule run_bihidef:
+# rule process_and_filter_panda:
 #     """
-#     This rule runs the BiHiDeF algorithm.
+#     This rule processes and filters the PANDA network.
 
-#     BiHiDeF is available at
+#     Inputs
+#     ------
+#     PANDA_NET:
+#         A TXT file with the PANDA network.
+#     MOTIF_PRIOR_FILTERED:
+#         A TXT file with filtered motif prior.
+#     ------
+#     Outputs
+#     -------
+#     PANDA_EDGELIST:
+#         A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+#     PANDA_NET_FILTERED:
+#         A TXT file with the PANDA edgelist filtered.
 #     """
 #     input:
-#         PANDA_NET_FILTERED
+#         panda = PANDA_NET, \
+#         prior = MOTIF_PRIOR_FILTERED
 #     output:
-#         gene_communities = GENE_COMMUNITIES
+#         edgelist = PANDA_EDGELIST, \
+#         filtered_net = PANDA_NET_FILTERED
 #     params:
-#         script = os.path.join(SRC, "run_bihidef.py"), \
-#         max_communities = MAX_COMMUNITIES, \
-#         max_resolution = MAX_RESOLUTION
-#     message:
-#         "; Running BiHiDeF on {input}."
+#         process = os.path.join(SRC, "process_panda.py"), \
+#         filter = os.path.join(SRC, "filter_panda.py"), \
+#         delimiter = DELIMITER
+#     container:
+#         PYTHON_CONTAINER
+#     message: 
+#         "; Processing and filtering PANDA network."
 #     shell:
 #         """
-#         python {params.script} {input} {params.max_communities} {params.max_resolution} {output}
+#         echo "Running scripts with params: process={params.process} filter={params.filter} input.panda={input.panda} \
+#         input.prior={input.prior} output.edgelist={output.edgelist} output.filtered_net = output.filtered_net delimiter='{params.delimiter}'"
+#         python {params.process} {input.panda} {input.prior} {output.edgelist} '{params.delimiter}'
+#         python {params.filter} {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
 #         """
+
+
+
+rule run_bihidef:
+    """
+    This rule runs the BiHiDeF algorithm.
+
+    BiHiDeF is available at
+    """
+    input:
+        PANDA_NET_FILTERED
+    output:
+        out_dir = BIHIDEF_DIR, \
+        gene_communities = GENE_COMMUNITIES
+    params:
+        script = os.path.join(SRC, "run_bihidef.py"), \
+        max_communities = MAX_COMMUNITIES, \
+        max_resolution = MAX_RESOLUTION, \
+        output_prefix_reg = REG_TAG, \
+        output_prefix_target = TAR_TAG
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Running BiHiDeF on {input} with params:" \
+            "--comm_mult {params.max_communities}" \
+            "--max_res {params.max_resolution}" \
+            "--output_dir {output.out_dir}" \
+            "--output_prefix_reg {params.output_prefix_reg}" \
+            "--output_prefix_tar {params.output_prefix_target}"
+    shell:
+        """
+        mkdir -p {BIHIDEF_DIR}
+        python {params.script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
+        --output_dir {output.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}
+        """

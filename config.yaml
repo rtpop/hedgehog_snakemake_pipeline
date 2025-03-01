@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.8"
+python_container: "docker://rtpop/eland-run:0.0.10"
 analysis_container: "docker://rtpop/eland-downstream:0.0.1"
 
 ##-------------##
@@ -31,7 +31,9 @@ max_resolution: 5 # the maximum resolution parameter for bihidef
 # this will be passed as the "c" parameter in condor, but I haven't figured out how I want to do it yet
 # my idea is to pass a multiplier and then within bihidef, for each resolution, do the same calculation
 # that is default in condor, but instead of the default condor multiplier, use this multiplier
-max_communities: 2 
+max_communities: 2
+regulator_tag: "TF"
+target_tag: "gene"
 
 ##-------------------##
 ## Sambar parameters ##

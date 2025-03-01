@@ -68,6 +68,8 @@ PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_output.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG  + ".nodes")
+SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.txt")
+COMMUNITY_STATS = os.path.join(BIHIDEF_DIR, TAR_TAG + "_community_stats.txt")
 
 
 ##-------##
@@ -171,7 +173,9 @@ rule all:
 #         python {params.filter} {input.prior} {output.edgelist} {output.filtered_net} '{params.delimiter}'
 #         """
 
-
+## --------------- ##
+## Running BiHiDeF ##
+## --------------- ##
 
 rule run_bihidef:
     """
@@ -204,4 +208,39 @@ rule run_bihidef:
         mkdir -p {BIHIDEF_DIR}
         python {params.script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
         --output_dir {output.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}
+        """
+
+## --------------------- ##
+## Selecting communities ##
+## --------------------- ##
+
+rule select_coimmunities:
+    """
+    This rule selects the communities from the BiHiDeF output.
+
+    Inputs
+    ------
+    GENE_COMMUNITIES:
+        A TXT file with the communities from BiHiDeF.
+    ------
+    Outputs
+    -------
+    SELECTED_COMMUNITIES:
+        A TXT file with the selected communities.
+    COMMUNITY_STATS:
+        A TXT file with statistics about the communities.
+    """
+    input:
+        GENE_COMMUNITIES
+    output:
+        SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.txt")
+    params:
+        script = os.path.join(SRC, "select_communities.py")
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Selecting communities from {input}."
+    shell:
+        """
+        python {params.script} {input} {output.SELECTED_COMMUNITIES} --log {COMMUNITY_STATS}
         """

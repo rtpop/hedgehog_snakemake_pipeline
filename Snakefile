@@ -51,6 +51,7 @@ MAX_COMMUNITIES = config["max_communities"]
 MAX_RESOLUTION = config["max_resolution"]
 MAX_GENES = config["max_genes"]
 MIN_GENES = config["min_genes"]
+BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION)) # for running with different params
 
 # Other params
 EXP = config["exp_file"]
@@ -69,9 +70,9 @@ STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statisti
 PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_output.txt")
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
-GENE_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG  + ".nodes")
-SELECTED_COMMUNITIES = os.path.join(BIHIDEF_DIR, TAR_TAG + "_selected_communities.gmt")
-COMMUNITY_STATS = os.path.join(BIHIDEF_DIR, TAR_TAG + "_community_stats.txt")
+GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
+SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
+COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
 
 
 ##-------##
@@ -188,68 +189,69 @@ rule run_bihidef:
     input:
         PANDA_NET_FILTERED
     output:
-        out_dir = BIHIDEF_DIR, \
         gene_communities = GENE_COMMUNITIES
     params:
-        script = os.path.join(SRC, "run_bihidef.py"), \
+        run_script = os.path.join(SRC, "run_bihidef.py"), \
+        measure_script = os.path.join(SRC, "measure_resources.py"), \
         max_communities = MAX_COMMUNITIES, \
         max_resolution = MAX_RESOLUTION, \
         output_prefix_reg = REG_TAG, \
-        output_prefix_target = TAR_TAG
+        output_prefix_target = TAR_TAG, \
+        out_dir = BIHIDEF_RUN_DIR
     container:
         PYTHON_CONTAINER
     message:
         "; Running BiHiDeF on {input} with params:" \
             "--comm_mult {params.max_communities}" \
             "--max_res {params.max_resolution}" \
-            "--output_dir {output.out_dir}" \
+            "--output_dir {params.out_dir}" \
             "--output_prefix_reg {params.output_prefix_reg}" \
             "--output_prefix_tar {params.output_prefix_target}"
     shell:
         """
-        mkdir -p {BIHIDEF_DIR}
-        /usr/bin/time -v python {params.script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
-        --output_dir {output.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target} 2> {output.out_dir}/run_log.txt
+        mkdir -p {params.out_dir}
+        python {params.measure_script} run_log.log "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
+        --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
         """
 
 ## --------------------- ##
 ## Selecting communities ##
 ## --------------------- ##
 
-rule select_coimmunities:
-    """
-    This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
+# rule select_coimmunities:
+#     """
+#     This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
 
-    Inputs
-    ------
-    GENE_COMMUNITIES:
-        A TXT file with the communities from BiHiDeF.
-    ------
-    Outputs
-    -------
-    SELECTED_COMMUNITIES:
-        A TXT file with the selected communities.
-    COMMUNITY_STATS:
-        A TXT file with statistics about the communities.
-    """
-    input:
-        GENE_COMMUNITIES
-    output:
-        SELECTED_COMMUNITIES, \
-        COMMUNITY_STATS
-    params:
-        script = os.path.join(SRC, "select_communities.py"), \
-        max_genes = MAX_GENES, \
-        min_genes = MIN_GENES
-    container:
-        PYTHON_CONTAINER
-    message:
-        "; Selecting communities from {input} with params:" \
-            "--max_size {params.max_genes}" \
-            "--min_size {params.min_genes}" \
-            "--log {COMMUNITY_STATS}"
-            "output {output.SELECTED_COMMUNITIES}"
-    shell:
-        """
-        python {params.script} {input} {output.SELECTED_COMMUNITIES} --log {COMMUNITY_STATS} --max_size {params.max_genes} --min_size {params.min_genes}
-        """
+#     Inputs
+#     ------
+#     GENE_COMMUNITIES:
+#         A TXT file with the communities from BiHiDeF.
+#     ------
+#     Outputs
+#     -------
+#     SELECTED_COMMUNITIES:
+#         A TXT file with the selected communities.
+#     COMMUNITY_STATS:
+#         A TXT file with statistics about the communities.
+#     """
+#     input:
+#         GENE_COMMUNITIES
+#     output:
+#         SELECTED_COMMUNITIES, \
+#         COMMUNITY_STATS
+#     params:
+#         script = os.path.join(SRC, "select_communities.py"), \
+#         max_genes = MAX_GENES, \
+#         min_genes = MIN_GENES
+#     container:
+#         PYTHON_CONTAINER
+#     message:
+#         "; Selecting communities from {input} with params:" \
+#             "--max_size {params.max_genes}" \
+#             "--min_size {params.min_genes}" \
+#             "--log {COMMUNITY_STATS}"
+#             "output {output.SELECTED_COMMUNITIES}"
+#     shell:
+#         """
+#         python {params.script} {input} {output.SELECTED_COMMUNITIES} --log {COMMUNITY_STATS} --max_size {params.max_genes} --min_size {params.min_genes}
+#         """

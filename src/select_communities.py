@@ -1,6 +1,5 @@
 import argparse
 from eland import process_bihidef
-import os
 
 def parese_args():
     parser = argparse.ArgumentParser("Select communities")

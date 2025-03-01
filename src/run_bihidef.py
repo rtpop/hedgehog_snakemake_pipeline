@@ -20,7 +20,7 @@ def main():
     os.chdir(args.output_dir)
     
     # edit input file path to be relative to output directory
-    args.edgelist_file = os.path.join("../../..", args.edgelist_file)
+    args.edgelist_file = os.path.join("../../../..", args.edgelist_file)
 
     # run bihidef
     bihidef.bihidef(filename = args.edgelist_file, maxres = args.max_res, comm_mult = args.comm_mult, oR= args.output_prefix_reg, oT = args.output_prefix_tar)

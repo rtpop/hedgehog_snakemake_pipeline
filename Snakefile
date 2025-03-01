@@ -208,8 +208,8 @@ rule run_bihidef:
     shell:
         """
         mkdir -p {BIHIDEF_DIR}
-        python {params.script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
-        --output_dir {output.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}
+        /usr/bin/time -v python {params.script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
+        --output_dir {output.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target} 2> {output.out_dir}/run_log.txt
         """
 
 ## --------------------- ##

@@ -10,7 +10,7 @@ def parse_arguments():
     parser.add_argument('prior_file', type=str, help='Path to edge list file.')
     parser.add_argument('input_file', type=str, help='Path to edge list file.')
     parser.add_argument('output_file', type=str, help='Path to output file.')
-    parser.add_argument('delimiter', type=str, help='Delimiter used in the edge list files')
+    parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files')
     
     return parser.parse_args()
 

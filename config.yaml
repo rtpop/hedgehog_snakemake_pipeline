@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.10"
+python_container: "docker://rtpop/eland-run:0.0.11"
 analysis_container: "docker://rtpop/eland-downstream:0.0.1"
 
 ##-------------##
@@ -39,6 +39,10 @@ max_genes: 200
 ##-------------------##
 ## Sambar parameters ##
 ##-------------------##
+mut_data: "mut_ucec.txt"
+esize_file: "esize.csv"
+can_genes: "cancer_genes.txt"
+gmt_file: "gene_selected_communities.gmt"
 
 ##------------------##
 ## Other parameters ##

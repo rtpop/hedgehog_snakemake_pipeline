@@ -13,10 +13,6 @@ def parese_args():
 def main():
     args = parese_args()
     
-    # Count the number of lines in the input file
-    num_lines = count_lines_in_file(args.communities)
-    print(f"Number of lines in the input file: {num_lines}")
-    
     # Select communities
     communities = process_bihidef.select_communities(args.communities, args.min_size, args.max_size, args.logs)
     

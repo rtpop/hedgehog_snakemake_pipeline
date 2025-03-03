@@ -36,13 +36,14 @@ PYTHON_CONTAINER = config["python_container"]
 ANALYSIS_CONTAINER = config["analysis_container"]
 
 # Directories
-DATA_dir = config["data_dir"]
+DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
 SISANA_DIR = config["sisana_dir"]
 SISANA_OUTPUT_DIR = os.path.join(SISANA_DIR, "output") # might want to change later as user can change output dir in the sisana params, but it'll do for now
 SRC = config["src_dir"]
 ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
 BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
+SAMBAR_DIR = os.path.join(ELAND_DIR, "sambar")
 
 # BiHiDeF params
 TAR_TAG = config["target_tag"]
@@ -61,19 +62,29 @@ DELIMITER = config["delimiter"]
 
 # Input files
 SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
+MUT_DATA = os.path.join(DATA_DIR, config["mut_data"])
+ESIZE = os.path.join(DATA_DIR, config["esize_file"])
+CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
 
-# Output files
+# sisana outputs
 EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtered.txt")
 MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
 PPI_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
 STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statistics.txt")
 PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
+
+# panda processing outputs
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
+
+# BiHiDeF outputs
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
 SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
 
+# sambar outputs
+PATHWAY_SCORES = os.path.join(SAMBAR_DIR, "pt_out.csv")
+MUTATION_SCORES = os.path.join(SAMBAR_DIR, "mt_out.csv")
 
 ##-------##
 ## Rules ##
@@ -83,7 +94,8 @@ COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt"
 rule all:
     input: 
         SELECTED_COMMUNITIES, \
-        #PANDA_NET_FILTERED
+        #PANDA_NET_FILTERED, \
+
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -258,4 +270,36 @@ rule select_communities:
     shell:
         """
         python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
+        """
+
+## -------------- ##
+## Running sambar ##
+## -------------- ##
+
+rule run_sambar:
+    """
+    This rule runs the sambar algorithm.
+
+    Sambar is available at:
+    """
+    input:
+        SELECTED_COMMUNITIES
+    output:
+        pathway_scores = PATHWAY_SCORES, \
+        mutation_scores = MUTATION_SCORES
+
+    params:
+        run_script = os.path.join(SRC, "run_sambar.py"), \
+        measure_script = os.path.join(SRC, "measure_resources.py"), \
+        out_dir = BIHIDEF_RUN_DIR, \
+        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Running sambar on {input} with params:" \
+            "--output_dir {params.out_dir}"
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.measure_script} {params.log_file} "python {params.run_script} {input} --output_dir {params.out_dir}"
         """

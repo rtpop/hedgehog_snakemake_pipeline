@@ -86,6 +86,15 @@ RUN pip install .
 
 RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0
 
+## -------------------------- ##
+## Set matplotlib environment ##
+## -------------------------- ##
+
+# Set environment variables
+ENV MPLCONFIGDIR=/tmp/matplotlib
+ENV FONTCONFIG_PATH=/tmp/fontconfig
+ENV FONTCONFIG_FILE=/tmp/fontconfig/fonts.conf
+
 ## --------------- ##
 ## Switch to shell ##
 ## --------------- ##

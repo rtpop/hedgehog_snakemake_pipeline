@@ -95,6 +95,7 @@ rule all:
     input: 
         SELECTED_COMMUNITIES, \
         #PANDA_NET_FILTERED, \
+        PATHWAY_SCORES
 
 
 ##-----------------------##
@@ -283,23 +284,28 @@ rule run_sambar:
     Sambar is available at:
     """
     input:
-        SELECTED_COMMUNITIES
+        gmt = SELECTED_COMMUNITIES, \
+        mut = MUT_DATA, \
+        esize = ESIZE, \
+        can_genes = CAN_GENES
     output:
         pathway_scores = PATHWAY_SCORES, \
         mutation_scores = MUTATION_SCORES
 
     params:
-        run_script = os.path.join(SRC, "run_sambar.py"), \
-        measure_script = os.path.join(SRC, "measure_resources.py"), \
-        out_dir = BIHIDEF_RUN_DIR, \
-        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
+        script = os.path.join(SRC, "run_sambar.py"), \
+        out_dir = SAMBAR_DIR
     container:
         PYTHON_CONTAINER
     message:
         "; Running sambar on {input} with params:" \
-            "--output_dir {params.out_dir}"
+            "--output-dir {params.out_dir} " \
+            "--gmt-file {input.gmt} " \
+            "--mut-file {input.mut} " \
+            "--esize-file {input.esize} " \
+            "--can-genes {input.can_genes} "
     shell:
         """
         mkdir -p {params.out_dir}
-        python {params.measure_script} {params.log_file} "python {params.run_script} {input} --output_dir {params.out_dir}"
+        python {params.script} --gmt-file {input.gmt} --mut-file {input.mut} --esize-file {input.esize} --output-dir {params.out_dir} --can-genes {input.can_genes}
         """

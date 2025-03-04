@@ -45,6 +45,7 @@ ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
 BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
 SAMBAR_DIR = os.path.join(ELAND_DIR, "sambar")
 
+
 # BiHiDeF params
 TAR_TAG = config["target_tag"]
 REG_TAG = config["regulator_tag"]
@@ -66,6 +67,9 @@ MUT_DATA = os.path.join(DATA_DIR, config["mut_data"])
 ESIZE = os.path.join(DATA_DIR, config["esize_file"])
 CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
 
+# samba params
+SAMBAR_OUTPUT_DIR = os.path.join(SAMBAR_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
+
 # sisana outputs
 EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtered.txt")
 MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
@@ -85,6 +89,9 @@ COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt"
 # sambar outputs
 PATHWAY_SCORES = os.path.join(SAMBAR_DIR, "pt_out.csv")
 MUTATION_SCORES = os.path.join(SAMBAR_DIR, "mt_out.csv")
+
+# Downstream analysis outputs
+GO_ENRICHMENT = os.path.join(ELAND_DIR, "go_enrichment.txt")
 
 ##-------##
 ## Rules ##
@@ -294,7 +301,7 @@ rule run_sambar:
 
     params:
         script = os.path.join(SRC, "run_sambar.py"), \
-        out_dir = SAMBAR_DIR
+        out_dir = SAMBAR_OUTPUT_DIR
     container:
         PYTHON_CONTAINER
     message:
@@ -308,4 +315,38 @@ rule run_sambar:
         """
         mkdir -p {params.out_dir}
         python {params.script} --gmt-file {input.gmt} --mut-file {input.mut} --esize-file {input.esize} --output-dir {params.out_dir} --can-genes {input.can_genes}
+        """
+
+## ---------------------------- ##
+## GO enrichment of communities ##
+## ---------------------------- ##
+
+rule go_enrichment:
+    """
+    This rule runs GO enrichment on the selected communities.
+
+    Inputs
+    ------
+    SELECTED_COMMUNITIES:
+        A GMT file with the selected communities.
+    ------
+    Outputs
+    -------
+    GO_ENRICHMENT:
+        A TXT file with the GO enrichment results.
+    """
+    input:
+        SELECTED_COMMUNITIES
+    output:
+        go_enrichment = os.path.join(ELAND_DIR, "go_enrichment.txt")
+    params:
+        script = os.path.join(SRC, "run_go_enrichment.py")
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Running GO enrichment on {input} with params:" \
+            "--output {output.go_enrichment}"
+    shell:
+        """
+        Rscript {params.script} {input} {output.go_enrichment}
         """

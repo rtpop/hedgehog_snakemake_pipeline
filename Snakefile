@@ -87,8 +87,8 @@ SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_commun
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
 
 # sambar outputs
-PATHWAY_SCORES = os.path.join(SAMBAR_DIR, "pt_out.csv")
-MUTATION_SCORES = os.path.join(SAMBAR_DIR, "mt_out.csv")
+PATHWAY_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "pt_out.csv")
+MUTATION_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "mt_out.csv")
 
 # Downstream analysis outputs
 GO_ENRICHMENT = os.path.join(ELAND_DIR, "go_enrichment.txt")

@@ -22,9 +22,9 @@ import glob
 from pathlib import Path
 import time
 
-##------------##
-## Parameters ##
-##------------##
+## ----------------- ##
+## Global parameters ##
+## ----------------- ##
 
 # Config file
 global CONFIG_PATH
@@ -38,13 +38,48 @@ ANALYSIS_CONTAINER = config["analysis_container"]
 # Directories
 DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
-SISANA_DIR = config["sisana_dir"]
-SISANA_OUTPUT_DIR = os.path.join(SISANA_DIR, "output") # might want to change later as user can change output dir in the sisana params, but it'll do for now
 SRC = config["src_dir"]
-ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
-BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
-SAMBAR_DIR = os.path.join(ELAND_DIR, "sambar")
 
+# Other params
+DELIMITER = config["delimiter"]
+
+## ----------------- ##
+## SiSaNA parameters ##
+## ----------------- ##
+
+# SiSaNA directories
+SISANA_DIR = config["sisana_dir"]
+SISANA_OUTPUT_DIR = os.path.join(SISANA_DIR, "output")
+
+# SiSaNA inputs
+SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
+
+# SiSana params
+EXP = config["exp_file"]
+MOTIF_PRIOR = config["motif_prior_file"]
+PPI_PRIOR = config["ppi_prior_file"]
+
+# SiSaNA outputs
+EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtered.txt")
+MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
+PPI_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
+STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statistics.txt")
+PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
+
+## ---------------- ##
+## ELAND parameters ##
+## ---------------- ##
+
+# ELAND directories
+ELAND_DIR = os.path.join(OUTPUT_DIR, "eland")
+
+# network processing outputs
+PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
+PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
+
+## ------------------ ##
+## BiHiDeF parameters ##
+## ------------------ ##
 
 # BiHiDeF params
 TAR_TAG = config["target_tag"]
@@ -53,45 +88,43 @@ MAX_COMMUNITIES = config["max_communities"]
 MAX_RESOLUTION = config["max_resolution"]
 MAX_GENES = config["max_genes"]
 MIN_GENES = config["min_genes"]
+
+# BiHiDeF directories
+BIHIDEF_DIR = os.path.join(ELAND_DIR, "bihidef")
 BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION)) # for running with different params
-
-# Other params
-EXP = config["exp_file"]
-MOTIF_PRIOR = config["motif_prior_file"]
-PPI_PRIOR = config["ppi_prior_file"]
-DELIMITER = config["delimiter"]
-
-# Input files
-SISANA_CONFIG = os.path.join(SISANA_DIR, config["sisana_config"])
-MUT_DATA = os.path.join(DATA_DIR, config["mut_data"])
-ESIZE = os.path.join(DATA_DIR, config["esize_file"])
-CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
-
-# samba params
-SAMBAR_OUTPUT_DIR = os.path.join(SAMBAR_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
-
-# sisana outputs
-EXPRESSION_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtered.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
-PPI_PRIOR_FILTERED = os.path.join(SISANA_OUTPUT_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
-STATS = os.path.join(SISANA_OUTPUT_DIR, "preprocess", EXP + "_filtering_statistics.txt")
-PANDA_NET = os.path.join(SISANA_OUTPUT_DIR, "network", "panda_network.txt")
-
-# panda processing outputs
-PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
-PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 
 # BiHiDeF outputs
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
 SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
 
+## ----------------- ##
+## sambar parameters ##
+## ----------------- ##
+
+# SAMBAR directories
+SAMBAR_DIR = os.path.join(ELAND_DIR, "sambar")
+SAMBAR_RUN_DIR = os.path.join(SAMBAR_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
+
+# SAMBAR input files
+MUT_DATA = os.path.join(DATA_DIR, config["mut_data"])
+ESIZE = os.path.join(DATA_DIR, config["esize_file"])
+CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
+
 # sambar outputs
 PATHWAY_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "pt_out.csv")
 MUTATION_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "mt_out.csv")
 
+## ------------------------------ ##
+## Downstream analysis parameters ##
+## ------------------------------ ##
+
+# Analysis directories
+ANALYSIS_DIR = os.path.join(OUTPUT_DIR, "analysis")
+ANALYSIS_RUN_DIR = os.path.join(ANALYSIS_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
+
 # Downstream analysis outputs
-GO_ENRICHMENT = os.path.join(ELAND_DIR, "go_enrichment.txt")
+GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, "go_enrichment.txt")
 
 ##-------##
 ## Rules ##
@@ -301,7 +334,7 @@ rule run_sambar:
 
     params:
         script = os.path.join(SRC, "run_sambar.py"), \
-        out_dir = SAMBAR_OUTPUT_DIR
+        out_dir = SAMBAR_RUN_DIR
     container:
         PYTHON_CONTAINER
     message:
@@ -321,32 +354,32 @@ rule run_sambar:
 ## GO enrichment of communities ##
 ## ---------------------------- ##
 
-rule go_enrichment:
-    """
-    This rule runs GO enrichment on the selected communities.
+# rule go_enrichment:
+#     """
+#     This rule runs GO enrichment on the selected communities.
 
-    Inputs
-    ------
-    SELECTED_COMMUNITIES:
-        A GMT file with the selected communities.
-    ------
-    Outputs
-    -------
-    GO_ENRICHMENT:
-        A TXT file with the GO enrichment results.
-    """
-    input:
-        SELECTED_COMMUNITIES
-    output:
-        go_enrichment = os.path.join(ELAND_DIR, "go_enrichment.txt")
-    params:
-        script = os.path.join(SRC, "run_go_enrichment.py")
-    container:
-        ANALYSIS_CONTAINER
-    message:
-        "; Running GO enrichment on {input} with params:" \
-            "--output {output.go_enrichment}"
-    shell:
-        """
-        Rscript {params.script} {input} {output.go_enrichment}
-        """
+#     Inputs
+#     ------
+#     SELECTED_COMMUNITIES:
+#         A GMT file with the selected communities.
+#     ------
+#     Outputs
+#     -------
+#     GO_ENRICHMENT:
+#         A TXT file with the GO enrichment results.
+#     """
+#     input:
+#         SELECTED_COMMUNITIES
+#     output:
+#         go_enrichment = os.path.join(ELAND_DIR, "go_enrichment.txt")
+#     params:
+#         script = os.path.join(SRC, "run_go_enrichment.py")
+#     container:
+#         ANALYSIS_CONTAINER
+#     message:
+#         "; Running GO enrichment on {input} with params:" \
+#             "--output {output.go_enrichment}"
+#     shell:
+#         """
+#         Rscript {params.script} {input} {output.go_enrichment}
+#         """

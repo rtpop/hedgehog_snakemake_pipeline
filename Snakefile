@@ -142,134 +142,134 @@ rule all:
 ## Making PANDA networks ##
 ##-----------------------##
 
-# rule run_sisana:
-#     """
-#     This rule runs PANDA using the SiSaNA pipeline.
+rule run_sisana:
+    """
+    This rule runs PANDA using the SiSaNA pipeline.
 
-#     SiSaNA is available at
-#     https://github.com/kuijjerlab/sisana
+    SiSaNA is available at
+    https://github.com/kuijjerlab/sisana
 
-#     Inputs
-#     ------
-#     SISANA_CONFIG:
-#         Config yml file for SiSaNA.
-#     ------
-#     Outputs
-#     -------
-#     EXPRESSION_FILTERED:
-#         A TXT file with filtered expression.
-#     MOTIF_PRIOR_FILTERED:
-#         A TXT file with filtered motif prior.
-#     PPI_PRIOR_FILTERED:
-#         A TXT file with filtered PPI prior.
-#     STATS:
-#         A file containing information about genes filtered.
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     """
-#     input:
-#         SISANA_CONFIG
-#     output:
-#         EXPRESSION_FILTERED, \
-#         MOTIF_PRIOR_FILTERED, \
-#         PPI_PRIOR_FILTERED, \
-#         STATS, \
-#         PANDA_NET
-#     container:
-#         PYTHON_CONTAINER
-#     message: 
-#         "; Running sisana preprocess on {input}."
-#     shell:
-#         """
-#         sisana preprocess {input}
-#         sisana generate {input}
-#         """
+    Inputs
+    ------
+    SISANA_CONFIG:
+        Config yml file for SiSaNA.
+    ------
+    Outputs
+    -------
+    EXPRESSION_FILTERED:
+        A TXT file with filtered expression.
+    MOTIF_PRIOR_FILTERED:
+        A TXT file with filtered motif prior.
+    PPI_PRIOR_FILTERED:
+        A TXT file with filtered PPI prior.
+    STATS:
+        A file containing information about genes filtered.
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    """
+    input:
+        SISANA_CONFIG
+    output:
+        EXPRESSION_FILTERED, \
+        MOTIF_PRIOR_FILTERED, \
+        PPI_PRIOR_FILTERED, \
+        STATS, \
+        PANDA_NET
+    container:
+        PYTHON_CONTAINER
+    message: 
+        "; Running sisana preprocess on {input}."
+    shell:
+        """
+        sisana preprocess {input}
+        sisana generate {input}
+        """
 
-# ##-------------------------------------##
-# ## Filtering PANDA network for BiHiDef ##
-# ##-------------------------------------##
+##-------------------------------------##
+## Filtering PANDA network for BiHiDef ##
+##-------------------------------------##
 
-# rule process_and_filter_panda:
-#     """
-#     This rule processes and filters the PANDA network.
+rule process_and_filter_panda:
+    """
+    This rule processes and filters the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     MOTIF_PRIOR_FILTERED:
-#         A TXT file with filtered motif prior.
-#     ------
-#     Outputs
-#     -------
-#     PANDA_EDGELIST:
-#         A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-#     PANDA_NET_FILTERED:
-#         A TXT file with the PANDA edgelist filtered.
-#     """
-#     input:
-#         panda = PANDA_NET, \
-#         prior = MOTIF_PRIOR_FILTERED
-#     output:
-#         edgelist = PANDA_EDGELIST, \
-#         filtered_net = PANDA_NET_FILTERED, \
-#         updated_prior_sep = MOTIF_PRIOR_FILTERED.replace(".txt", "_updated_sep.txt"), \
-#         updated_panda_sep = PANDA_NET.replace(".txt", "_updated_sep.txt") 
-#     params:
-#         process = os.path.join(SRC, "process_panda.py"), \
-#         filter = os.path.join(SRC, "filter_panda.py"), \
-#         delimiter = DELIMITER
-#     container:
-#         PYTHON_CONTAINER
-#     message: 
-#         "; Processing and filtering PANDA network." \
-#         "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
-#         "Running {params.filter} on {output.updated_panda_sep} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter}."
-#     shell:
-#         """
-#         python {params.process} {input.panda} {input.prior} {output.edgelist} --delimiter '{params.delimiter}'
-#         head {output.updated_prior_sep}
-#         python {params.filter} {output.updated_prior_sep} {output.edgelist} {output.filtered_net} --delimiter '{params.delimiter}'
-#         """
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR_FILTERED:
+        A TXT file with filtered motif prior.
+    ------
+    Outputs
+    -------
+    PANDA_EDGELIST:
+        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+    PANDA_NET_FILTERED:
+        A TXT file with the PANDA edgelist filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        prior = MOTIF_PRIOR_FILTERED
+    output:
+        edgelist = PANDA_EDGELIST, \
+        filtered_net = PANDA_NET_FILTERED, \
+        updated_prior_sep = MOTIF_PRIOR_FILTERED.replace(".txt", "_updated_sep.txt"), \
+        updated_panda_sep = PANDA_NET.replace(".txt", "_updated_sep.txt") 
+    params:
+        process = os.path.join(SRC, "process_networks/process_panda.py"), \
+        filter = os.path.join(SRC, "process_networks/filter_panda.py"), \
+        delimiter = DELIMITER
+    container:
+        PYTHON_CONTAINER
+    message: 
+        "; Processing and filtering PANDA network." \
+        "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
+        "Running {params.filter} on {output.updated_panda_sep} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter}."
+    shell:
+        """
+        python {params.process} {input.panda} {input.prior} {output.edgelist} --delimiter '{params.delimiter}'
+        head {output.updated_prior_sep}
+        python {params.filter} {output.updated_prior_sep} {output.edgelist} {output.filtered_net} --delimiter '{params.delimiter}'
+        """
 
-# ## --------------- ##
-# ## Running BiHiDeF ##
-# ## --------------- ##
+## --------------- ##
+## Running BiHiDeF ##
+## --------------- ##
 
-# rule run_bihidef:
-#     """
-#     This rule runs the BiHiDeF algorithm.
+rule run_bihidef:
+    """
+    This rule runs the BiHiDeF algorithm.
 
-#     BiHiDeF is available at
-#     """
-#     input:
-#         PANDA_NET_FILTERED
-#     output:
-#         gene_communities = GENE_COMMUNITIES
-#     params:
-#         run_script = os.path.join(SRC, "run_bihidef.py"), \
-#         measure_script = os.path.join(SRC, "measure_resources.py"), \
-#         max_communities = MAX_COMMUNITIES, \
-#         max_resolution = MAX_RESOLUTION, \
-#         output_prefix_reg = REG_TAG, \
-#         output_prefix_target = TAR_TAG, \
-#         out_dir = BIHIDEF_RUN_DIR, \
-#         log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Running BiHiDeF on {input} with params:" \
-#             "--comm_mult {params.max_communities}" \
-#             "--max_res {params.max_resolution}" \
-#             "--output_dir {params.out_dir}" \
-#             "--output_prefix_reg {params.output_prefix_reg}" \
-#             "--output_prefix_tar {params.output_prefix_target}"
-#     shell:
-#         """
-#         mkdir -p {params.out_dir}
-#         python {params.measure_script} {params.log_file} "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
-#         --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
-#        """
+    BiHiDeF is available at
+    """
+    input:
+        PANDA_NET_FILTERED
+    output:
+        gene_communities = GENE_COMMUNITIES
+    params:
+        run_script = os.path.join(SRC, "eland/run_bihidef.py"), \
+        measure_script = os.path.join(SRC, "utils/measure_resources.py"), \
+        max_communities = MAX_COMMUNITIES, \
+        max_resolution = MAX_RESOLUTION, \
+        output_prefix_reg = REG_TAG, \
+        output_prefix_target = TAR_TAG, \
+        out_dir = BIHIDEF_RUN_DIR, \
+        log_file = os.path.join(BIHIDEF_RUN_DIR, "run_log.log")
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Running BiHiDeF on {input} with params:" \
+            "--comm_mult {params.max_communities}" \
+            "--max_res {params.max_resolution}" \
+            "--output_dir {params.out_dir}" \
+            "--output_prefix_reg {params.output_prefix_reg}" \
+            "--output_prefix_tar {params.output_prefix_target}"
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.measure_script} {params.log_file} "python {params.run_script} {input} --comm_mult {params.max_communities} --max_res {params.max_resolution} \
+        --output_dir {params.out_dir} --output_prefix_reg {params.output_prefix_reg} --output_prefix_tar {params.output_prefix_target}"
+        """
 
 ## --------------------- ##
 ## Selecting communities ##
@@ -297,7 +297,7 @@ rule select_communities:
         selected_communities = SELECTED_COMMUNITIES, \
         stats = COMMUNITY_STATS
     params:
-        script = os.path.join(SRC, "select_communities.py"), \
+        script = os.path.join(SRC, "eland/select_communities.py"), \
         max_genes = MAX_GENES, \
         min_genes = MIN_GENES
     container:
@@ -333,7 +333,7 @@ rule run_sambar:
         mutation_scores = MUTATION_SCORES
 
     params:
-        script = os.path.join(SRC, "run_sambar.py"), \
+        script = os.path.join(SRC, "eland/run_sambar.py"), \
         out_dir = SAMBAR_RUN_DIR
     container:
         PYTHON_CONTAINER
@@ -354,32 +354,32 @@ rule run_sambar:
 ## GO enrichment of communities ##
 ## ---------------------------- ##
 
-# rule go_enrichment:
-#     """
-#     This rule runs GO enrichment on the selected communities.
+rule go_enrichment:
+    """
+    This rule runs GO enrichment on the selected communities.
 
-#     Inputs
-#     ------
-#     SELECTED_COMMUNITIES:
-#         A GMT file with the selected communities.
-#     ------
-#     Outputs
-#     -------
-#     GO_ENRICHMENT:
-#         A TXT file with the GO enrichment results.
-#     """
-#     input:
-#         SELECTED_COMMUNITIES
-#     output:
-#         go_enrichment = os.path.join(ELAND_DIR, "go_enrichment.txt")
-#     params:
-#         script = os.path.join(SRC, "run_go_enrichment.py")
-#     container:
-#         ANALYSIS_CONTAINER
-#     message:
-#         "; Running GO enrichment on {input} with params:" \
-#             "--output {output.go_enrichment}"
-#     shell:
-#         """
-#         Rscript {params.script} {input} {output.go_enrichment}
-#         """
+    Inputs
+    ------
+    SELECTED_COMMUNITIES:
+        A GMT file with the selected communities.
+    ------
+    Outputs
+    -------
+    GO_ENRICHMENT:
+        A TXT file with the GO enrichment results.
+    """
+    input:
+        SELECTED_COMMUNITIES
+    output:
+        go_enrichment = os.path.join(ELAND_DIR, "analysis/go_enrichment.txt")
+    params:
+        script = os.path.join(SRC, "run_go_enrichment.py")
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Running GO enrichment on {input} with params:" \
+            "--output {output.go_enrichment}"
+    shell:
+        """
+        Rscript {params.script} {input} {output.go_enrichment}
+        """

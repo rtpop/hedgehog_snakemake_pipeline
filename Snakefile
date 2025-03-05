@@ -123,8 +123,17 @@ MUTATION_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "mt_out.csv")
 ANALYSIS_DIR = os.path.join(OUTPUT_DIR, "analysis")
 ANALYSIS_RUN_DIR = os.path.join(ANALYSIS_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
 
+# Analysis inputs
+GENE_BACKGROUND = os.path.join(DATA_DIR, config["bg_file"])
+AUTO_BG = config["auto_bg"]
+SAVE_ALL = config["save_all"]
+SIG_THRESH = config["sig_thresh"]
+STATISTIC = config["statistic"]
+ALG = config["algorithm"]
+
+
 # Downstream analysis outputs
-GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, "go_enrichment.txt")
+GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, STATISTIC + "_GO_summary.txt")
 
 ##-------##
 ## Rules ##
@@ -132,11 +141,8 @@ GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, "go_enrichment.txt")
 
 ## Rule ALL ##
 rule all:
-    input: 
-        SELECTED_COMMUNITIES, \
-        #PANDA_NET_FILTERED, \
-        PATHWAY_SCORES
-
+    input:
+        GO_ENRICHMENT
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -369,11 +375,15 @@ rule go_enrichment:
         A TXT file with the GO enrichment results.
     """
     input:
-        SELECTED_COMMUNITIES
+        gmt = SELECTED_COMMUNITIES, \
+        bg = GENE_BACKGROUND
     output:
-        go_enrichment = os.path.join(ELAND_DIR, "analysis/go_enrichment.txt")
+        go_enrichment = GO_ENRICHMENT
     params:
-        script = os.path.join(SRC, "run_go_enrichment.py")
+        script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
+        auto_bg = AUTO_BG, \
+        out_dir = ANALYSIS_RUN_DIR
+
     container:
         ANALYSIS_CONTAINER
     message:

@@ -40,9 +40,22 @@ max_genes: 200
 ## Sambar parameters ##
 ##-------------------##
 mut_data: "mut_ucec.txt"
-esize_file: "esize.csv"
-can_genes: "cancer_genes.txt"
-gmt_file: "gene_selected_communities.gmt"
+esize_file: "esize.csv" # file with info about exon size
+can_genes: "cancer_genes.txt" # file with cancer associated genes
+gmt_file: "gene_selected_communities.gmt" # this will also be used for GO enrichment
+
+## ------------------------ ##
+## GO enrichment parameters ##
+## ------------------------ ##
+
+# file with genes to be used as background
+# required only is auto_bg = False
+bg_file: "annotation.txt" 
+auto_bg: False # whether the background should be determined automatically from the gmt file
+save_all: True # if the GO results should be saved for each community
+sig_thresh: 0.05 # p value threshold for significance
+statistic: "fisher" # test statistic to be used
+algorithm: "classic" # topGO algorithm to be used
 
 ##------------------##
 ## Other parameters ##

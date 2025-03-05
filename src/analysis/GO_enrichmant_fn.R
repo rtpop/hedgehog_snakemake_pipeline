@@ -84,7 +84,7 @@ run_go_enrichment <- function(gmt_file, out_dir, auto_bg = TRUE, bg_file = NULL,
     colnames(res_df) <- c("community", "n_sig_terms", "min_adj_p", "top_go_id", "top_go_term")
     
     # write file
-    data.table::fwrite(res_df, sep="\t", file = file.path(out_dir, paste0(statistic, "GO_Summary.txt")))
+    data.table::fwrite(res_df, sep="\t", file = file.path(out_dir, paste0(statistic, "_GO_Summary.txt")))
 }
 
 #' @name enrich_community

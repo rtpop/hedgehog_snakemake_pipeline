@@ -52,7 +52,7 @@ read_gmt <- function(gmt_file) {
 
 
 run_go_enrichment <- function(gmt_file, out_dir, auto_bg = TRUE, bg_file = NULL, save_all = TRUE, sig_thresh = 0.05,
-                            statistic = "fisher", LGORITHM = "classic") {
+                            statistic = "fisher", algorithm = "classic") {
     # Read the gmt file
     gene_sets <- read_gmt(gmt_file)
 

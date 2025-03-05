@@ -29,7 +29,8 @@ install.packages(
 
 ## Bioconductor packages:
 required_packages_bioconductor <- c(
-    "topGO"          # For Gene Ontology analysis
+    "topGO",          # For Gene Ontology analysis
+    "org.Hs.eg.db"    # for GO analysis
 )
 
 BiocManager::install(

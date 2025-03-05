@@ -392,16 +392,16 @@ rule go_enrichment:
         ANALYSIS_CONTAINER
     message:
         "; Running GO enrichment with script {params.script} and params:" \
-            "--gmt-file {input.gmt}" \
-            "--bg-file {input.bg}" \
-            "--output {output.go_enrichment}" \
-            "--auto-bg {params.auto_bg}" \
-            "--save_all {params.save_all}" \
-            "--thresh {params.sig_thresh}" \
-            "--statistic {params.satistic}" \
-            "--algorithm {params.algorithm}"
+            "--gmt-file {input.gmt} " \
+            "--bg-file {input.bg} " \
+            "--output {output.go_enrichment} " \
+            "--auto-bg {params.auto_bg} " \
+            "--save_all {params.save_all} " \
+            "--thresh {params.sig_thresh} " \
+            "--statistic {params.statistic} " \
+            "--algorithm {params.algorithm} "
     shell:
         """
         Rscript {params.script} -g {input.gmt} -b {input.bg} -a {params.auto_bg} -s {params.save_all} \
-                -t {params.sig_thresh} -st {params.statistic} -ag params.algorithm
+                -t {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm
         """

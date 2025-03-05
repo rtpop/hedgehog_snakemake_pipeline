@@ -112,8 +112,8 @@ ESIZE = os.path.join(DATA_DIR, config["esize_file"])
 CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
 
 # sambar outputs
-PATHWAY_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "pt_out.csv")
-MUTATION_SCORES = os.path.join(SAMBAR_OUTPUT_DIR, "mt_out.csv")
+PATHWAY_SCORES = os.path.join(SAMBAR_RUN_DIR, "pt_out.csv")
+MUTATION_SCORES = os.path.join(SAMBAR_RUN_DIR, "mt_out.csv")
 
 ## ------------------------------ ##
 ## Downstream analysis parameters ##
@@ -382,14 +382,26 @@ rule go_enrichment:
     params:
         script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
         auto_bg = AUTO_BG, \
-        out_dir = ANALYSIS_RUN_DIR
+        out_dir = ANALYSIS_RUN_DIR, \
+        save_all = SAVE_ALL, \
+        sig_thresh = SIG_THRESH, \
+        statistic = STATISTIC, \
+        algorithm = ALG
 
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Running GO enrichment on {input} with params:" \
-            "--output {output.go_enrichment}"
+        "; Running GO enrichment with script {params.script} and params:" \
+            "--gmt-file {input.gmt}" \
+            "--bg-file {input.bg}" \
+            "--output {output.go_enrichment}" \
+            "--auto-bg {params.auto_bg}" \
+            "--save_all {params.save_all}" \
+            "--thresh {params.sig_thresh}" \
+            "--statistic {params.satistic}" \
+            "--algorithm {params.algorithm}"
     shell:
         """
-        Rscript {params.script} {input} {output.go_enrichment}
+        Rscript {params.script} -g {input.gmt} -b {input.bg} -a {params.auto_bg} -s {params.save_all} \
+                -t {params.sig_thresh} -st {params.statistic} -ag params.algorithm
         """

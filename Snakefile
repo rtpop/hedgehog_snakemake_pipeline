@@ -405,7 +405,7 @@ rule go_enrichment:
     params:
         script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
         auto_bg = AUTO_BG, \
-        out_dir = ANALYSIS_RUN_DIR, \
+        out_dir = GO_DIR, \
         save_all = SAVE_ALL, \
         sig_thresh = SIG_THRESH, \
         statistic = STATISTIC, \

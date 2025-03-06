@@ -42,9 +42,6 @@ STAT <- opt$statistic
 ALG <- opt$algorithm
 OUT_DIR <- opt$`output-dir`
 
-print(OUT_DIR)
-
-
 ## source functions
 source("src/analysis/GO_enrichment_fn.R")
 

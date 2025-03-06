@@ -111,12 +111,8 @@ enrich_community <- function(gene_set, background, mapping, save_all, comm_name,
     # create topGO object
     go_object <- new("topGOdata", ontology = "BP", allGenes = selection, geneSel = selection,
                             annot = annFUN.gene2GO, gene2GO = mapping)
-    print("after object creation")
-
     # run fisher test
     go_fisher <- topGO::runTest(go_object, algorithm = algorithm, statistic = statistic)
-
-    print("after run test")
 
     # generate results table
     enrich_res <- topGO::GenTable(go_object, classic = go_fisher, orderBy = "classic", ranksOf = "classic")
@@ -124,14 +120,10 @@ enrich_community <- function(gene_set, background, mapping, save_all, comm_name,
     enrich_res$p_adj <- p_adj
     enrich_res <- enrich_res[order(enrich_res$p_adj), ]
 
-    print("before save")
-    print(out_dir)
     if (save_all) {
         data.table::fwrite(enrich_res, file = file.path(out_dir, paste0(comm_name, ".txt")),
                             row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
     }
-
-    print("after saving")
 
     # getting the summarised results
     n_sig_term <- length(which(enrich_res$p_adj < sig_thresh))

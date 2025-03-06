@@ -6,6 +6,7 @@
 required_packages_cran = c(
     "BiocManager",    # To install Bioconductor packages
     # "curl",           # For downloading files
+    "dendextend",       # for dendograms
     # "dplyr",          # For data manipulation
     "data.table",     # For data manipulation with data.table
     "optparse",       # For reading command-line arguments
@@ -16,6 +17,7 @@ required_packages_cran = c(
     # "this.path",      # For creating relative paths
     # "tidyr",          # For tidying data
     "ggplot2",        # For creating plots
+    # "gridExtra",        # for formatting multi-panel plots
     "sessioninfo",    # For session information
     "pheatmap",       # For drawing heatmaps
     "RColorBrewer"   # For color palettes for heatmaps
@@ -30,7 +32,7 @@ install.packages(
 ## Bioconductor packages:
 required_packages_bioconductor <- c(
     "topGO",          # For Gene Ontology analysis
-    "org.Hs.eg.db"    # for GO analysis
+    "org.Hs.eg.db",    # for GO analysis
 )
 
 BiocManager::install(

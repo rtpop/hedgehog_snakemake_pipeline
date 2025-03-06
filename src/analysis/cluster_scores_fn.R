@@ -33,18 +33,22 @@ cluster_scores <- function(scores, out_dir, distance_matrix, binarise = TRUE, lo
     # transform scores
     if (binarise) {
         comm_mat <- ifelse(comm_mat > 0, 1, 0)
+        tag <- "bin"
         # set palette
         bw_palette <- colorRampPalette(c("white", "black"))(2)
     } else if (log_transform) {
         comm_mat <- -log10(comm_mat + 1)
         bw_palette <- colorRampPalette(c("white", "black"))(100)
+        tag <- "log"
+    } else {
+        tag <- "raw"
     }
 
     # plot heatmap
     comm_heat <- pheatmap::pheatmap(comm_mat, cluster_rows = TRUE, cluster_cols = comm_clust, labels_row = NULL, labels_col = NULL, color = bw_palette)
     grid::grid.text("samples", x = unit(0.5, "npc"), y = unit(-0.03, "npc"), gp = gpar(fontsize = 12))
     grid::grid.text("communities", x = unit(-0.03, "npc"), y = unit(0.5, "npc"), rot = 90, gp = gpar(fontsize = 12))
-    ggplot2::ggsave(comm_heat, )
+    ggplot2::ggsave(comm_heat, file = file.path(out_dir, "community_scores_clusters_", tag, "_.pdf"))
 }
 
 #' @name prepare_distance_matrix

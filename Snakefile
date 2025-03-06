@@ -391,17 +391,19 @@ rule go_enrichment:
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Running GO enrichment with script {params.script} and params:" \
+        "; Running GO enrichment with script {params.script}" \
             "--gmt-file {input.gmt} " \
             "--bg-file {input.bg} " \
-            "--output {output.go_enrichment} " \
+            "--out-dir {params.out_dir} " \
             "--auto-bg {params.auto_bg} " \
-            "--save_all {params.save_all} " \
+            "--save-all {params.save_all} " \
             "--thresh {params.sig_thresh} " \
             "--statistic {params.statistic} " \
             "--algorithm {params.algorithm} "
     shell:
         """
-        Rscript {params.script} -g {input.gmt} -b {input.bg} -a {params.auto_bg} -s {params.save_all} \
-                -t {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm
+        mkdir -p {params.out_dir}
+        echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
+        Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
+
         """

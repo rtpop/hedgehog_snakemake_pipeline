@@ -21,7 +21,8 @@ option_list <- list(
     optparse::make_option(c("-s", "--save-all"), type = "logical", default = TRUE, help = "If TRUE, the GO enrichment for each community will be saved in addition to a summary for all communities."),
     optparse::make_option(c("-t", "--sig-thresh"), type = "numeric", default = 0.05, help = "P-value significant threshold"),
     optparse::make_option(c("--statistic"), type = "character", default = "fisher", help = "Test statistic to be used."),
-    optparse::make_option(c("--algorithm"), type = "character", default = "classic", help = "topGO algorithm to use for enrichment.")
+    optparse::make_option(c("--algorithm"), type = "character", default = "classic", help = "topGO algorithm to use for enrichment."),
+    optparse::make_option(c("-o", "--output-dir"), type = "character", help = "Path to output directory")
 )
 
 opt_parser <- optparse::OptionParser(option_list = option_list)
@@ -39,9 +40,13 @@ SAVE <- opt$`save-all`
 THRESHOLD <- opt$`sig-thresh`
 STAT <- opt$statistic
 ALG <- opt$algorithm
+OUT_DIR <- opt$`output-dir`
+
+print(OUT_DIR)
+
 
 ## source functions
 source("src/analysis/GO_enrichment_fn.R")
 
 ## Run
-run_go_enrichment(gmt_file = GMT_FILE, bg_file = BG_FILE, save_all = SAVE, sig_thresh = THRESHOLD, statistic = STAT, algorithm = ALG)
+run_go_enrichment(gmt_file = GMT_FILE, out_dir = OUT_DIR, bg_file = BG_FILE, save_all = SAVE, sig_thresh = THRESHOLD, statistic = STAT, algorithm = ALG)

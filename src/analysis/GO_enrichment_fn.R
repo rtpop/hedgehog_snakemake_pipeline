@@ -63,8 +63,8 @@ run_go_enrichment <- function(gmt_file, out_dir, auto_bg = TRUE, bg_file = NULL,
     if (auto_bg) {
         bg_genes <- gene_list
     } else {
-        anno <- data.table::fread(bg_file, header = TRUE)
-        bg_genes <- anno$symbol
+        anno <- data.frame(data.table::fread(bg_file, header = FALSE))
+        bg_genes <- anno[,2, drop = TRUE]
     }
 
     # mapping GO terms to genes
@@ -76,7 +76,7 @@ run_go_enrichment <- function(gmt_file, out_dir, auto_bg = TRUE, bg_file = NULL,
         gene_set <- gene_sets[[comm_name]]
         enrich_community(gene_set = gene_set, background = bg_genes, mapping = gene_go_mapping, 
                         save_all = save_all, comm_name = comm_name, sig_thresh = sig_thresh,
-                        algorithm = algorithm, statistic = statistic)
+                        algorithm = algorithm, statistic = statistic, out_dir = out_dir)
     })
 
     #Combine results into a single data frame
@@ -84,7 +84,7 @@ run_go_enrichment <- function(gmt_file, out_dir, auto_bg = TRUE, bg_file = NULL,
     colnames(res_df) <- c("community", "n_sig_terms", "min_adj_p", "top_go_id", "top_go_term")
     
     # write file
-    data.table::fwrite(res_df, sep="\t", file = file.path(out_dir, paste0(statistic, "_GO_Summary.txt")))
+    data.table::fwrite(res_df, sep="\t", file = file.path(out_dir, paste0(statistic, "_GO_summary.txt")))
 }
 
 #' @name enrich_community
@@ -105,26 +105,33 @@ enrich_community <- function(gene_set, background, mapping, save_all, comm_name,
 
     # create the allGenes and geneSel vectors
     # in this case they are the same, so I will only make one of them
-    selection = factor(as.integer(background %in% interesting))
+    selection <- factor(as.integer(background %in% interesting))
     names(selection) <- background
 
     # create topGO object
-    go_object <- topGO::new("topGOdata", ontology = "BP", allGenes = selection, geneSel = selection,
+    go_object <- new("topGOdata", ontology = "BP", allGenes = selection, geneSel = selection,
                             annot = annFUN.gene2GO, gene2GO = mapping)
+    print("after object creation")
 
     # run fisher test
     go_fisher <- topGO::runTest(go_object, algorithm = algorithm, statistic = statistic)
+
+    print("after run test")
 
     # generate results table
     enrich_res <- topGO::GenTable(go_object, classic = go_fisher, orderBy = "classic", ranksOf = "classic")
     p_adj <- p.adjust(enrich_res$classic, "BH")
     enrich_res$p_adj <- p_adj
-    enrich_res <- enrich_res[order(enrich_res)]
+    enrich_res <- enrich_res[order(enrich_res$p_adj), ]
 
+    print("before save")
+    print(out_dir)
     if (save_all) {
         data.table::fwrite(enrich_res, file = file.path(out_dir, paste0(comm_name, ".txt")),
                             row.names = FALSE, col.names = TRUE, quote = FALSE, sep="\t")
     }
+
+    print("after saving")
 
     # getting the summarised results
     n_sig_term <- length(which(enrich_res$p_adj < sig_thresh))

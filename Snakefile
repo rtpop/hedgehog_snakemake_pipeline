@@ -472,5 +472,6 @@ rule cluster_scores:
     shell:
         """
         echo Rscript {params.script} --file {input.community_scores} --output-dir {params.out_dir} --dist {input.dist_matrix} --binarise {params.binarise} --log-transform {params.log_transform}
+        mkdir -p {params.out_dir}
         Rscript {params.script} --file {input.community_scores} --output-dir {params.out_dir} --dist {input.dist_matrix} --binarise {params.binarise} --log-transform {params.log_transform}
         """

@@ -18,7 +18,7 @@ options(stringsAsFactors = FALSE)
 
 option_list <- list(
     optparse::make_option(c("-f", "--file"), type = "character", help = "CSV file with community scores."),
-    optparse::make_option(c("-o", "--output-dir"), type = "character", help = "Path to output directory.")
+    optparse::make_option(c("-o", "--output-dir"), type = "character", help = "Path to output directory."),
     optparse::make_option(c("-d", "--dist"), type = "character", help = "Path to a file with the distance matrix for clustering."),
     optparse::make_option(c("-b", "--binarise"), type = "logical", default = TRUE, help = "If TRUE, the scores will be binarised for plotting."),
     optparse::make_option(c("-l", "--log-transform"), type = "logical", default = TRUE, help = "If TRUE, the scores will be log transformed for plotting.")

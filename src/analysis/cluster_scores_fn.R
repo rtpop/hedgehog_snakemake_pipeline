@@ -28,7 +28,7 @@ cluster_scores <- function(scores, out_dir, distance_matrix, binarise = TRUE, lo
     colnames(comm_mat) <- NULL
 
     # cluster
-    comm_clust <- stats::hclust(comm_dist)
+    comm_clust <- stats::hclust(dist)
 
     # transform scores
     if (binarise) {
@@ -48,7 +48,7 @@ cluster_scores <- function(scores, out_dir, distance_matrix, binarise = TRUE, lo
     comm_heat <- pheatmap::pheatmap(comm_mat, cluster_rows = TRUE, cluster_cols = comm_clust, labels_row = NULL, labels_col = NULL, color = bw_palette)
     grid::grid.text("samples", x = unit(0.5, "npc"), y = unit(-0.03, "npc"), gp = gpar(fontsize = 12))
     grid::grid.text("communities", x = unit(-0.03, "npc"), y = unit(0.5, "npc"), rot = 90, gp = gpar(fontsize = 12))
-    ggplot2::ggsave(comm_heat, file = file.path(out_dir, "community_scores_clusters_", tag, "_.pdf"))
+    ggplot2::ggsave(comm_heat, file = file.path(out_dir, paste0("community_scores_clusters_", tag, ".pdf")))
 }
 
 #' @name prepare_distance_matrix
@@ -60,8 +60,8 @@ prepare_distance_matrix <- function(distance_matrix, samples) {
     dist <- data.table::fread(distance_matrix)
 
     # set names
-    colnames(dist) <- communities
-    rownames(dist) <- communities
+    colnames(dist) <- samples
+    rownames(dist) <- samples
 
     # convert to dist object
     dist <- as.matrix(dist)

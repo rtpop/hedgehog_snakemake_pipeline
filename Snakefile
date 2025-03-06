@@ -407,3 +407,35 @@ rule go_enrichment:
         Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
 
         """
+
+## --------------------------- ##
+## Clustering community scores ##
+## --------------------------- ##
+
+rule cluster_scores:
+    """
+    This rule clusters the communitiy scores obtained from SAMBAR.
+
+    Inputs
+    ------
+    PATHWAY_SCORES:
+        csv file with the community scores as output by sambar.
+
+    Outputs
+    -------
+    HIERARCHICAL_CLUSTERING:
+        Hierarchical clustering of community scores. 
+    """
+    input:
+        community_scores = COMMUNITY_SCORES
+    output:
+        hclust = HIERARCHICAL_CLUSTERING
+    container:
+        ANALYSIS_CONTAINER
+    params:
+        script = os.path.join(SRC, "analysis/cluster_scores.R")
+    message:
+    shell:
+        """
+        Rscript
+        """

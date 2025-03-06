@@ -114,6 +114,7 @@ CAN_GENES = os.path.join(DATA_DIR, config["can_genes"])
 # sambar outputs
 PATHWAY_SCORES = os.path.join(SAMBAR_RUN_DIR, "pt_out.csv")
 MUTATION_SCORES = os.path.join(SAMBAR_RUN_DIR, "mt_out.csv")
+DIST_MATRIX = os.path.join(SAMBAR_RUN_DIR, "dist_matrix.csv")
 
 ## ------------------------------ ##
 ## Downstream analysis parameters ##
@@ -123,7 +124,9 @@ MUTATION_SCORES = os.path.join(SAMBAR_RUN_DIR, "mt_out.csv")
 ANALYSIS_DIR = os.path.join(OUTPUT_DIR, "analysis")
 ANALYSIS_RUN_DIR = os.path.join(ANALYSIS_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
 
-# Analysis inputs
+## GO enrichment params ##
+
+# inputs
 GENE_BACKGROUND = os.path.join(DATA_DIR, config["bg_file"])
 AUTO_BG = config["auto_bg"]
 SAVE_ALL = config["save_all"]
@@ -131,9 +134,27 @@ SIG_THRESH = config["sig_thresh"]
 STATISTIC = config["statistic"]
 ALG = config["algorithm"]
 
+# directories
+GO_DIR = os.path.join(ANALYSIS_RUN_DIR, "GO_results_" + ALG + "_" + STATISTIC)
 
-# Downstream analysis outputs
-GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, STATISTIC + "_GO_summary.txt")
+# outputs
+GO_ENRICHMENT = os.path.join(GO_DIR, STATISTIC + "_GO_summary.txt")
+
+## Clustering params ##
+
+# clustering params
+BINARISE = config["binarise"]
+LOG_TRANSFORM = config["log_transform"]
+
+if BINARISE:
+    TAG = "bin"
+elif LOG_TRANSFORM:
+    TAG = "log"
+else:
+    TAG = "raw"
+
+# outputs
+CLUST_HEATMAP = os.path.join(ANALYSIS_RUN_DIR, "community_scores_clusters_" + TAG + ".pdf")
 
 ##-------##
 ## Rules ##
@@ -142,7 +163,8 @@ GO_ENRICHMENT = os.path.join(ANALYSIS_RUN_DIR, STATISTIC + "_GO_summary.txt")
 ## Rule ALL ##
 rule all:
     input:
-        GO_ENRICHMENT
+        GO_ENRICHMENT, \
+        CLUST_HEATMAP
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -336,7 +358,8 @@ rule run_sambar:
         can_genes = CAN_GENES
     output:
         pathway_scores = PATHWAY_SCORES, \
-        mutation_scores = MUTATION_SCORES
+        mutation_scores = MUTATION_SCORES, \
+        dist_matrix = DIST_MATRIX
 
     params:
         script = os.path.join(SRC, "eland/run_sambar.py"), \
@@ -382,7 +405,7 @@ rule go_enrichment:
     params:
         script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
         auto_bg = AUTO_BG, \
-        out_dir = ANALYSIS_RUN_DIR, \
+        out_dir = GO_DIR, \
         save_all = SAVE_ALL, \
         sig_thresh = SIG_THRESH, \
         statistic = STATISTIC, \
@@ -420,22 +443,35 @@ rule cluster_scores:
     ------
     PATHWAY_SCORES:
         csv file with the community scores as output by sambar.
+    DIST_MATRIX:
+        csv file with the distance matrix as output by sambar. 
 
     Outputs
     -------
     HIERARCHICAL_CLUSTERING:
-        Hierarchical clustering of community scores. 
+        Hierarchical clustering of community scores.
+    CLUST_HEATMAP:
+        A heatmap of the clustering. 
     """
     input:
-        community_scores = COMMUNITY_SCORES
+        community_scores = PATHWAY_SCORES, \
+        dist_matrix = DIST_MATRIX
     output:
-        hclust = HIERARCHICAL_CLUSTERING
+        heatmap = CLUST_HEATMAP
     container:
         ANALYSIS_CONTAINER
     params:
-        script = os.path.join(SRC, "analysis/cluster_scores.R")
+        script = os.path.join(SRC, "analysis/cluster_scores.R"), \
+        out_dir = ANALYSIS_RUN_DIR, \
+        binarise = BINARISE, \
+        log_transform = LOG_TRANSFORM
     message:
+        """
+        ; Running Rscript {params.script} --file {input.community_scores} --output-dir {params.out_dir} --dist {input.dist_matrix} --binarise {params.binarise} --log-transform {params.log_transform}
+        """
     shell:
         """
-        Rscript
+        echo Rscript {params.script} --file {input.community_scores} --output-dir {params.out_dir} --dist {input.dist_matrix} --binarise {params.binarise} --log-transform {params.log_transform}
+        mkdir -p {params.out_dir}
+        Rscript {params.script} --file {input.community_scores} --output-dir {params.out_dir} --dist {input.dist_matrix} --binarise {params.binarise} --log-transform {params.log_transform}
         """

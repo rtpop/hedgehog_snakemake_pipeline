@@ -60,7 +60,8 @@ algorithm: "classic" # topGO algorithm to be used
 ## --------------------------- ##
 ## Clustering community scores ##
 ## --------------------------- ##
-
+binarise: True # whether to binarise scores for visualisation
+log_transform: False # whether to log transform scores for visualisation
 
 ##------------------##
 ## Other parameters ##

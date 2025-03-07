@@ -44,6 +44,7 @@ OUT_DIR <- opt$`output-dir`
 
 ## source functions
 source("src/analysis/GO_enrichment_fn.R")
+source("src/analysis/utils.R")
 
 ## Run
 run_go_enrichment(gmt_file = GMT_FILE, out_dir = OUT_DIR, bg_file = BG_FILE, save_all = SAVE, sig_thresh = THRESHOLD, statistic = STAT, algorithm = ALG)

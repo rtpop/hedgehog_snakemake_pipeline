@@ -156,6 +156,13 @@ else:
 # outputs
 CLUST_HEATMAP = os.path.join(ANALYSIS_RUN_DIR, "community_scores_clusters_" + TAG + ".pdf")
 
+## Top mutated pathways ##
+# params
+N_TOP_COMM = config["n_top_comm"]
+
+# output
+TOP_MUTATED_COMMUNITIES = os.path.join(ANALYSIS_RUN_DIR, "top_mut_comm_" + N_TOP_COMM + ".txt")
+
 ##-------##
 ## Rules ##
 ##-------##
@@ -164,7 +171,8 @@ CLUST_HEATMAP = os.path.join(ANALYSIS_RUN_DIR, "community_scores_clusters_" + TA
 rule all:
     input:
         GO_ENRICHMENT, \
-        CLUST_HEATMAP
+        CLUST_HEATMAP, \
+        TOP_MUTATED_COMMUNITIES
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -430,6 +438,41 @@ rule go_enrichment:
         Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
 
         """
+
+## ----------------------- ##
+## Top mutated communities ##
+## ----------------------- ##
+
+rule top_mutated_communities:
+    """
+    This rule extracts the top n most mutated communities and finds the genes in these communities that are mutated.
+
+    Input:
+    ------
+    SELECTED_COMMUNITIES:
+        A GMT file with the selected communities.
+    MUT_DATA:
+        File with mutation data.
+    PATHWAY_SCORES:
+        File with pathways scores.
+    
+    Output:
+    -------
+    
+
+    """
+    input:
+        communities = SELECTED_COMMUNITIES, \
+        mut_data = MUT_DATA, \
+        pathway_scores = PATHWAY_SCORES
+    output:
+        top_mutated_communities = TOP_MUTATED_COMMUNITIES
+    container:
+        ANALYSIS_CONTAINER
+    params:
+        script = os.path.join(SRC, "analysis/top_mut_comm.R"), \
+        out_dir = ANALYSIS_RUN_DIR, \
+        n_top_comm = N_TOP_COMM
 
 ## --------------------------- ##
 ## Clustering community scores ##

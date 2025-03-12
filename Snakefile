@@ -161,7 +161,7 @@ CLUST_HEATMAP = os.path.join(ANALYSIS_RUN_DIR, "community_scores_clusters_" + TA
 N_TOP_COMM = config["n_top_comm"]
 
 # output
-TOP_MUTATED_COMMUNITIES = os.path.join(ANALYSIS_RUN_DIR, "top_mut_comm_" + N_TOP_COMM + ".txt")
+TOP_MUTATED_COMMUNITIES = os.path.join(ANALYSIS_RUN_DIR, "top_mut_comm_" + str(N_TOP_COMM) + ".RData")
 
 ##-------##
 ## Rules ##
@@ -445,14 +445,14 @@ rule go_enrichment:
 
 rule top_mutated_communities:
     """
-    This rule extracts the top n most mutated communities and finds the genes in these communities that are mutated.
+    This rule extracts the top n most mutated communities and finds the top genes in these communities that are mutated.
 
     Input:
     ------
     SELECTED_COMMUNITIES:
         A GMT file with the selected communities.
-    MUT_DATA:
-        File with mutation data.
+    MUT_SCORES:
+        File with mutation scores.
     PATHWAY_SCORES:
         File with pathways scores.
     
@@ -463,7 +463,7 @@ rule top_mutated_communities:
     """
     input:
         communities = SELECTED_COMMUNITIES, \
-        mut_data = MUT_DATA, \
+        mut_scores = MUTATION_SCORES, \
         pathway_scores = PATHWAY_SCORES
     output:
         top_mutated_communities = TOP_MUTATED_COMMUNITIES
@@ -473,6 +473,16 @@ rule top_mutated_communities:
         script = os.path.join(SRC, "analysis/top_mut_comm.R"), \
         out_dir = ANALYSIS_RUN_DIR, \
         n_top_comm = N_TOP_COMM
+    message:
+        """
+        ; Running Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
+        """
+    shell:
+        """
+        echo Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
+        mkdir -p {params.out_dir}
+        Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
+        """
 
 ## --------------------------- ##
 ## Clustering community scores ##

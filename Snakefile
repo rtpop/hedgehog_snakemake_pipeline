@@ -162,6 +162,7 @@ N_TOP_COMM = config["n_top_comm"]
 
 # output
 TOP_MUTATED_COMMUNITIES = os.path.join(ANALYSIS_RUN_DIR, "top_mut_comm_" + str(N_TOP_COMM) + ".RData")
+GENE_MUTATION_SUMMARY = os.path.join(ANALYSIS_RUN_DIR, "gene_mutation_summary_" + str(N_TOP_COMM) + ".txt")
 
 ##-------##
 ## Rules ##
@@ -172,7 +173,8 @@ rule all:
     input:
         GO_ENRICHMENT, \
         CLUST_HEATMAP, \
-        TOP_MUTATED_COMMUNITIES
+        TOP_MUTATED_COMMUNITIES, \
+        GENE_MUTATION_SUMMARY
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -458,15 +460,18 @@ rule top_mutated_communities:
     
     Output:
     -------
-    
-
+    TOP_MUTATED_COMMUNITIES:
+        RData file with the top mutated communities.
+    GENE_MUTATION_SUMMARY:
+        A TXT file with the gene mutation summary.
     """
     input:
         communities = SELECTED_COMMUNITIES, \
-        mut_scores = MUTATION_SCORES, \
+        mut = MUT_DATA, \
         pathway_scores = PATHWAY_SCORES
     output:
-        top_mutated_communities = TOP_MUTATED_COMMUNITIES
+        top_mutated_communities = TOP_MUTATED_COMMUNITIES, \
+        gene_mutation_summary = GENE_MUTATION_SUMMARY
     container:
         ANALYSIS_CONTAINER
     params:
@@ -475,13 +480,12 @@ rule top_mutated_communities:
         n_top_comm = N_TOP_COMM
     message:
         """
-        ; Running Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
+        ; Running Rscript {params.script} --communities {input.communities} --mut {input.mut} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
         """
     shell:
         """
-        echo Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
         mkdir -p {params.out_dir}
-        Rscript {params.script} --communities {input.communities} --mut-scores {input.mut_scores} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
+        Rscript {params.script} --communities {input.communities} --mut {input.mut} --scores {input.pathway_scores} --output-dir {params.out_dir} --n-comm {params.n_top_comm}
         """
 
 ## --------------------------- ##

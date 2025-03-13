@@ -60,7 +60,7 @@ algorithm: "classic" # topGO algorithm to be used
 ## ----------------------- ##
 ## Top mutated communities ##
 ## ----------------------- ##
-n_top_comm: 10 # number of communities to extract
+n_top_comm: 1 # number of communities to extract
 
 ## --------------------------- ##
 ## Clustering community scores ##

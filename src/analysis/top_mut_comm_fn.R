@@ -95,3 +95,32 @@ mut_gene_summary <- function(mut_genes) {
     
     return(gene_summary)
 }
+
+#' @name split_patients_by_top_gene
+#' @param mut_genes List of mutated genes for each patient in each community.
+#' @return List of lists where each element is a community and its sub-elements are two lists of patients: those that have the top gene and those that do not, and a list of recurring genes in the cohort without the top gene.
+#'
+split_patients_by_top_gene <- function(mut_genes) {
+    split_patients <- lapply(mut_genes, function(community) {
+        # Flatten the list of mutated genes for each patient
+        all_genes <- unlist(community)
+        
+        # Identify the gene that is present in the most patients
+        top_gene <- names(sort(table(all_genes), decreasing = TRUE))[1]
+        
+        # Split patients into those that have the top gene and those that do not
+        patients_with_top_gene <- names(community)[sapply(community, function(genes) top_gene %in% genes)]
+        patients_without_top_gene <- names(community)[sapply(community, function(genes) !(top_gene %in% genes))]
+        
+        # Extract recurring genes in the cohort without the top gene
+        recurring_genes <- table(unlist(community[patients_without_top_gene]))
+
+        return(list(top_gene = top_gene,
+                    patients_with_top_gene = patients_with_top_gene, 
+                    patients_without_top_gene = patients_without_top_gene, 
+                    recurring_genes = recurring_genes))
+    })
+    
+    return(split_patients)
+}
+

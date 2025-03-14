@@ -41,7 +41,9 @@ source("src/utils/utils.R")
 ## ---------------- ##
 top_mut_comm <- select_top_mut_comm(communities = GMT_FILE, scores = COMM_SCORES, mut = MUT, n_comm = N_COMM)
 gene_count_summary <- mut_gene_summary(top_mut_comm)
+top_gene_summary <- split_patients_by_top_gene(top_mut_comm)
 
 ## Save
 save(top_mut_comm, file = file.path(OUT_DIR, paste0("top_mut_comm_", N_COMM, ".RData")))
 fwrite(gene_count_summary, file.path(OUT_DIR, paste0("gene_mutation_summary_", N_COMM, ".txt")), sep = "\t")
+save(top_gene_summary, file = file.path(OUT_DIR, paste0("top_gene_summary_", N_COMM, ".RData")))

@@ -87,7 +87,7 @@ RUN pip install .
 ## version of netZooPy                       ##
 ## ----------------------------------------- ##
 
-RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0 netZooPy=0.10.8
+RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0 netZooPy==0.10.8
 
 ## -------------------------- ##
 ## Set matplotlib environment ##

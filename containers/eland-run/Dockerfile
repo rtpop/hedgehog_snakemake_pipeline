@@ -56,7 +56,8 @@ RUN apt-get update -qq && \
 ## ------------ ##
                 
 RUN pip install --upgrade pip \
-        setuptools
+        setuptools \
+        community
 
 ## ---------------##
 ## Install sisana ##

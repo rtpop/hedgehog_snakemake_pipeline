@@ -83,9 +83,11 @@ RUN pip install .
 ## ----------------------------------------- ##
 ## Force older versions of numpy and scipy   ##
 ## Because otherwise hidef/bihidef complains ##
+## Plus make sure we keep the current        ##
+## version of netZooPy                       ##
 ## ----------------------------------------- ##
 
-RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0
+RUN pip install --no-cache-dir numpy==1.24.4 scipy==1.13.0 netZooPy=0.10.8
 
 ## -------------------------- ##
 ## Set matplotlib environment ##

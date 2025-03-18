@@ -1,15 +1,15 @@
 # Stage 1: Preprocess data to format for next stage
 # example: sisana preprocess params.yml
 preprocess:
-  exp_file: ./data/uterus/gtex_uterus_exp.tsv # Path to expression file, which MUST CONTAIN A HEADER
+  exp_file: ./data/breast/gtex_breast_exp.tsv # Path to expression file, which MUST CONTAIN A HEADER
   motif_file: ./data/motif_prior_names_2024.tsv # path to motif file
   ppi_file: ./data/ppi_prior_2024.tsv # path to PPI file
   number: 5 # number of samples a gene must be expressed in
-  outdir: ./output/sisana/breast/ # The directory to save the output to
+  outdir: ./output/breast/sisana/preprocess # The directory to save the output to
 
 # Stage 2: Reconstruct networks and calculate degrees
 # example: sisana generate params.yml
 generate:
-  processed_paths: ./output/sisana/tmp/processed_data_paths.yml # Path to yaml file containing the location of the processed data files
+  processed_paths: ./output/breast/sisana/tmp/processed_data_paths.yml # Path to yaml file containing the location of the processed data files
   method: panda # Which method to use, either "panda" to run just PANDA or "lioness", which runs PANDA first, then LIONESS
-  pandafilepath: ./output/sisana/breast/network/panda_network.txt # Path to the panda output file to be created. Must have a .txt extension.
+  pandafilepath: ./output/breast/sisana/network/panda_network.txt # Path to the panda output file to be created. Must have a .txt extension.

@@ -10,14 +10,14 @@ analysis_container: "docker://rtpop/eland-downstream:0.0.2"
 src: "src" # Code directory
 data_dir: "data"
 output_dir: "output" # this will be a parent directory for different runs
-sisana_dir: "sisana"
+cancer: "breast" # cancer type
 src_dir: "src"
 eland_dir: "eland"
 
 ##-------------##
 ## Input files ##
 ##-------------##
-sisana_config: "params.yml"
+sisana_config: "sisana_params.yml"
 exp_file: "exp_no_header"
 motif_prior_file: "motif_prior_names_2024"
 ppi_prior_file: "ppi_prior_2024"

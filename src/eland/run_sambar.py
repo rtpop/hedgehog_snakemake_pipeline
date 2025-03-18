@@ -17,10 +17,10 @@ def main():
     os.chdir(args.output_dir)
     
     # change input filenamesto account for changed directory
-    args.mut_file = os.path.join("../../../../" + args.mut_file)
-    args.esize_file = os.path.join("../../../../" + args.esize_file)
-    args.can_genes = os.path.join("../../../../" + args.can_genes)
-    args.gmt_file = os.path.join("../../../../" + args.gmt_file)
+    args.mut_file = os.path.join("../../../../../" + args.mut_file)
+    args.esize_file = os.path.join("../../../../../" + args.esize_file)
+    args.can_genes = os.path.join("../../../../../" + args.can_genes)
+    args.gmt_file = os.path.join("../../../../../" + args.gmt_file)
     
     sambar.sambar(args.mut_file, args.esize_file, args.can_genes, args.gmt_file)
     

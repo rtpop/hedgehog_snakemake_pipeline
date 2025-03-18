@@ -2,8 +2,7 @@
 import argparse
 import pandas as pd
 import eland
-
-print("start")
+import os
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="benchmark filtering methods")
@@ -17,22 +16,20 @@ def parse_arguments():
     
     return parser.parse_args()
 
-print("main")
-
 def main():
     args = parse_arguments()
-
+    
     # load filtered network
-    eland_fil = pd.read_csv(args.filtered_net, delimiter = args.delimiter)
+    print("Loading filtered network")
+    eland_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)
     
     # load panda network as df
-    panda = pd.read_csv(args.panda_edgelist, delimiter = args.delimiter)
+    print("Loading PANDA network")
+    panda = pd.read_csv(args.panda_edgelist, delimiter=args.delimiter)
     
-    print("prior fil")
     # filter to prior edges
-    prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter = args.delimiter, prior_only = True)
+    prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=True)
     
-    print("top fil")
     # filter based on top n edges
     # n is the number of edges of eland_fil
     top_fil = panda.iloc[:, 2].nlargest(len(eland_fil)).index

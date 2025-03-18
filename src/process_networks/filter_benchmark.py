@@ -43,8 +43,6 @@ def main():
     modularity_prior = eland.filter_panda.calculate_modularity(prior_fil)
     modularity_top = eland.filter_panda.calculate_modularity(top_fil)
     
-    print(modularity_eland)
-    
     # save modularity values
     with open(args.output_file, 'a') as f:
         f.write(f"Modularity of the ELAND filtered PANDA network: {modularity_eland}\n")

@@ -10,7 +10,7 @@ analysis_container: "docker://rtpop/eland-downstream:0.0.2"
 src: "src" # Code directory
 data_dir: "data"
 output_dir: "output" # this will be a parent directory for different runs
-cancer: "breast" # cancer type
+cancer: "uterus" # cancer type
 src_dir: "src"
 eland_dir: "eland"
 
@@ -25,7 +25,7 @@ ppi_prior_file: "ppi_prior_2024"
 ## ---------------- ##
 ## Benchmark params ##
 ## ---------------- ##
-bench_resolution: 1 # resolution parameter for the BRIM algorithm to calculate modularity
+bench_resolution: 0.5 # resolution parameter for the BRIM algorithm to calculate modularity
 
 ##--------------------##
 ## BiHiDef parameters ##

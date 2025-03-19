@@ -25,7 +25,7 @@ ppi_prior_file: "ppi_prior_2024"
 ## ---------------- ##
 ## Benchmark params ##
 ## ---------------- ##
-bench_resolution: 2 # resolution parameter for the BRIM algorithm to calculate modularity
+bench_resolution: 1 # resolution parameter for the BRIM algorithm to calculate modularity
 
 ##--------------------##
 ## BiHiDef parameters ##

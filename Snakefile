@@ -88,7 +88,7 @@ BENCHMARK_DIR = os.path.join(ELAND_DIR, "benchmarking")
 BENCH_RESOLUTION = config["bench_resolution"]
 
 # outputs
-FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_brca.txt")
+FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_brca_R" + str(BENCH_RESOLUTION) + ".txt")
 
 ## ------------------ ##
 ## BiHiDeF parameters ##

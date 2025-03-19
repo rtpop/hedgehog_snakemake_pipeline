@@ -43,9 +43,9 @@ def main():
     
     # save modularity values
     with open(args.output_file, 'a') as f:
-        f.write(f"Modularity of the ELAND filtered PANDA network with {args.resolution}: {modularity_eland}\n")
-        f.write(f"Modularity of the prior filtered network: {modularity_prior}\n")
-        f.write(f"Modularity of the top filtered network: {modularity_top}\n")
+        f.write(f"Modularity of the ELAND filtered PANDA network with resolution {args.resolution}: {modularity_eland}\n")
+        f.write(f"Modularity of the prior filtered network with resolution {args.resolution}: {modularity_prior}\n")
+        f.write(f"Modularity of the top filtered network with resolution {args.resolution}: {modularity_top}\n")
 
 if __name__ == '__main__':
     main()

@@ -2,7 +2,6 @@
 import argparse
 import pandas as pd
 import eland
-import os
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="benchmark filtering methods")
@@ -12,7 +11,9 @@ def parse_arguments():
     parser.add_argument('--panda_edgelist', type=str, help='Path to edge list file.')
     parser.add_argument('--filtered_net', type=str, help='Path to filtered network file.')
     parser.add_argument('--output_file', type=str, help='Path to output file.')
-    parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files') 
+    parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files')
+    parser.add_argument('--resolution', type=int, help='Resolution for modularity calculation')
+    parser.add_argument('--max_communities', type=int, help='Maximum number of communities')
     
     return parser.parse_args()
 
@@ -36,13 +37,13 @@ def main():
     top_fil = panda.loc[top_fil]
         
     # calculate modularity for the two networks
-    modularity_eland = eland.filter_panda.calculate_modularity(eland_fil)
-    modularity_prior = eland.filter_panda.calculate_modularity(prior_fil)
-    modularity_top = eland.filter_panda.calculate_modularity(top_fil)
+    modularity_eland = eland.filter_panda.calculate_modularity(eland_fil, resolution = args.resolution, comm_mult = args.max_communities)
+    modularity_prior = eland.filter_panda.calculate_modularity(prior_fil, resolution = args.resolution, comm_mult = args.max_communities)
+    modularity_top = eland.filter_panda.calculate_modularity(top_fil, resolution = args.resolution, comm_mult = args.max_communities)
     
     # save modularity values
     with open(args.output_file, 'a') as f:
-        f.write(f"Modularity of the ELAND filtered PANDA network: {modularity_eland}\n")
+        f.write(f"Modularity of the ELAND filtered PANDA network with {args.resolution}: {modularity_eland}\n")
         f.write(f"Modularity of the prior filtered network: {modularity_prior}\n")
         f.write(f"Modularity of the top filtered network: {modularity_top}\n")
 

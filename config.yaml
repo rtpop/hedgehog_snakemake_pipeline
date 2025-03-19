@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.19"
+python_container: "docker://rtpop/eland-run:0.0.22"
 analysis_container: "docker://rtpop/eland-downstream:0.0.2"
 
 ##-------------##
@@ -21,6 +21,11 @@ sisana_config: "sisana_params.yml"
 exp_file: "exp_no_header"
 motif_prior_file: "motif_prior_names_2024"
 ppi_prior_file: "ppi_prior_2024"
+
+## ---------------- ##
+## Benchmark params ##
+## ---------------- ##
+bench_resolution: 2 # resolution parameter for the BRIM algorithm to calculate modularity
 
 ##--------------------##
 ## BiHiDef parameters ##

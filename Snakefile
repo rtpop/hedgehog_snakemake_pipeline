@@ -52,20 +52,23 @@ TISSUE = config["tissue"]
 SISANA_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana")
 
 # SiSaNA inputs
-SISANA_CONFIG = config["sisana_config"]
+EXP_FILE = os.path.join(DATA_DIR, "{tissue_type}", "gtex_" + "{tissue_type}" + "_exp.tsv")
+SISANA_CONFIG = os.path.join(SISANA_DIR, "sisana_params.yml")
 
 # SiSana params
 EXP = config["exp_file"]
-MOTIF_PRIOR = config["motif_prior_file"]
-PPI_PRIOR = config["ppi_prior_file"]
+MOTIF_PRIOR_TAG = config["motif_prior_file"]
+PPI_PRIOR_TAG = config["ppi_prior_file"]
+MOTIF_PRIOR = os.path.join(DATA_DIR, MOTIF_PRIOR_TAG + ".tsv")
+PPI_PRIOR = os.path.join(DATA_DIR, PPI_PRIOR_TAG + ".tsv")
 
 # SiSaNA outputs
 EXPRESSION_FILTERED = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtered.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
-PPI_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", PPI_PRIOR + "_filtered.txt")
+MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
+PPI_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", PPI_PRIOR_TAG + "_filtered.txt")
 STATS = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtering_statistics.txt")
 PANDA_NET = os.path.join(SISANA_DIR, "network", "panda_network.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR + "_filtered.txt")
+MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
 
 ## ---------------- ##
 ## ELAND parameters ##
@@ -196,6 +199,31 @@ rule all:
 ##-----------------------##
 ## Making PANDA networks ##
 ##-----------------------##
+
+rule generate_sisana_params:
+    """
+    This rule generates the SiSaNA config file.
+    """
+    output:
+        config_file = SISANA_CONFIG
+    params:
+        script = os.path.join(SRC, "utils/generate_sisana_config.py"),
+        exp = EXP_FILE,
+        motif = MOTIF_PRIOR,
+        ppi = PPI_PRIOR,
+        number = 5,
+        outdir = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "preprocess"),
+        processed_paths = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "tmp", "processed_data_paths.yml"),
+        method = "panda",
+        pandafilepath = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "network", "panda_network.txt")
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Generating SiSaNA config file with script {params.script}"
+    shell:
+        """
+        python {params.script} --exp {params.exp} --motif {params.motif} --ppi {params.ppi} --number {params.number} --outdir {params.outdir} --processed_paths {params.processed_paths} --method {params.method} --pandafilepath {params.pandafilepath} --output {output.config_file}
+        """
 
 rule run_sisana:
     """

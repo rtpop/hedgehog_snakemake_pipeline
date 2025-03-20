@@ -80,6 +80,9 @@ MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + 
 # ELAND directories
 ELAND_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "eland")
 
+# filtering params
+PRIOR_ONLY = config["prior_only"]
+
 # network processing outputs
 PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
@@ -94,7 +97,7 @@ BENCHMARK_DIR = os.path.join(ELAND_DIR, "benchmarking")
 BENCH_RESOLUTION = config["bench_resolution"]
 
 # outputs
-FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + str(BENCH_RESOLUTION) + ".txt")
+FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
 
 ## ------------------ ##
 ## BiHiDeF parameters ##
@@ -197,7 +200,7 @@ rule all:
         #TOP_MUTATED_COMMUNITIES, \
         #GENE_MUTATION_SUMMARY, \
         #TOP_GENE_SUMMARY, \
-        expand(FILTERING_BENCH, tissue_type = TISSUE)
+        expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)
 
 ##-----------------------##
 ## Making PANDA networks ##

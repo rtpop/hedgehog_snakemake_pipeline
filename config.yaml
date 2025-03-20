@@ -28,10 +28,11 @@ exp_file: "exp_no_header"
 motif_prior_file: "motif_prior_names_2024"
 ppi_prior_file: "ppi_prior_2024"
 
-## ---------------- ##
-## Benchmark params ##
-## ---------------- ##
-bench_resolution: 0.5 # resolution parameter for the BRIM algorithm to calculate modularity
+## ------------------------------ ##
+## Filtering and benchmark params ##
+## ------------------------------ ##
+prior_only: True
+bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
 
 ##--------------------##
 ## BiHiDef parameters ##

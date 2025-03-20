@@ -15,6 +15,7 @@ def parse_arguments():
     parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files')
     parser.add_argument('--resolution', type=float, help='Resolution for modularity calculation')
     parser.add_argument('--max_communities', type=float, help='Maximum number of communities')
+    parser.add_argument('--prior_only', type=bool, help='Filter only prior edges')
     
     return parser.parse_args()
 
@@ -22,15 +23,18 @@ def main():
     args = parse_arguments()
     
     # load filtered network
-    print("Loading filtered network")
-    eland_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)
+    if args.prior_only:
+        print("Loading filtered network")
+        prior_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)
+        eland_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=False)
+    else:
+        print("Loading filtered network")
+        eland_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)
+        prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=True)
     
     # load panda network as df
     print("Loading PANDA network")
     panda = pd.read_csv(args.panda_edgelist, delimiter=args.delimiter)
-    
-    # filter to prior edges
-    prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=True)
     
     # filter based on top n edges
     # n is the number of edges of eland_fil

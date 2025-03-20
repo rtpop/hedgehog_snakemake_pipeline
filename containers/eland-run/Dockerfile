@@ -57,7 +57,7 @@ RUN apt-get update -qq && \
                 
 RUN pip install --upgrade pip \
         setuptools \
-        community
+        python-louvain
 
 ## ---------------##
 ## Install sisana ##

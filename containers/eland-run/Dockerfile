@@ -57,7 +57,8 @@ RUN apt-get update -qq && \
                 
 RUN pip install --upgrade pip \
         setuptools \
-        python-louvain
+        python-louvain \
+        pyyaml
 
 ## ---------------##
 ## Install sisana ##

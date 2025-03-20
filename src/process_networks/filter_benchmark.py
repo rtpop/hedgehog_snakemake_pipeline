@@ -56,19 +56,16 @@ def main():
     num_edges_prior = prior_graph.number_of_edges()
     num_edges_top = top_graph.number_of_edges()
     
-    # save modularity values, density, and number of edges
-    with open(args.output_file, 'a') as f:
-        f.write(f"Modularity of the ELAND filtered PANDA network with resolution {args.resolution}: {modularity_eland}\n")
-        f.write(f"Density of the ELAND filtered PANDA network: {density_eland}\n")
-        f.write(f"Number of edges in the ELAND filtered PANDA network: {num_edges_eland}\n")
-        
-        f.write(f"Modularity of the prior filtered network with resolution {args.resolution}: {modularity_prior}\n")
-        f.write(f"Density of the prior filtered network: {density_prior}\n")
-        f.write(f"Number of edges in the prior filtered network: {num_edges_prior}\n")
-        
-        f.write(f"Modularity of the top filtered network with resolution {args.resolution}: {modularity_top}\n")
-        f.write(f"Density of the top filtered network: {density_top}\n")
-        f.write(f"Number of edges in the top filtered network: {num_edges_top}\n")
+    # create a DataFrame to store the results
+    results = pd.DataFrame({
+        'Network': ['ELAND filtered PANDA', 'Prior filtered', 'Top filtered'],
+        'Modularity': [modularity_eland, modularity_prior, modularity_top],
+        'Density': [density_eland, density_prior, density_top],
+        'Number of Edges': [num_edges_eland, num_edges_prior, num_edges_top]
+    })
+    
+    # save the results to a CSV file
+    results.to_csv(args.output_file, index=False)
 
 if __name__ == '__main__':
     main()

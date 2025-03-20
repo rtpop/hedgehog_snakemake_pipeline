@@ -60,4 +60,4 @@ tmp/
 
 # logs
 logs/
-snakemake.log
+*.log

@@ -98,6 +98,8 @@ BENCH_RESOLUTION = config["bench_resolution"]
 
 # outputs
 FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
+FILTERING_BENCH_DF = expand(os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), tissue_type = TISSUE)
+FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
 
 ## ------------------ ##
 ## BiHiDeF parameters ##
@@ -200,7 +202,8 @@ rule all:
         #TOP_MUTATED_COMMUNITIES, \
         #GENE_MUTATION_SUMMARY, \
         #TOP_GENE_SUMMARY, \
-        expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)
+        expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION), \
+        expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE)
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -381,8 +384,8 @@ rule plot_benchmark:
 
     Inputs
     ------
-    FILTERING_BENCH:
-        A TXT file with the filtering benchmark.
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
     ------
     Outputs
     -------
@@ -390,21 +393,23 @@ rule plot_benchmark:
         A PDF file with the benchmark plot.
     """
     input:
-        filtering_bench = FILTERING_BENCH
+        filtering_bench_list=expand(FILTERING_BENCH, tissue_type="{tissue_type}", bench_resolution=BENCH_RESOLUTION)
     output:
-        benchmark_plot = os.path.join(BENCHMARK_DIR, "benchmark_plot.pdf")
+        benchmark_plot=FILTERING_BENCH_PLOT
     params:
-        script = os.path.join(SRC, "process_networks/plot_benchmark.py"), \
-        out_dir = os.path.join(BENCHMARK_DIR)
+        script=os.path.join(SRC, "analysis", "plot_filtering_bench.R"), \
+        out_dir=os.path.join(BENCHMARK_DIR), \
+        tissue_type="{tissue_type}", \
+        data_frame = FILTERING_BENCH_DF, \
+        plot_type = "all", \
+        plot_title = "Filtering benchmark for {tissue_type}"
     container:
-        PYTHON_CONTAINER
+        ANALYSIS_CONTAINER
     message:
-        "; Plotting benchmark data with script {params.script}" \
-            "--input_file {input.filtering_bench}" \
-            "--output_file {output.benchmark_plot}"
+        "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type}"
     shell:
         """
-        python {params.script} --input_file {input.filtering_bench} --output_file {output.benchmark_plot}
+        Rscript {params.script} --input_files {input.filtering_bench_list} --output_dir {params.out_dir} --tissue_type {params.tissue_type} --data_frame {params.data_frame} --plot_type {params.plot_type} --plot_title {params.plot_title}
         """
 
 # --------------- ##

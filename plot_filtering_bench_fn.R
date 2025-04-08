@@ -53,7 +53,7 @@ prepare_filtering_bench <- function(file_name, tissue_type) {
 #' @param plot_title The title of the plot.
 #' 
 
-plot_filtering_bench <- function(df, output_dir, plot_type, plot_title=NULL) {
+plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL) {
   # Create the output directory if it doesn't exist
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
@@ -62,13 +62,28 @@ plot_filtering_bench <- function(df, output_dir, plot_type, plot_title=NULL) {
   # Set the file name for the plot
   file_name <- paste0(output_dir, "/", plot_type, "_", gsub(" ", "_", plot_title), ".pdf")
   
-  # Create the plot
-  p <- ggplot(df, aes_string(x = "resolution", y = plot_type, color = "Network")) +
-    geom_point() +
-    geom_line() +
-    labs(title = plot_title, x = "Resolution", y = plot_type) +
-    theme_minimal()
+  if (plot_type == "all") {
+    # Create a facet plot for all three metrics
+    df_long <- df %>%
+      pivot_longer(cols = c("Modularity", "Density", "Number of Edges"),
+                   names_to = "Metric",
+                   values_to = "Value")
+    
+    p <- ggplot(df_long, aes(x = resolution, y = Value, color = Network)) +
+      geom_point() +
+      geom_line() +
+      facet_wrap(~ Metric, scales = "free_y") +
+      labs(title = plot_title, x = "Resolution", y = "Value") +
+      theme_minimal()
+  } else {
+    # Create a single plot for the specified metric
+    p <- ggplot(df, aes_string(x = "resolution", y = plot_type, color = "Network")) +
+      geom_point() +
+      geom_line() +
+      labs(title = plot_title, x = "Resolution", y = plot_type) +
+      theme_minimal()
+  }
   
   # Save the plot to a file
-  ggsave(file_name, plot = p)
+  ggsave(file_name, plot = p, width = 10, height = 6)
 }

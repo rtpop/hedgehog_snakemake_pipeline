@@ -1,7 +1,6 @@
 import argparse
 import os
 import bihidef
-import sys
 
 def parse_args():
     parser = argparse.ArgumentParser("Run bihidef")

@@ -16,6 +16,7 @@ required_packages_cran = c(
     # "this.path",      # For creating relative paths
     # "tidyr",          # For tidying data
     "ggplot2",        # For creating plots
+    "ggrepel",        # For adding labels to ggplot2 plots
     "sessioninfo",    # For session information
     "pheatmap",       # For drawing heatmaps
     "RColorBrewer"   # For color palettes for heatmaps

@@ -2,7 +2,7 @@
 ## Containers ##
 ##------------##
 python_container: "docker://rtpop/eland-run:0.0.23"
-analysis_container: "docker://rtpop/eland-downstream:0.0.2"
+analysis_container: "docker://rtpop/eland-downstream:0.0.4"
 
 ##-------------##
 ## Directories ##
@@ -14,8 +14,8 @@ output_dir: "output" # this will be a parent directory for different runs
 tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
   "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
   "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
-  "Fibroblast_cell_line", "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
-  "Kidney_cortex", "Liver", "Lung", "Lymphoblastoid_cell_line", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
+  "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
+  "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
 src_dir: "src"
 eland_dir: "eland"

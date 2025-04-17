@@ -197,7 +197,7 @@ TOP_GENE_SUMMARY = os.path.join(ANALYSIS_RUN_DIR, "top_gene_summary_" + str(N_TO
 rule all:
     input:
         expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
-        expand(GO_ENRICHMENT, tissue_type = TISSUE), \
+        #expand(GO_ENRICHMENT, tissue_type = TISSUE), \
         #CLUST_HEATMAP, \
         #TOP_MUTATED_COMMUNITIES, \
         #GENE_MUTATION_SUMMARY, \

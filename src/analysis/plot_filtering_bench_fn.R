@@ -53,37 +53,42 @@ prepare_filtering_bench <- function(file_name, tissue_type) {
 #' @param plot_title The title of the plot.
 #' 
 
-plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL) {
+plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL, plot_file = "filtering_benchmark_plot.pdf") {
+  # Load RColorBrewer for color palettes
+  if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
+    stop("Please install the 'RColorBrewer' package to use this function.")
+  }
+  
   # Create the output directory if it doesn't exist
   if (!dir.exists(output_dir)) {
     dir.create(output_dir, recursive = TRUE)
   }
   
-  # Set the file name for the plot
-  file_name <- paste0(output_dir, "/", plot_type, "_", gsub(" ", "_", plot_title), ".pdf")
+  # Define a color-blind-friendly palette from RColorBrewer
+  brewer_palette <- RColorBrewer::brewer.pal(8, "Dark2")
   
   if (plot_type == "all") {
-    # Create a facet plot for all three metrics
+    # Create a facet bar plot for all three metrics
     df_long <- df %>%
       pivot_longer(cols = c("Modularity", "Density", "Number of Edges"),
                    names_to = "Metric",
                    values_to = "Value")
     
-    p <- ggplot(df_long, aes(x = resolution, y = Value, color = Network)) +
-      geom_point() +
-      geom_line() +
-      facet_wrap(~ Metric, scales = "free_y") +
+    p <- ggplot(df_long, aes(x = factor(resolution), y = Value, fill = Network)) +
+      geom_bar(stat = "identity", position = "dodge") +
+      facet_wrap(~ Metric, scales = "free_x") +  # Allow independent x-axes for each panel
+      scale_fill_manual(values = brewer_palette) +  # Apply the RColorBrewer palette
       labs(title = plot_title, x = "Resolution", y = "Value") +
       theme_minimal()
   } else {
-    # Create a single plot for the specified metric
-    p <- ggplot(df, aes_string(x = "resolution", y = plot_type, color = "Network")) +
-      geom_point() +
-      geom_line() +
+    # Create a single bar plot for the specified metric
+    p <- ggplot(df, aes_string(x = "factor(resolution)", y = plot_type, fill = "Network")) +
+      geom_bar(stat = "identity", position = "dodge") +
+      scale_fill_manual(values = brewer_palette) +  # Apply the RColorBrewer palette
       labs(title = plot_title, x = "Resolution", y = plot_type) +
       theme_minimal()
   }
   
   # Save the plot to a file
-  ggsave(file_name, plot = p, width = 10, height = 6)
+  ggsave(plot_file, plot = p, width = 10, height = 6)
 }

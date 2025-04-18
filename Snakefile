@@ -400,16 +400,24 @@ rule plot_benchmark:
         script=os.path.join(SRC, "analysis", "plot_filtering_bench.R"), \
         out_dir=os.path.join(BENCHMARK_DIR), \
         tissue_type="{tissue_type}", \
-        data_frame = FILTERING_BENCH_DF, \
-        plot_type = "all", \
-        plot_title = "Filtering benchmark for {tissue_type}"
+        data_frame=os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), \
+        plot_type="all", \
+        plot_title="Filtering benchmark for {tissue_type}", \
+        files=lambda wildcards, input: ",".join(input.filtering_bench_list)  # Preprocess the input list
     container:
         ANALYSIS_CONTAINER
     message:
         "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type}"
     shell:
         """
-        Rscript {params.script} --input_files {input.filtering_bench_list} --output_dir {params.out_dir} --tissue_type {params.tissue_type} --data_frame {params.data_frame} --plot_type {params.plot_type} --plot_title {params.plot_title}
+        Rscript {params.script} \
+            --files "{params.files}" \
+            --output-dir {params.out_dir} \
+            --tissue-type {params.tissue_type} \
+            --data-frame {params.data_frame} \
+            --plot-type {params.plot_type} \
+            --plot-title "{params.plot_title}" \
+            --plot-file {output.benchmark_plot}
         """
 
 # --------------- ##

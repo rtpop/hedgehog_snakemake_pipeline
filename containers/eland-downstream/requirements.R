@@ -22,19 +22,19 @@ required_packages_cran = c(
     "pheatmap",       # For drawing heatmaps
     "RColorBrewer",   # For color palettes for heatmaps
     "stringr",        # For string manipulation
-    "magrittr",       # For pipe operator
+    "magrittr"       # For pipe operator
     # stylo,            # For cosine distance calculation
     # vegan           # For binomial distance calculation
 )
 
 install.packages(
     required_packages_cran,
-    dependencies = TRUE)
+    dependencies = TRUE, verbose = TRUE)
 
 ## Bioconductor packages:
 required_packages_bioconductor <- c(
     "topGO",          # For Gene Ontology analysis
-    "org.Hs.eg.db",    # for GO analysis
+    "org.Hs.eg.db"    # for GO analysis
 )
 
 BiocManager::install(

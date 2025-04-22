@@ -15,7 +15,14 @@ WORKDIR /opt
 
 RUN apt-get update -qq && \
         apt-get install -y --allow-downgrades \
-                apt-utils
+                apt-utils \
+                libxml2-dev \
+                libjpeg-dev \
+                libpng-dev \
+                libtiff-dev \
+                libicu-dev \
+                libgfortran5 \
+                libnlopt-dev
 
 RUN apt-cache policy \
         apt-utils \

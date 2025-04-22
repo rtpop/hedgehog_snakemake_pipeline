@@ -407,7 +407,13 @@ rule plot_benchmark:
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type}"
+        "; Plotting benchmark data with script {params.script} for tissue {wildcards.tissue_type} with params:" \
+            "--files {params.files}" \
+            "--output-dir {params.out_dir}" \
+            "--tissue-type {params.tissue_type}" \
+            "--data-frame {params.data_frame}" \
+            "--plot-type {params.plot_type}" \
+            "--plot-title {params.plot_title}"
     shell:
         """
         Rscript {params.script} \

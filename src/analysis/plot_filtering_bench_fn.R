@@ -18,12 +18,16 @@
 prepare_filtering_bench <- function(file_name, tissue_type) {
   # Read the data from the file
   df <- data.table::fread(file_name, header = TRUE)
-  
-  # Add resolution and tissue type columns
-    res <- strsplit(file_name, "_")[[1]][[3]]
-    res <- gsub(".txt", "", res)
-    res <- gsub("R", "", res)
 
+  print(file_name)
+  
+  # Extract the resolution as the last element after splitting the file name
+  res <- strsplit(file_name, "_")[[length(strsplit(file_name, "_"))]]  # Get the last element
+  res <- res[[length(res)]]  # Get the last element
+  res <- gsub(".txt", "", res)  # Remove the file extension
+  res <- gsub("R", "", res)  # Remove the "R" prefix
+
+  # Add resolution and tissue type columns
   df$resolution <- res
   df$tissue_type <- tissue_type
   
@@ -76,17 +80,24 @@ plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title =
     
     p <- ggplot(df_long, aes(x = factor(resolution), y = Value, fill = Network)) +
       geom_bar(stat = "identity", position = "dodge") +
-      facet_wrap(~ Metric, scales = "free_x") +  # Allow independent x-axes for each panel
+      facet_wrap(~ Metric, scales = "free") +  # Allow independent scales for each panel
       scale_fill_manual(values = brewer_palette) +  # Apply the RColorBrewer palette
       labs(title = plot_title, x = "Resolution", y = "Value") +
-      theme_minimal()
+      theme_minimal() +
+      theme(
+        strip.text = element_text(size = 12),  # Adjust facet label size
+        axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+      )
   } else {
     # Create a single bar plot for the specified metric
     p <- ggplot(df, aes_string(x = "factor(resolution)", y = plot_type, fill = "Network")) +
       geom_bar(stat = "identity", position = "dodge") +
       scale_fill_manual(values = brewer_palette) +  # Apply the RColorBrewer palette
       labs(title = plot_title, x = "Resolution", y = plot_type) +
-      theme_minimal()
+      theme_minimal() +
+      theme(
+        axis.text.x = element_text(angle = 45, hjust = 1)  # Rotate x-axis labels for readability
+      )
   }
   
   # Save the plot to a file

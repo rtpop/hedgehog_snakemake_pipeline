@@ -68,22 +68,17 @@ PLOT_FILE <- opt$`plot-file`
 source("src/analysis/plot_filtering_bench_fn.R")
 
 ## Consolidate data
-if (!file.exists(DATA_FRAME)) {
-    # Process each input file and consolidate into one data frame
-    df_list <- lapply(input_files, function(file) {
-        if (!file.exists(file)) {
-            stop(paste("The file", file, "does not exist."))
-        }
-        prepare_filtering_bench(file_name = file, tissue_type = TISSUE_TYPE)
+
+df_list <- lapply(input_files, function(file) {
+    if (!file.exists(file)) {
+        stop(paste("The file", file, "does not exist."))
+    }
+    prepare_filtering_bench(file_name = file, tissue_type = TISSUE_TYPE)
     })
     consolidated_df <- data.table::rbindlist(df_list)
 
-    # Save the consolidated data frame
-    data.table::fwrite(consolidated_df, file = DATA_FRAME, sep = "\t", row.names = FALSE)
-} else {
-    # Load the existing consolidated data frame
-    consolidated_df <- data.table::fread(DATA_FRAME, header = TRUE)
-}
+# Save the consolidated data frame
+data.table::fwrite(consolidated_df, file = DATA_FRAME, sep = "\t", row.names = FALSE)
 
 ## Plot the consolidated data
 plot_filtering_bench(df = consolidated_df, output_dir = OUT_DIR, plot_type = PLOT_TYPE, plot_title = PLOT_TITLE, plot_file = PLOT_FILE)

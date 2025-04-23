@@ -28,7 +28,8 @@ option_list <- list(
     optparse::make_option(c("-d", "--data-frame"), type = "character", help = "File name for compiled benchmark data frame"),
     optparse::make_option(c("-p", "--plot-type"), type = "character", default = "modularity", help = "Type of plot to generate. Options are 'modularity', 'density', or 'edges'."),
     optparse::make_option(c("-n", "--plot-title"), type = "character", default = "", help = "Title of the plot."),
-    optparse::make_option(c("-l", "--plot-file"), type = "character", default = "", help = "Path to save the plot file.")
+    optparse::make_option(c("-l", "--plot-file"), type = "character", default = "", help = "Path to save the plot file."),
+    optparse::make_option(c("-i", "--include-unfiltered"), type = "logical", default = TRUE, help = "Include the 'Unfiltered' network in the plot.")
 )
 
 opt_parser <- optparse::OptionParser(option_list = option_list)
@@ -63,6 +64,11 @@ DATA_FRAME <- opt$`data-frame`
 PLOT_TYPE <- opt$`plot-type`
 PLOT_TITLE <- opt$`plot-title`
 PLOT_FILE <- opt$`plot-file`
+UNFILTERED <- opt$`include-unfiltered`
+
+if (PLOT_TITLE == "") {
+    PLOT_TITLE <- paste("Filtering Benchmark Results for", TISSUE_TYPE)
+}
 
 ## source functions
 source("src/analysis/plot_filtering_bench_fn.R")
@@ -81,5 +87,5 @@ df_list <- lapply(input_files, function(file) {
 data.table::fwrite(consolidated_df, file = DATA_FRAME, sep = "\t", row.names = FALSE)
 
 ## Plot the consolidated data
-plot_filtering_bench(df = consolidated_df, output_dir = OUT_DIR, plot_type = PLOT_TYPE, plot_title = PLOT_TITLE, plot_file = PLOT_FILE)
+plot_filtering_bench(df = consolidated_df, output_dir = OUT_DIR, plot_type = PLOT_TYPE, plot_title = PLOT_TITLE, plot_file = PLOT_FILE, include_unfiltered = UNFILTERED)
 

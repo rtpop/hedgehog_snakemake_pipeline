@@ -95,11 +95,16 @@ BENCHMARK_DIR = os.path.join(ELAND_DIR, "benchmarking")
 
 # params
 BENCH_RESOLUTION = config["bench_resolution"]
+UNFILTERED = config["plot_unfiltered"]
 
 # outputs
 FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
 FILTERING_BENCH_DF = expand(os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), tissue_type = TISSUE)
-FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
+if UNFILTERED:
+    FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot_unfiltered.pdf")
+else:
+    FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
+
 
 ## ------------------ ##
 ## BiHiDeF parameters ##
@@ -403,7 +408,8 @@ rule plot_benchmark:
         data_frame=os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), \
         plot_type="all", \
         plot_title="Filtering benchmark for {tissue_type}", \
-        files=lambda wildcards, input: ",".join(input.filtering_bench_list)  # Preprocess the input list
+        files=lambda wildcards, input: ",".join(input.filtering_bench_list), \
+        include_unfiltered=UNFILTERED
     container:
         ANALYSIS_CONTAINER
     message:
@@ -423,7 +429,8 @@ rule plot_benchmark:
             --data-frame {params.data_frame} \
             --plot-type {params.plot_type} \
             --plot-title "{params.plot_title}" \
-            --plot-file {output.benchmark_plot}
+            --plot-file {output.benchmark_plot} \
+            --include-unfiltered {params.include_unfiltered}
         """
 
 # --------------- ##

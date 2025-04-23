@@ -33,6 +33,7 @@ ppi_prior_file: "ppi_prior_2024"
 ## ------------------------------ ##
 prior_only: True
 bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
+plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
 
 ##--------------------##
 ## BiHiDef parameters ##

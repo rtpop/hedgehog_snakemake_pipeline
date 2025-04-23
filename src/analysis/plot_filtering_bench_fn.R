@@ -55,9 +55,11 @@ prepare_filtering_bench <- function(file_name, tissue_type) {
 #' @param output_dir The directory where the plot will be saved.
 #' @param plot_type The type of plot to generate. This should be one of "modularity", "density", or "edges".
 #' @param plot_title The title of the plot.
+#' @param plot_file The name of the file to save the plot.
+#' @param include_unfiltered A boolean indicating whether to include the "Unfiltered" network in the plot.
 #' 
 
-plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL, plot_file = "filtering_benchmark_plot.pdf") {
+plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title = NULL, plot_file = "filtering_benchmark_plot.pdf", include_unfiltered = TRUE) {
   # Load RColorBrewer for color palettes
   if (!requireNamespace("RColorBrewer", quietly = TRUE)) {
     stop("Please install the 'RColorBrewer' package to use this function.")
@@ -68,13 +70,18 @@ plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title =
     dir.create(output_dir, recursive = TRUE)
   }
   
+  # Filter out the "Unfiltered" network if include_unfiltered is FALSE
+  if (!include_unfiltered) {
+    df <- df %>% filter(Network != "Unfiltered")
+  }
+  
   # Define a color-blind-friendly palette from RColorBrewer
   brewer_palette <- RColorBrewer::brewer.pal(8, "Dark2")
   
   if (plot_type == "all") {
-    # Create a facet bar plot for all three metrics
+    # Create a facet bar plot for all metrics, including "Unique TFs" and "Unique Genes"
     df_long <- df %>%
-      pivot_longer(cols = c("Modularity", "Density", "Number of Edges"),
+      pivot_longer(cols = c("Modularity", "Density", "Number of Edges", "Unique TFs", "Unique Genes"),
                    names_to = "Metric",
                    values_to = "Value")
     

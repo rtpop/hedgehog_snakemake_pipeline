@@ -26,7 +26,7 @@ def main():
     print("Loading PANDA network")
     panda = pd.read_csv(args.panda_edgelist, delimiter=args.delimiter)
     
-    # Load filtered networks
+    # Load filtered networksq
     print("Loading filtered network")
     if args.prior_only:
         prior_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)

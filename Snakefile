@@ -168,6 +168,7 @@ GO_DIR = os.path.join(ANALYSIS_RUN_DIR, "GO_results_" + ALG + "_" + STATISTIC)
 
 # outputs
 GO_ENRICHMENT = os.path.join(GO_DIR, STATISTIC + "_GO_summary.txt")
+GO_ENRICHMENT_BARPLOT = os.path.join(GO_DIR, STATISTIC + "_GO_n_term_barplot.pdf")
 
 ## Clustering params ##
 
@@ -203,6 +204,7 @@ rule all:
     input:
         expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
         #expand(GO_ENRICHMENT, tissue_type = TISSUE), \
+        expand(GO_ENRICHMENT_BARPLOT, tissue_type = TISSUE), \
         #CLUST_HEATMAP, \
         #TOP_MUTATED_COMMUNITIES, \
         #GENE_MUTATION_SUMMARY, \
@@ -556,52 +558,86 @@ rule select_communities:
 ## GO enrichment of communities ##
 ## ---------------------------- ##
 
-rule go_enrichment:
+# rule go_enrichment:
+#     """
+#     This rule runs GO enrichment on the selected communities.
+
+#     Inputs
+#     ------
+#     SELECTED_COMMUNITIES:
+#         A GMT file with the selected communities.
+#     ------
+#     Outputs
+#     -------
+#     GO_ENRICHMENT:
+#         A TXT file with the GO enrichment results.
+#     """
+#     input:
+#         gmt = SELECTED_COMMUNITIES, \
+#         bg = GENE_BACKGROUND
+#     output:
+#         go_enrichment = GO_ENRICHMENT
+#     params:
+#         script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
+#         auto_bg = AUTO_BG, \
+#         out_dir = GO_DIR, \
+#         save_all = SAVE_ALL, \
+#         sig_thresh = SIG_THRESH, \
+#         statistic = STATISTIC, \
+#         algorithm = ALG
+
+#     container:
+#         ANALYSIS_CONTAINER
+#     message:
+#         "; Running GO enrichment with script {params.script}" \
+#             "--gmt-file {input.gmt} " \
+#             "--bg-file {input.bg} " \
+#             "--out-dir {params.out_dir} " \
+#             "--auto-bg {params.auto_bg} " \
+#             "--save-all {params.save_all} " \
+#             "--thresh {params.sig_thresh} " \
+#             "--statistic {params.statistic} " \
+#             "--algorithm {params.algorithm} "
+#     shell:
+#         """
+#         mkdir -p {params.out_dir}
+#         echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
+#         Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
+
+#         """
+
+rule go_enrichment_plot:
     """
-    This rule runs GO enrichment on the selected communities.
+    This rule plots the GO enrichment results.
 
     Inputs
     ------
-    SELECTED_COMMUNITIES:
-        A GMT file with the selected communities.
+    GO_ENRICHMENT:
+        A TXT file with the GO enrichment results.
     ------
     Outputs
     -------
-    GO_ENRICHMENT:
-        A TXT file with the GO enrichment results.
+    GO_ENRICHMENT_PLOT:
+        A PDF file with the GO enrichment plot.
     """
     input:
-        gmt = SELECTED_COMMUNITIES, \
-        bg = GENE_BACKGROUND
-    output:
         go_enrichment = GO_ENRICHMENT
+    output:
+        go_enrichment_plot = GO_ENRICHMENT_BARPLOT
     params:
-        script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
-        auto_bg = AUTO_BG, \
-        out_dir = GO_DIR, \
-        save_all = SAVE_ALL, \
-        sig_thresh = SIG_THRESH, \
-        statistic = STATISTIC, \
-        algorithm = ALG
-
+        script = os.path.join(SRC, "analysis/go_enrichment_plot.R"), \
+        out_dir = GO_DIR
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Running GO enrichment with script {params.script}" \
-            "--gmt-file {input.gmt} " \
-            "--bg-file {input.bg} " \
+        "; Running GO enrichment plot with script {params.script}" \
+            "--go-enrichment {input.go_enrichment} " \
             "--out-dir {params.out_dir} " \
-            "--auto-bg {params.auto_bg} " \
-            "--save-all {params.save_all} " \
-            "--thresh {params.sig_thresh} " \
-            "--statistic {params.statistic} " \
-            "--algorithm {params.algorithm} "
+            "--plot-file {output.go_enrichment_plot} "
     shell:
         """
         mkdir -p {params.out_dir}
-        echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
-        Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
-
+        Rscript {params.script} --input {input.go_enrichment} --out-dir {params.out_dir} --file-name {output.go_enrichment_plot}
         """
 
 # ## ----------------------- ##

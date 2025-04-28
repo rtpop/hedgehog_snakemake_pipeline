@@ -126,6 +126,7 @@ BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + 
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
 SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
+COMMUNITY_PLOT = os.path.join(BIHIDEF_RUN_DIR, "community_plot.pdf")
 
 ## ----------------- ##
 ## sambar parameters ##
@@ -210,7 +211,9 @@ rule all:
         #GENE_MUTATION_SUMMARY, \
         #TOP_GENE_SUMMARY, \
         expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION), \
-        expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE)
+        expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE), \
+        expand(COMMUNITY_PLOT, tissue_type = TISSUE)
+
 
 ##-----------------------##
 ## Making PANDA networks ##
@@ -514,6 +517,40 @@ rule select_communities:
     shell:
         """
         python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
+        """
+
+rule plot_communities:
+    """
+    This rule plots the community size and number.
+
+    Inputs
+    ------
+    SELECTED_COMMUNITIES:
+        A TXT file with the selected communities.
+    ------
+    Outputs
+    -------
+    COMMUNITY_PLOT:
+        A PDF file with the community plot.
+    """
+    input:
+        selected_communities = SELECTED_COMMUNITIES, \
+        stats = COMMUNITY_STATS
+    output:
+        community_plot = COMMUNITY_PLOT
+    params:
+        script = os.path.join(SRC, "analysis/community_plot.R"), \
+        separate = False
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Plotting communities with script {params.script}" \
+            "--input {input.selected_communities}" \
+            "--stats {input.stats}" \
+            "--out-file {output.community_plot}"
+    shell:
+        """
+        Rscript {params.script} --input {input.selected_communities} --stats {input.stats} --separate {params.separate} --out-file {output.community_plot}
         """
 
 # ## -------------- ##

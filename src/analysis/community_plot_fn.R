@@ -10,6 +10,7 @@
 process_community <- function(gmt_file, stats_file, tissue) {
   # Read GMT file
   gmt_data <- read_gmt(gmt_file)
+  str(gmt_data)
 
   # Read stats file
   stats <- readLines(stats_file)

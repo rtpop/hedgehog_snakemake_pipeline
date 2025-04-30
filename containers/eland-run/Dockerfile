@@ -82,6 +82,12 @@ RUN git clone https://github.com/rtpop/ELAND.git
 WORKDIR /opt/software/ELAND
 RUN pip install .
 
+# install netzoopy from my for for now
+WORKDIR /opt/software
+RUN git clone https://github.com/rtpop/netZooPy.git
+WORKDIR /opt/software/netZooPy
+RUN pip install .
+
 ## ----------------------------------------- ##
 ## Force older versions of numpy and scipy   ##
 ## Because otherwise hidef/bihidef complains ##

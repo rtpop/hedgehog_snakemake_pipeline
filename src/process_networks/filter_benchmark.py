@@ -35,36 +35,26 @@ def main():
         eland_fil = pd.read_csv(args.filtered_net, delimiter=args.delimiter)
         prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=True)
     
-    # Filter based on top n edges
-    print("Filtering top N edges")
-    top_fil = panda.iloc[:, 2].nlargest(len(eland_fil)).index
-    top_fil = panda.loc[top_fil]
-    
     # Save filtered networks
     eland_fil.to_csv(args.filtered_net.replace(".txt", "_eland.txt"), sep=args.delimiter, index=False)
-    top_fil.to_csv(args.filtered_net.replace(".txt", "_top_n.txt"), sep=args.delimiter, index=False)
     
     # Calculate modularity for all networks
     modularity_eland = eland.filter_panda.calculate_modularity(eland_fil, resolution=args.resolution, comm_mult=args.max_communities)
     modularity_prior = eland.filter_panda.calculate_modularity(prior_fil, resolution=args.resolution, comm_mult=args.max_communities)
-    modularity_top = eland.filter_panda.calculate_modularity(top_fil, resolution=args.resolution, comm_mult=args.max_communities)
     modularity_unfiltered = eland.filter_panda.calculate_modularity(panda, resolution=args.resolution, comm_mult=args.max_communities)
     
     # Convert dataframes to networkx graphs
     eland_graph = nx.from_pandas_edgelist(eland_fil, source=eland_fil.columns[0], target=eland_fil.columns[1], edge_attr=eland_fil.columns[2])
     prior_graph = nx.from_pandas_edgelist(prior_fil, source=prior_fil.columns[0], target=prior_fil.columns[1], edge_attr=prior_fil.columns[2])
-    top_graph = nx.from_pandas_edgelist(top_fil, source=top_fil.columns[0], target=top_fil.columns[1], edge_attr=top_fil.columns[2])
     unfiltered_graph = nx.from_pandas_edgelist(panda, source=panda.columns[0], target=panda.columns[1], edge_attr=panda.columns[2])
     
     # Calculate density and number of edges for all networks
     density_eland = nx.density(eland_graph)
     density_prior = nx.density(prior_graph)
-    density_top = nx.density(top_graph)
     density_unfiltered = nx.density(unfiltered_graph)
     
     num_edges_eland = eland_graph.number_of_edges()
     num_edges_prior = prior_graph.number_of_edges()
-    num_edges_top = top_graph.number_of_edges()
     num_edges_unfiltered = unfiltered_graph.number_of_edges()
     
     # Calculate the number of unique TFs and genes for all networks
@@ -74,20 +64,17 @@ def main():
     unique_tfs_prior = prior_fil.iloc[:, 0].nunique()
     unique_genes_prior = prior_fil.iloc[:, 1].nunique()
     
-    unique_tfs_top = top_fil.iloc[:, 0].nunique()
-    unique_genes_top = top_fil.iloc[:, 1].nunique()
-    
     unique_tfs_unfiltered = panda.iloc[:, 0].nunique()
     unique_genes_unfiltered = panda.iloc[:, 1].nunique()
     
     # Create a DataFrame to store the results
     results = pd.DataFrame({
-        'Network': ['ELAND filtered PANDA', 'Prior filtered', 'Top filtered', 'Unfiltered'],
-        'Modularity': [modularity_eland, modularity_prior, modularity_top, modularity_unfiltered],
-        'Density': [density_eland, density_prior, density_top, density_unfiltered],
-        'Number of Edges': [num_edges_eland, num_edges_prior, num_edges_top, num_edges_unfiltered],
-        'Unique TFs': [unique_tfs_eland, unique_tfs_prior, unique_tfs_top, unique_tfs_unfiltered],
-        'Unique Genes': [unique_genes_eland, unique_genes_prior, unique_genes_top, unique_genes_unfiltered]
+        'Network': ['ELAND filtered PANDA', 'Prior filtered', 'Unfiltered'],
+        'Modularity': [modularity_eland, modularity_prior, modularity_unfiltered],
+        'Density': [density_eland, density_prior, density_unfiltered],
+        'Number of Edges': [num_edges_eland, num_edges_prior, num_edges_unfiltered],
+        'Unique TFs': [unique_tfs_eland, unique_tfs_prior, unique_tfs_unfiltered],
+        'Unique Genes': [unique_genes_eland, unique_genes_prior, unique_genes_unfiltered]
     })
     
     # Save the results to a CSV file

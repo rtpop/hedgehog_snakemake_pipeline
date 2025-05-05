@@ -16,6 +16,9 @@ get_gtex_data <- function(data, extract_edges = TRUE) {
     load(data)
 
     tissues <- as.character(unique(samples$Tissue))
+    # Get the gene names
+    gene_names <- genes$Symbol[match(edges[,2], genes$Name)]
+    edges[,2] <- gene_names
     data.table::fwrite(edges, file = "data/motif_prior.txt", sep = ",", row.names = FALSE, col.names = FALSE)
 
     for (i in tissues) {
@@ -26,8 +29,6 @@ get_gtex_data <- function(data, extract_edges = TRUE) {
             # Extract edges for the specific tissue
             res <- net[, i]
             res <- cbind(edges[,1:2], res)
-            gene_names <- genes$Symbol[match(res[,2], genes$Name)]
-            res[,2] <- gene_names
             file_name <- paste0("panda_network_edgelist.txt")
         } else {
             # Extract expression data for the specific tissue

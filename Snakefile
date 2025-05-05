@@ -51,27 +51,27 @@ TISSUE = config["tissue"]
 ## SiSaNA parameters ##
 ## ----------------- ##
 
-# SiSaNA directories
-SISANA_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana")
+# # SiSaNA directories
+# SISANA_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana")
 
-# SiSaNA inputs
-EXP_FILE = os.path.join(DATA_DIR, "{tissue_type}", "gtex_" + "{tissue_type}" + "_exp.tsv")
-SISANA_CONFIG = os.path.join(SISANA_DIR, "sisana_params.yml")
+# # SiSaNA inputs
+# EXP_FILE = os.path.join(DATA_DIR, "{tissue_type}", "gtex_" + "{tissue_type}" + "_exp.tsv")
+# SISANA_CONFIG = os.path.join(SISANA_DIR, "sisana_params.yml")
 
-# SiSana params
-EXP = config["exp_file"]
-MOTIF_PRIOR_TAG = config["motif_prior_file"]
-PPI_PRIOR_TAG = config["ppi_prior_file"]
-MOTIF_PRIOR = os.path.join(DATA_DIR, MOTIF_PRIOR_TAG + ".tsv")
-PPI_PRIOR = os.path.join(DATA_DIR, PPI_PRIOR_TAG + ".tsv")
+# # SiSana params
+# EXP = config["exp_file"]
+# MOTIF_PRIOR_TAG = config["motif_prior_file"]
+# PPI_PRIOR_TAG = config["ppi_prior_file"]
+# MOTIF_PRIOR = os.path.join(DATA_DIR, MOTIF_PRIOR_TAG + ".tsv")
+# PPI_PRIOR = os.path.join(DATA_DIR, PPI_PRIOR_TAG + ".tsv")
 
-# SiSaNA outputs
-EXPRESSION_FILTERED = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtered.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
-PPI_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", PPI_PRIOR_TAG + "_filtered.txt")
-STATS = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtering_statistics.txt")
-PANDA_NET = os.path.join(SISANA_DIR, "network", "panda_network.txt")
-MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
+# # SiSaNA outputs
+# EXPRESSION_FILTERED = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtered.txt")
+# MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
+# PPI_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", PPI_PRIOR_TAG + "_filtered.txt")
+# STATS = os.path.join(SISANA_DIR, "preprocess", EXP + "_filtering_statistics.txt")
+# PANDA_NET = os.path.join(SISANA_DIR, "network", "panda_network.txt")
+# MOTIF_PRIOR_FILTERED = os.path.join(SISANA_DIR, "preprocess", MOTIF_PRIOR_TAG + "_filtered.txt")
 
 ## ---------------- ##
 ## ELAND parameters ##
@@ -84,12 +84,15 @@ ELAND_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "eland")
 PRIOR_ONLY = config["prior_only"]
 
 # network processing outputs
-PANDA_EDGELIST = os.path.join(ELAND_DIR, "panda_network_edgelist.txt")
+PANDA_EDGELIST = expand(os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt"), tissue_type = TISSUE)
 PANDA_NET_FILTERED = os.path.join(ELAND_DIR, "panda_network_filtered.txt")
 
 ## ---------------- ------ ##
 ## Benchmarking parameters ##
 ## ------------- --------- ##
+
+MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior_file"])
+
 # directories
 BENCHMARK_DIR = os.path.join(ELAND_DIR, "benchmarking")
 
@@ -204,8 +207,8 @@ TOP_GENE_SUMMARY = os.path.join(ANALYSIS_RUN_DIR, "top_gene_summary_" + str(N_TO
 rule all:
     input:
         expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
-        #expand(GO_ENRICHMENT, tissue_type = TISSUE), \
-        expand(GO_ENRICHMENT_BARPLOT, tissue_type = TISSUE), \
+        expand(GO_ENRICHMENT, tissue_type = TISSUE), \
+        #expand(GO_ENRICHMENT_BARPLOT, tissue_type = TISSUE), \
         #CLUST_HEATMAP, \
         #TOP_MUTATED_COMMUNITIES, \
         #GENE_MUTATION_SUMMARY, \
@@ -219,76 +222,76 @@ rule all:
 ## Making PANDA networks ##
 ##-----------------------##
 
-rule generate_sisana_params:
-    """
-    This rule generates the SiSaNA config file.
-    """
-    output:
-        config_file = SISANA_CONFIG
-    params:
-        script = os.path.join(SRC, "utils/generate_sisana_config.py"),
-        exp = EXP_FILE,
-        motif = MOTIF_PRIOR,
-        ppi = PPI_PRIOR,
-        number = 5,
-        outdir = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "preprocess"),
-        processed_paths = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "tmp", "processed_data_paths.yml"),
-        method = "panda",
-        pandafilepath = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "network", "panda_network.txt")
-    container:
-        PYTHON_CONTAINER
-    message:
-        "; Generating SiSaNA config file with script {params.script}"
-    shell:
-        """
-        python {params.script} --exp {params.exp} --motif {params.motif} --ppi {params.ppi} --number {params.number} --outdir {params.outdir} --processed_paths {params.processed_paths} --method {params.method} --pandafilepath {params.pandafilepath} --output {output.config_file}
-        """
+# rule generate_sisana_params:
+#     """
+#     This rule generates the SiSaNA config file.
+#     """
+#     output:
+#         config_file = SISANA_CONFIG
+#     params:
+#         script = os.path.join(SRC, "utils/generate_sisana_config.py"),
+#         exp = EXP_FILE,
+#         motif = MOTIF_PRIOR,
+#         ppi = PPI_PRIOR,
+#         number = 5,
+#         outdir = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "preprocess"),
+#         processed_paths = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "tmp", "processed_data_paths.yml"),
+#         method = "panda",
+#         pandafilepath = os.path.join(OUTPUT_DIR, "{tissue_type}", "sisana", "network", "panda_network.txt")
+#     container:
+#         PYTHON_CONTAINER
+#     message:
+#         "; Generating SiSaNA config file with script {params.script}"
+#     shell:
+#         """
+#         python {params.script} --exp {params.exp} --motif {params.motif} --ppi {params.ppi} --number {params.number} --outdir {params.outdir} --processed_paths {params.processed_paths} --method {params.method} --pandafilepath {params.pandafilepath} --output {output.config_file}
+#         """
 
-rule run_sisana:
-    """
-    This rule runs PANDA using the SiSaNA pipeline.
+# rule run_sisana:
+#     """
+#     This rule runs PANDA using the SiSaNA pipeline.
 
-    SiSaNA is available at
-    https://github.com/kuijjerlab/sisana
+#     SiSaNA is available at
+#     https://github.com/kuijjerlab/sisana
 
-    Inputs
-    ------
-    SISANA_CONFIG:
-        Config yml file for SiSaNA.
-    ------
-    Outputs
-    -------
-    EXPRESSION_FILTERED:
-        A TXT file with filtered expression.
-    MOTIF_PRIOR_FILTERED:
-        A TXT file with filtered motif prior.
-    PPI_PRIOR_FILTERED:
-        A TXT file with filtered PPI prior.
-    STATS:
-        A file containing information about genes filtered.
-    PANDA_NET:
-        A TXT file with the PANDA network.
-    """
-    input:
-        sisana_config = SISANA_CONFIG
-    output:
-        EXPRESSION_FILTERED, \
-        MOTIF_PRIOR_FILTERED, \
-        PPI_PRIOR_FILTERED, \
-        STATS, \
-        PANDA_NET
-    container:
-        PYTHON_CONTAINER
-    message: 
-        "; Running sisana preprocess on {input.sisana_config}."
-    shell:
-        """
-        echo sisana preprocess {input.sisana_config}
-        sisana preprocess {input.sisana_config}
+#     Inputs
+#     ------
+#     SISANA_CONFIG:
+#         Config yml file for SiSaNA.
+#     ------
+#     Outputs
+#     -------
+#     EXPRESSION_FILTERED:
+#         A TXT file with filtered expression.
+#     MOTIF_PRIOR_FILTERED:
+#         A TXT file with filtered motif prior.
+#     PPI_PRIOR_FILTERED:
+#         A TXT file with filtered PPI prior.
+#     STATS:
+#         A file containing information about genes filtered.
+#     PANDA_NET:
+#         A TXT file with the PANDA network.
+#     """
+#     input:
+#         sisana_config = SISANA_CONFIG
+#     output:
+#         EXPRESSION_FILTERED, \
+#         MOTIF_PRIOR_FILTERED, \
+#         PPI_PRIOR_FILTERED, \
+#         STATS, \
+#         PANDA_NET
+#     container:
+#         PYTHON_CONTAINER
+#     message: 
+#         "; Running sisana preprocess on {input.sisana_config}."
+#     shell:
+#         """
+#         echo sisana preprocess {input.sisana_config}
+#         sisana preprocess {input.sisana_config}
 
-        echo sisana generate {input.sisana_config}
-        sisana generate {input.sisana_config}
-        """
+#         echo sisana generate {input.sisana_config}
+#         sisana generate {input.sisana_config}
+#         """
 
 # ##-------------------------------------##
 # ## Filtering PANDA network for BiHiDef ##
@@ -302,39 +305,36 @@ rule process_and_filter_panda:
     ------
     PANDA_NET:
         A TXT file with the PANDA network.
-    MOTIF_PRIOR_FILTERED:
+    MOTIF_PRIOR:
         A TXT file with filtered motif prior.
     ------
     Outputs
     -------
-    PANDA_EDGELIST:
-        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+    # PANDA_EDGELIST:
+    #     A TXT file with the PANDA network processed as an edgelist compatible with networkx.
     PANDA_NET_FILTERED:
         A TXT file with the PANDA edgelist filtered.
     """
     input:
-        panda = PANDA_NET, \
-        prior = MOTIF_PRIOR_FILTERED
+        panda = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt"), \
+        prior = MOTIF_PRIOR
     output:
-        edgelist = PANDA_EDGELIST, \
-        filtered_net = PANDA_NET_FILTERED, \
-        updated_prior_sep = MOTIF_PRIOR_FILTERED.replace(".txt", "_updated_sep.txt"), \
-        updated_panda_sep = PANDA_NET.replace(".txt", "_updated_sep.txt") 
+        filtered_net = PANDA_NET_FILTERED
     params:
-        process = os.path.join(SRC, "process_networks/process_panda.py"), \
         filter = os.path.join(SRC, "process_networks/filter_panda.py"), \
         delimiter = DELIMITER, \
-        prior_only = PRIOR_ONLY
+        prior_only = PRIOR_ONLY, \
+        out_dir = ELAND_DIR
     container:
         PYTHON_CONTAINER
     message: 
         "; Processing and filtering PANDA network." \
-        "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
-        "Running {params.filter} on {output.updated_panda_sep} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
+        # "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
+        "Running {params.filter} on {input.panda} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
     shell:
         """
-        python {params.process} {input.panda} {input.prior} {output.edgelist} --delimiter '{params.delimiter}'
-        python {params.filter} {output.updated_prior_sep} {output.edgelist} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
+        mkdir -p {params.out_dir}
+        python {params.filter} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
         """
 
 ## ------------------- ##
@@ -348,7 +348,7 @@ rule benchmark_filtering:
     ------
     PANDA_NET_FILTERED:
         A TXT file with the filtered PANDA network.
-    MOTIF_PRIOR_FILTERED:
+    MOTIF_PRIOR:
         A TXT file with the filtered motif prior.
     PANDA_EDGELIST:
         A TXT file with the PANDA edgelist.
@@ -360,8 +360,8 @@ rule benchmark_filtering:
     """
     input:
         panda_network_filtered = PANDA_NET_FILTERED, \
-        updated_prior_sep = MOTIF_PRIOR_FILTERED.replace(".txt", "_updated_sep.txt"), \
-        panda_edgelist = PANDA_EDGELIST
+        prior = MOTIF_PRIOR, \
+        panda_edgelist = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
     output:
         filtering_bench = FILTERING_BENCH
     params:
@@ -376,7 +376,7 @@ rule benchmark_filtering:
     message:
         "; Filtering benchmark data with script {params.script}" \
             "--filtered_net {input.panda_network_filtered}" \
-            "--prior_file {input.updated_prior_sep}" \
+            "--prior_file {input.prior}" \
             "--panda_edgelist {input.panda_edgelist}" \
             "--output_file {output.filtering_bench}" \
             "--delimiter {params.delimiter}" \
@@ -385,7 +385,7 @@ rule benchmark_filtering:
             "--prior_only {params.prior_only}"
     shell:
         """
-        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.updated_prior_sep} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
+        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
         """
 
 rule plot_benchmark:
@@ -595,87 +595,87 @@ rule plot_communities:
 ## GO enrichment of communities ##
 ## ---------------------------- ##
 
-# rule go_enrichment:
-#     """
-#     This rule runs GO enrichment on the selected communities.
-
-#     Inputs
-#     ------
-#     SELECTED_COMMUNITIES:
-#         A GMT file with the selected communities.
-#     ------
-#     Outputs
-#     -------
-#     GO_ENRICHMENT:
-#         A TXT file with the GO enrichment results.
-#     """
-#     input:
-#         gmt = SELECTED_COMMUNITIES, \
-#         bg = GENE_BACKGROUND
-#     output:
-#         go_enrichment = GO_ENRICHMENT
-#     params:
-#         script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
-#         auto_bg = AUTO_BG, \
-#         out_dir = GO_DIR, \
-#         save_all = SAVE_ALL, \
-#         sig_thresh = SIG_THRESH, \
-#         statistic = STATISTIC, \
-#         algorithm = ALG
-
-#     container:
-#         ANALYSIS_CONTAINER
-#     message:
-#         "; Running GO enrichment with script {params.script}" \
-#             "--gmt-file {input.gmt} " \
-#             "--bg-file {input.bg} " \
-#             "--out-dir {params.out_dir} " \
-#             "--auto-bg {params.auto_bg} " \
-#             "--save-all {params.save_all} " \
-#             "--thresh {params.sig_thresh} " \
-#             "--statistic {params.statistic} " \
-#             "--algorithm {params.algorithm} "
-#     shell:
-#         """
-#         mkdir -p {params.out_dir}
-#         echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
-#         Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
-
-#         """
-
-rule go_enrichment_plot:
+rule go_enrichment:
     """
-    This rule plots the GO enrichment results.
+    This rule runs GO enrichment on the selected communities.
 
     Inputs
     ------
-    GO_ENRICHMENT:
-        A TXT file with the GO enrichment results.
+    SELECTED_COMMUNITIES:
+        A GMT file with the selected communities.
     ------
     Outputs
     -------
-    GO_ENRICHMENT_PLOT:
-        A PDF file with the GO enrichment plot.
+    GO_ENRICHMENT:
+        A TXT file with the GO enrichment results.
     """
     input:
-        go_enrichment = GO_ENRICHMENT
+        gmt = SELECTED_COMMUNITIES, \
+        bg = GENE_BACKGROUND
     output:
-        go_enrichment_plot = GO_ENRICHMENT_BARPLOT
+        go_enrichment = GO_ENRICHMENT
     params:
-        script = os.path.join(SRC, "analysis/go_enrichment_plot.R"), \
-        out_dir = GO_DIR
+        script = os.path.join(SRC, "analysis/GO_enrichment.R"), \
+        auto_bg = AUTO_BG, \
+        out_dir = GO_DIR, \
+        save_all = SAVE_ALL, \
+        sig_thresh = SIG_THRESH, \
+        statistic = STATISTIC, \
+        algorithm = ALG
+
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Running GO enrichment plot with script {params.script}" \
-            "--go-enrichment {input.go_enrichment} " \
+        "; Running GO enrichment with script {params.script}" \
+            "--gmt-file {input.gmt} " \
+            "--bg-file {input.bg} " \
             "--out-dir {params.out_dir} " \
-            "--plot-file {output.go_enrichment_plot} "
+            "--auto-bg {params.auto_bg} " \
+            "--save-all {params.save_all} " \
+            "--thresh {params.sig_thresh} " \
+            "--statistic {params.statistic} " \
+            "--algorithm {params.algorithm} "
     shell:
         """
         mkdir -p {params.out_dir}
-        Rscript {params.script} --input {input.go_enrichment} --out-dir {params.out_dir} --file-name {output.go_enrichment_plot}
+        echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
+        Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
+
         """
+
+# rule go_enrichment_plot:
+#     """
+#     This rule plots the GO enrichment results.
+
+#     Inputs
+#     ------
+#     GO_ENRICHMENT:
+#         A TXT file with the GO enrichment results.
+#     ------
+#     Outputs
+#     -------
+#     GO_ENRICHMENT_PLOT:
+#         A PDF file with the GO enrichment plot.
+#     """
+#     input:
+#         go_enrichment = GO_ENRICHMENT
+#     output:
+#         go_enrichment_plot = GO_ENRICHMENT_BARPLOT
+#     params:
+#         script = os.path.join(SRC, "analysis/go_enrichment_plot.R"), \
+#         out_dir = GO_DIR
+#     container:
+#         ANALYSIS_CONTAINER
+#     message:
+#         "; Running GO enrichment plot with script {params.script}" \
+#             "--go-enrichment {input.go_enrichment} " \
+#             "--out-dir {params.out_dir} " \
+#             "--plot-file {output.go_enrichment_plot} "
+#     shell:
+#         """
+#         mkdir -p {params.out_dir}
+#         Rscript {params.script} --input {input.go_enrichment} --out-dir {params.out_dir} --file-name {output.go_enrichment_plot}
+#         """
 
 # ## ----------------------- ##
 # ## Top mutated communities ##

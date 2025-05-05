@@ -26,13 +26,13 @@ get_gtex_data <- function(data, extract_edges = TRUE) {
             # Extract edges for the specific tissue
             res <- net[, i]
             res <- cbind(edges[,1:2], res)
-            gene_names <- as.character(genes[which(genes$Name == rownames(res)), 1])
-            res[,1] <- gene_names
+            gene_names <- genes$Symbol[match(res[,2], genes$Name)]
+            res[,2] <- gene_names
             file_name <- paste0("panda_network_edgelist.txt")
         } else {
             # Extract expression data for the specific tissue
             res <- data.frame(exp[, tissue_samples])
-            gene_names <- as.character(genes[which(genes$Name == rownames(res)), 1])
+            gene_names <- as.character(genes[which(genes$Name %in% res$Gene), 1])
             res <- cbind(gene_names, res)
             file_name <- paste0("exp_", i, ".txt")
         }

@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.24"
+python_container: "docker://rtpop/eland-run:0.0.25"
 analysis_container: "docker://rtpop/eland-downstream:0.0.6"
 
 ##-------------##
@@ -23,10 +23,10 @@ eland_dir: "eland"
 ##-------------##
 ## Input files ##
 ##-------------##
-sisana_config: "sisana_params.yml"
-exp_file: "exp_no_header"
-motif_prior_file: "motif_prior_names_2024"
-ppi_prior_file: "ppi_prior_2024"
+# sisana_config: "sisana_params.yml"
+# exp_file: "exp_no_header"
+motif_prior_file: "motif_prior.txt"
+# ppi_prior_file: "ppi_prior_2024"
 
 ## ------------------------------ ##
 ## Filtering and benchmark params ##

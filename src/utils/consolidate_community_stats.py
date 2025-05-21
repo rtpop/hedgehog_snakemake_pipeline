@@ -62,11 +62,11 @@ def main():
     df = df.rename(columns={
         "Maximum number of genes per community": "max_genes",
         "Minimum number of genes per community": "min_genes",
-        "Number of selected communities": "n_selected",
-        "Total number of communities": "n_total"
+        "Selected communities": "n_selected",
+        "Total communities": "n_total"
     })
     # Reorder columns
-    df = df[["tissue", "community", "siize", "max_genes", "min_genes", "n_selected", "n_total"]]
+    df = df[["tissue", "community", "size", "max_genes", "min_genes", "n_selected", "n_total"]]
     df.to_csv(out_file, sep="\t", index=False)
 
 if __name__ == "__main__":

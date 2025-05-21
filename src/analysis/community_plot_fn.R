@@ -47,8 +47,14 @@
 
 plot_n_communities <- function(data, file_name = NULL) {
   df <- fread(data)
-  str(df)
-  print(file_name)
+
+  # Ensure n_selected is numeric
+  df$n_selected <- as.numeric(df$n_selected)
+  # Sort by n_selected
+  df <- df[order(df$n_selected), ]
+  # Set tissue as a factor in the sorted order
+  df$tissue <- factor(df$tissue, levels = unique(df$tissue))
+
   # Plot number of selected communities for all tissues
   p <- ggplot(df, aes(x = tissue, y = n_selected)) +
     geom_bar(stat = "identity", fill = "steelblue") +
@@ -62,31 +68,5 @@ plot_n_communities <- function(data, file_name = NULL) {
     return(p)
   } else {
     ggsave(file_name, plot = p, width = 8, height = 5)
-  }
-}
-
-#' @name plot_community_size
-#' @title Plot community size
-#' @description Plot community size
-#' @param data Data frame containing the community size
-#' @param tissue Tissue name
-#' @param file_name Path to output file
-#' @return Plot object or NULL
-
-plot_community_size <- function(data, tissue, file_name = NULL) {
-  # Create a bar plot of the community size
-  p <- ggplot(data, aes(x = tissue, y = size)) +
-    geom_bar(stat = "identity") +
-    labs(title = paste("Community Size in", tissue),
-         x = "Tissue",
-         y = "Community Size") +
-    theme_minimal()
-
-  if (is.null(file_name)) {
-    # If no file name is provided, display the plot
-    return(p)
-  } else {
-    # Save the plot to a file
-    ggsave(file_name, plot = p)
   }
 }

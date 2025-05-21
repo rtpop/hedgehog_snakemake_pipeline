@@ -129,6 +129,7 @@ BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + 
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
 SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
+COMMUNITY_STATS_CONSOLIDATED = os.path.join(OUTPUT_DIR, "community_stats.txt")
 
 ## ----------------- ##
 ## sambar parameters ##
@@ -541,7 +542,7 @@ rule consolidate_community_stats:
         community_stats = expand(COMMUNITY_STATS, tissue_type = TISSUE), \
         selected_communities = expand(SELECTED_COMMUNITIES, tissue_type = TISSUE)
     output:
-        consolidated_community_stats = os.path.join(OUTPUT_DIR, "community_stats.txt")
+        consolidated_community_stats = COMMUNITY_STATS_CONSOLIDATED
     params:
         script = os.path.join(SRC, "utils/consolidate_community_stats.py"), \
         stats_joined = lambda wildcards, input: ",".join(input.community_stats), \
@@ -558,14 +559,14 @@ rule consolidate_community_stats:
         python {params.script} "{params.stats_joined}" "{params.gmt_joined}" {output.consolidated_community_stats}
         """
 
-rule plot_communities:
+rule plot_n_communities:
     """
-    This rule plots the community size and number.
+    This rule plots the number of selected communities.
 
     Inputs
     ------
-    SELECTED_COMMUNITIES:
-        A TXT file with the selected communities.
+    COMMUNITY_STATS_CONSOLIDATED:
+        A TXT file with the consolidated community stats.
     ------
     Outputs
     -------
@@ -573,21 +574,18 @@ rule plot_communities:
         A PDF file with the community plot.
     """
     input:
-        df = os.path.join(OUTPUT_DIR, "community_stats.txt")
+        df = COMMUNITY_STATS_CONSOLIDATED
     output:
         community_plot = COMMUNITY_PLOT
     params:
-        script = os.path.join(SRC, "analysis/community_plot.R"), \
-        separate = True
+        script = os.path.join(SRC, "analysis/community_plot.R")
     container:
         ANALYSIS_CONTAINER
     message:
-        "; Plotting communities with script {params.script}" \
-            "--tissues {params.tissues}" \
-            "--out-file {output.community_plot}"
+        "; Plotting communities with script {params.script}"
     shell:
         """
-        Rscript {params.script} --tissues {params.tissues} --separate {params.separate} --out-file {output.community_plot}
+        Rscript {params.script} --input {input.df} --output {output.community_plot}
         """
 
 # ## -------------- ##

@@ -47,23 +47,24 @@
 
 plot_n_communities <- function(data, file_name = NULL) {
   df <- fread(data)
-
   # Ensure n_selected is numeric
   df$n_selected <- as.numeric(df$n_selected)
+  # Keep only one row per tissue
+  df_unique <- unique(df[, .(tissue, n_selected)])
   # Sort by n_selected
-  df <- df[order(df$n_selected), ]
+  df_unique <- df_unique[order(n_selected, decreasing = TRUE)]
   # Set tissue as a factor in the sorted order
-  df$tissue <- factor(df$tissue, levels = unique(df$tissue))
+  df_unique$tissue <- factor(df_unique$tissue, levels = df_unique$tissue)
 
-  # Plot number of selected communities for all tissues
-  p <- ggplot(df, aes(x = tissue, y = n_selected)) +
+  # Plot
+  p <- ggplot(df_unique, aes(x = tissue, y = n_selected)) +
     geom_bar(stat = "identity", fill = "steelblue") +
     labs(title = "Number of Selected Communities per Tissue",
          x = "Tissue",
          y = "Number of Selected Communities") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
-  
+
   if (is.null(file_name)) {
     return(p)
   } else {

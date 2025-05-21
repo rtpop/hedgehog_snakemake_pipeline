@@ -36,7 +36,7 @@ def main():
         prior_fil = eland.filter_panda.filter_panda(args.prior_file, args.panda_edgelist, delimiter=args.delimiter, prior_only=True)
     
     # Save filtered networks
-    eland_fil.to_csv(args.filtered_net.replace(".txt", "_eland.txt"), sep=args.delimiter, index=False)
+    eland_fil.to_csv(args.filtered_net.replace(".txt", "_eland.txt"), sep=args.delimiter, index=False, header=False)
     
     # Calculate modularity for all networks
     modularity_eland = eland.filter_panda.calculate_modularity(eland_fil, resolution=args.resolution, comm_mult=args.max_communities)

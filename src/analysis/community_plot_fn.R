@@ -47,21 +47,20 @@
 
 plot_n_communities <- function(data, file_name = NULL) {
   df <- fread(data)
-  # Ensure n_selected is numeric
-  df$n_selected <- as.numeric(df$n_selected)
-  # Keep only one row per tissue
-  df_unique <- unique(df[, .(tissue, n_selected)])
-  # Sort by n_selected
-  df_unique <- df_unique[order(n_selected, decreasing = TRUE)]
-  # Set tissue as a factor in the sorted order
+  # Use only one row per tissue (since n_selected and n_total are repeated)
+  df_unique <- unique(df[, .(tissue, n_selected, n_total)])
+  # Sort by n_total
+  df_unique <- df_unique[order(n_total, decreasing = TRUE)]
   df_unique$tissue <- factor(df_unique$tissue, levels = df_unique$tissue)
 
-  # Plot
-  p <- ggplot(df_unique, aes(x = tissue, y = n_selected)) +
-    geom_bar(stat = "identity", fill = "steelblue") +
-    labs(title = "Number of Selected Communities per Tissue",
+  p <- ggplot(df_unique, aes(x = tissue)) +
+    geom_bar(aes(y = n_total), stat = "identity", fill = "grey80", width = 0.7) +
+    geom_bar(aes(y = n_selected), stat = "identity", fill = "steelblue", width = 0.5) +
+    geom_text(aes(y = n_total, label = n_total), hjust = 1, color = "grey30", size = 3.5, angle = 90) +
+    geom_text(aes(y = n_selected, label = n_selected), hjust = 1, color = "white", size = 3.5, angle = 90) +
+    labs(title = "Communities per Tissue",
          x = "Tissue",
-         y = "Number of Selected Communities") +
+         y = "Number of Communities") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))
 

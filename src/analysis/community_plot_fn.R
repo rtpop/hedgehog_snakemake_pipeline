@@ -45,10 +45,12 @@
 #' @param file_name Path to output file
 #' @return Plot object or NULL
 
-plot_n_communities <- function(data file_name = NULL) {
-  
+plot_n_communities <- function(data, file_name = NULL) {
+  df <- fread(data)
+  str(df)
+  print(file_name)
   # Plot number of selected communities for all tissues
-  p <- ggplot(df, aes(x = tissue, y = n_selectd)) +
+  p <- ggplot(df, aes(x = tissue, y = n_selected)) +
     geom_bar(stat = "identity", fill = "steelblue") +
     labs(title = "Number of Selected Communities per Tissue",
          x = "Tissue",

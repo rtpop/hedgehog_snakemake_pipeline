@@ -40,18 +40,23 @@ def infer_tissue_from_path(path):
 def main():
     stats_files = sys.argv[1].split(",")
     gmt_files = sys.argv[2].split(",")
-    out_file = sys.argv[3]
+    go_files = sys.argv[3].split(",")
+    out_file = sys.argv[4]
     
     all_records = []
-    for stats_file, gmt_file in zip(stats_files, gmt_files):
+    for stats_file, gmt_file, go_file in zip(stats_files, gmt_files, go_files):
         tissue = infer_tissue_from_path(stats_file)
         stats = parse_stats_file(stats_file)
         comms = parse_gmt_file(gmt_file)
+        go_summary = pd.read_csv(go_file, sep="\t")
+        n_enriched = (go_summary['n_sig_terms'] > 0).sum()
+        
         for comm_name, size in comms:
             record = {
                 "tissue": tissue,
                 "community": comm_name,
-                "size": size
+                "size": size,
+                "n_enriched": n_enriched,
             }
             record.update(stats)
             all_records.append(record)
@@ -66,7 +71,7 @@ def main():
         "Total communities": "n_total"
     })
     # Reorder columns
-    df = df[["tissue", "community", "size", "max_genes", "min_genes", "n_selected", "n_total"]]
+    df = df[["tissue", "community", "size", "max_genes", "min_genes", "n_selected", "n_enriched", "n_total"]]
     df.to_csv(out_file, sep="\t", index=False)
 
 if __name__ == "__main__":

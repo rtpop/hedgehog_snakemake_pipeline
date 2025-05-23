@@ -62,7 +62,9 @@ plot_n_communities <- function(data, file_name = NULL) {
          x = "Tissue",
          y = "Number of Communities") +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          legend.position = "top",
+          legend.direction = "horizontal")
 
   if (is.null(file_name)) {
     return(p)

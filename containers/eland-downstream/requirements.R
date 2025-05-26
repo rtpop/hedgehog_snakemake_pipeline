@@ -12,7 +12,7 @@ required_packages_cran = c(
     "devtools",       # For installing R packages from GitHub
     "purrr",          # For functional programming tools
     # "rcartocolor",    # For color palettes for maps and plots
-    # "reshape2",       # For reshaping data frames
+    "reshape2",       # For reshaping data frames
     # "this.path",      # For creating relative paths
     "tidyr",          # For tidying data
     "ggplot2",        # For creating plots

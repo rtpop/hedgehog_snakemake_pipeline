@@ -48,9 +48,6 @@ consolidate_data <- function(files) {
     # Combine all data frames into one
     consolidated_data <- do.call(rbind, data_list)
 
-    # Ensure the 'file' column is a factor
-    consolidated_data$file <- as.factor(consolidated_data$file)
-
     fwrite(consolidated_data, file = OUT, sep = "\t", row.names = FALSE, quote = FALSE)
     message(paste("Consolidated data written to:", OUT))
 }

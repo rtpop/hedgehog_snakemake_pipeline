@@ -2,7 +2,7 @@
 ## Containers ##
 ##------------##
 python_container: "docker://rtpop/eland-run:0.0.23"
-analysis_container: "docker://rtpop/eland-downstream:0.0.6"
+analysis_container: "docker://rtpop/eland-downstream:0.0.7"
 
 ##-------------##
 ## Directories ##

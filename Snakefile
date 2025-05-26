@@ -104,11 +104,11 @@ UNFILTERED = config["plot_unfiltered"]
 FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
 FILTERING_BENCH_DF = expand(os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), tissue_type = TISSUE)
 FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
+FILTERING_HEATMAP = os.path.join(OUTPUT_DIR, "filtering_benchmark_heatmap.pdf")
 if UNFILTERED:
     FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot_unfiltered.pdf")
 else:
     FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
-
 
 ## ------------------ ##
 ## BiHiDeF parameters ##
@@ -221,6 +221,7 @@ rule all:
         expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION), \
         expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE), \
         FILTERING_BENCH_CONSOLIDATED, \
+        FILTERING_HEATMAP, \
         expand(GENE_COMMUNITIES, tissue_type = TISSUE), \
         expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
         COMMUNITY_PLOT
@@ -476,6 +477,35 @@ rule consolidate_benchmark:
     shell:
         """
         Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
+        """
+
+rule plot_bench_heatmap:
+    """
+    This rule plots the benchmark heatmap.
+
+    Inputs
+    ------
+    FILTERING_BENCH_CONSOLIDATED:
+        A TXT file with the consolidated benchmark data.
+    ------
+    Outputs
+    -------
+    BENCHMARK_HEATMAP:
+        A PDF file with the benchmark heatmap.
+    """
+    input:
+        filtering_bench_df = FILTERING_BENCH_CONSOLIDATED
+    output:
+        benchmark_heatmap = FILTERING_HEATMAP
+    params:
+        script = os.path.join(SRC, "analysis/plot_filtering_bench_heatmap.R")
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Plotting benchmark heatmap with script {params.script}"
+    shell:
+        """
+        Rscript {params.script} --file {input.filtering_bench_df} --output {output.benchmark_heatmap}
         """
 
 # --------------- ##

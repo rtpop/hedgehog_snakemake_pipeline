@@ -110,3 +110,53 @@ plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title =
   # Save the plot to a file
   ggsave(plot_file, plot = p, width = 10, height = 6)
 }
+
+#' @name plot_heatmap
+#' @title Plot heatmap of filtering benchmark results
+#' @description This function takes a data frame containing filtering benchmark results and generates a heatmap comparing
+#' the performance of different filtering methods across various resolutions and tissue types.
+#' @param df Path to a data frame containing the filtering benchmark results. The data frame should have the following columns:
+#' \itemize{
+#'  \item \code{Network}: The method of filtering used (ELAND, Prior or Top).
+#'  \item \code{Modularity}: The modularity score of the filtered network.
+#'  \item \code{Density}: The density of the filtered network.
+#'  \item \code{Number of Edges}: The number of edges in the filtered network.
+#'  \item \code{Unique TFs}: The number of unique transcription factors in the filtered network.
+#'  \item \code{Unique Genes}: The number of unique genes in the filtered network.
+#'  \item \code{tissue_type}: The type of tissue used in the filtering benchmark.
+#' }
+#' @param output_dir The directory where the heatmap will be saved.
+#' @param metric The metric to plot in the heatmap. This should be one of "Modularity", "Density", "Number of Edges", "Unique TFs", or "Unique Genes".
+#' @param plot_title The title of the heatmap.
+
+plot_heatmap <- function(df, output_file, metric = "Modularity", filtering = "Prior filtered", plot_title = NULL) {
+  data <- data.table::fread(df, header = TRUE)
+  
+  # Exclude "Unfiltered" network
+  data <- data[data$Network == filtering, ]
+
+  # Make sure resolution is a factor (for ordering)
+  data$resolution <- as.factor(data$resolution)
+
+  # capping scale at 0
+  print(max(data[[metric]]), flush = TRUE)
+  data$fill_metric <- pmax(as.numeric(data[[metric]]), 0)
+
+  custom_label <- function(breaks) {
+    labels <- scales::number(breaks, accuracy = 0.01)
+    labels[1] <- "≤ 0"
+    labels
+  }
+  
+  # Plot: x = tissue, y = resolution, fill = metric, facet by Network
+  p <- ggplot(data, aes(x = resolution, y = tissue_type, fill = fill_metric)) +
+    geom_tile() +
+    facet_wrap(~ Network) +
+    scale_fill_gradient(low = "white", high = "blue",
+                        label = custom_label) +
+    labs(title = plot_title, x = "Tissue", y = "Resolution") +
+    theme_minimal() +
+    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+  return(p)
+}

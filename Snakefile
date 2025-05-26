@@ -103,6 +103,7 @@ UNFILTERED = config["plot_unfiltered"]
 # outputs
 FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
 FILTERING_BENCH_DF = expand(os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), tissue_type = TISSUE)
+FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
 if UNFILTERED:
     FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot_unfiltered.pdf")
 else:
@@ -219,6 +220,8 @@ rule all:
         #TOP_GENE_SUMMARY, \
         expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION), \
         expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE), \
+        FILTERING_BENCH_CONSOLIDATED, \
+        expand(GENE_COMMUNITIES, tissue_type = TISSUE), \
         expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
         COMMUNITY_PLOT
 
@@ -302,96 +305,96 @@ rule all:
 # ## Filtering PANDA network for BiHiDef ##
 # ##-------------------------------------##
 
-# rule process_and_filter_panda:
-#     """
-#     This rule processes and filters the PANDA network.
+rule process_and_filter_panda:
+    """
+    This rule processes and filters the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     MOTIF_PRIOR:
-#         A TXT file with filtered motif prior.
-#     ------
-#     Outputs
-#     -------
-#     # PANDA_EDGELIST:
-#     #     A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-#     PANDA_NET_FILTERED:
-#         A TXT file with the PANDA edgelist filtered.
-#     """
-#     input:
-#         panda = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt"), \
-#         prior = MOTIF_PRIOR
-#     output:
-#         filtered_net = PANDA_NET_FILTERED
-#     params:
-#         filter = os.path.join(SRC, "process_networks/filter_panda.py"), \
-#         delimiter = DELIMITER, \
-#         prior_only = PRIOR_ONLY, \
-#         out_dir = ELAND_DIR
-#     container:
-#         PYTHON_CONTAINER
-#     message: 
-#         "; Processing and filtering PANDA network." \
-#         # "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
-#         "Running {params.filter} on {input.panda} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
-#     shell:
-#         """
-#         mkdir -p {params.out_dir}
-#         python {params.filter} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
-#         """
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with filtered motif prior.
+    ------
+    Outputs
+    -------
+    # PANDA_EDGELIST:
+    #     A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+    PANDA_NET_FILTERED:
+        A TXT file with the PANDA edgelist filtered.
+    """
+    input:
+        panda = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt"), \
+        prior = MOTIF_PRIOR
+    output:
+        filtered_net = PANDA_NET_FILTERED
+    params:
+        filter = os.path.join(SRC, "process_networks/filter_panda.py"), \
+        delimiter = DELIMITER, \
+        prior_only = PRIOR_ONLY, \
+        out_dir = ELAND_DIR
+    container:
+        PYTHON_CONTAINER
+    message: 
+        "; Processing and filtering PANDA network." \
+        # "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
+        "Running {params.filter} on {input.panda} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.filter} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
+        """
 
 # ## ------------------- ##
 # ## Benchmark filtering ##
 # ## ------------------- ##
-# rule benchmark_filtering:
-#     """
-#     This rule benchmarks filtering methods for the PANDA network.
+rule benchmark_filtering:
+    """
+    This rule benchmarks filtering methods for the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET_FILTERED:
-#         A TXT file with the filtered PANDA network.
-#     MOTIF_PRIOR:
-#         A TXT file with the filtered motif prior.
-#     PANDA_EDGELIST:
-#         A TXT file with the PANDA edgelist.
-#     ------
-#     Outputs
-#     -------
-#     BENCHMARK_FILTERED:
-#         A TXT file with the benchmark data filtered.
-#     """
-#     input:
-#         panda_network_filtered = PANDA_NET_FILTERED, \
-#         prior = MOTIF_PRIOR, \
-#         panda_edgelist = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
-#     output:
-#         filtering_bench = FILTERING_BENCH
-#     params:
-#         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
-#         out_dir = os.path.join(BENCHMARK_DIR), \
-#         delimiter = DELIMITER, \
-#         resolution = '{bench_resolution}', \
-#         max_communities = MAX_COMMUNITIES, \
-#         prior_only = PRIOR_ONLY
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Filtering benchmark data with script {params.script}" \
-#             "--filtered_net {input.panda_network_filtered}" \
-#             "--prior_file {input.prior}" \
-#             "--panda_edgelist {input.panda_edgelist}" \
-#             "--output_file {output.filtering_bench}" \
-#             "--delimiter {params.delimiter}" \
-#             "--resolution {params.resolution}" \
-#             "--max_communities {params.max_communities}" \
-#             "--prior_only {params.prior_only}"
-#     shell:
-#         """
-#         python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
-#         """
+    Inputs
+    ------
+    PANDA_NET_FILTERED:
+        A TXT file with the filtered PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with the filtered motif prior.
+    PANDA_EDGELIST:
+        A TXT file with the PANDA edgelist.
+    ------
+    Outputs
+    -------
+    BENCHMARK_FILTERED:
+        A TXT file with the benchmark data filtered.
+    """
+    input:
+        panda_network_filtered = PANDA_NET_FILTERED, \
+        prior = MOTIF_PRIOR, \
+        panda_edgelist = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
+    output:
+        filtering_bench = FILTERING_BENCH
+    params:
+        script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
+        out_dir = os.path.join(BENCHMARK_DIR), \
+        delimiter = DELIMITER, \
+        resolution = '{bench_resolution}', \
+        max_communities = MAX_COMMUNITIES, \
+        prior_only = PRIOR_ONLY
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Filtering benchmark data with script {params.script}" \
+            "--filtered_net {input.panda_network_filtered}" \
+            "--prior_file {input.prior}" \
+            "--panda_edgelist {input.panda_edgelist}" \
+            "--output_file {output.filtering_bench}" \
+            "--delimiter {params.delimiter}" \
+            "--resolution {params.resolution}" \
+            "--max_communities {params.max_communities}" \
+            "--prior_only {params.prior_only}"
+    shell:
+        """
+        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
+        """
 
 rule plot_benchmark:
     """
@@ -441,6 +444,38 @@ rule plot_benchmark:
             --plot-title "{params.plot_title}" \
             --plot-file {output.benchmark_plot} \
             --include-unfiltered {params.include_unfiltered}
+        """
+
+rule consolidate_benchmark:
+    """
+    This rule consolidates the benchmark data into a single file.
+
+    Inputs
+    ------
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_DF:
+        A TXT file with the consolidated benchmark data.
+    """
+    input:
+        filtering_bench_list=expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
+    output:
+        filtering_bench_df=FILTERING_BENCH_CONSOLIDATED
+    params:
+        script=os.path.join(SRC, "utils/consolidate_benchmark.R"), \
+        files=lambda wildcards, input: ",".join(input.filtering_bench_list)
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Consolidating benchmark data with script {params.script} with params:" \
+            "--files {params.files}" \
+            "--output-file {output.filtering_bench_df}"
+    shell:
+        """
+        Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
         """
 
 # --------------- ##

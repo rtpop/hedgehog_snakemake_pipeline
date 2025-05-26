@@ -103,6 +103,7 @@ UNFILTERED = config["plot_unfiltered"]
 # outputs
 FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_R" + "{bench_resolution}" + ".txt")
 FILTERING_BENCH_DF = expand(os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt"), tissue_type = TISSUE)
+FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
 if UNFILTERED:
     FILTERING_BENCH_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot_unfiltered.pdf")
 else:
@@ -129,7 +130,7 @@ BIHIDEF_RUN_DIR = os.path.join(BIHIDEF_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + 
 GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG  + ".nodes")
 SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
-COMMUNITY_PLOT = os.path.join(BIHIDEF_RUN_DIR, "community_plot.pdf")
+COMMUNITY_STATS_CONSOLIDATED = os.path.join(OUTPUT_DIR, "community_stats.txt")
 
 ## ----------------- ##
 ## sambar parameters ##
@@ -156,6 +157,10 @@ DIST_MATRIX = os.path.join(SAMBAR_RUN_DIR, "dist_matrix.csv")
 # Analysis directories
 ANALYSIS_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "analysis")
 ANALYSIS_RUN_DIR = os.path.join(ANALYSIS_DIR, "C" + str(MAX_COMMUNITIES) + "_R" + str(MAX_RESOLUTION))
+
+# community plots
+COMMUNITY_PLOT = os.path.join(OUTPUT_DIR, "community_plot.pdf")
+import glob
 
 ## GO enrichment params ##
 
@@ -215,7 +220,10 @@ rule all:
         #TOP_GENE_SUMMARY, \
         expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION), \
         expand(FILTERING_BENCH_PLOT, tissue_type = TISSUE), \
-        expand(COMMUNITY_PLOT, tissue_type = TISSUE)
+        FILTERING_BENCH_CONSOLIDATED, \
+        expand(GENE_COMMUNITIES, tissue_type = TISSUE), \
+        expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
+        COMMUNITY_PLOT
 
 
 ##-----------------------##
@@ -337,9 +345,9 @@ rule process_and_filter_panda:
         python {params.filter} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
         """
 
-## ------------------- ##
-## Benchmark filtering ##
-## ------------------- ##
+# ## ------------------- ##
+# ## Benchmark filtering ##
+# ## ------------------- ##
 rule benchmark_filtering:
     """
     This rule benchmarks filtering methods for the PANDA network.
@@ -438,6 +446,38 @@ rule plot_benchmark:
             --include-unfiltered {params.include_unfiltered}
         """
 
+rule consolidate_benchmark:
+    """
+    This rule consolidates the benchmark data into a single file.
+
+    Inputs
+    ------
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_DF:
+        A TXT file with the consolidated benchmark data.
+    """
+    input:
+        filtering_bench_list=expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
+    output:
+        filtering_bench_df=FILTERING_BENCH_CONSOLIDATED
+    params:
+        script=os.path.join(SRC, "utils/consolidate_benchmark.R"), \
+        files=lambda wildcards, input: ",".join(input.filtering_bench_list)
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Consolidating benchmark data with script {params.script} with params:" \
+            "--files {params.files}" \
+            "--output-file {output.filtering_bench_df}"
+    shell:
+        """
+        Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
+        """
+
 # --------------- ##
 # Running BiHiDeF ##
 # --------------- ##
@@ -517,40 +557,6 @@ rule select_communities:
     shell:
         """
         python {params.script} {input} {output.selected_communities} --log {output.stats} --max_size {params.max_genes} --min_size {params.min_genes}
-        """
-
-rule plot_communities:
-    """
-    This rule plots the community size and number.
-
-    Inputs
-    ------
-    SELECTED_COMMUNITIES:
-        A TXT file with the selected communities.
-    ------
-    Outputs
-    -------
-    COMMUNITY_PLOT:
-        A PDF file with the community plot.
-    """
-    input:
-        selected_communities = SELECTED_COMMUNITIES, \
-        stats = COMMUNITY_STATS
-    output:
-        community_plot = COMMUNITY_PLOT
-    params:
-        script = os.path.join(SRC, "analysis/community_plot.R"), \
-        separate = False
-    container:
-        ANALYSIS_CONTAINER
-    message:
-        "; Plotting communities with script {params.script}" \
-            "--input {input.selected_communities}" \
-            "--stats {input.stats}" \
-            "--out-file {output.community_plot}"
-    shell:
-        """
-        Rscript {params.script} --input {input.selected_communities} --stats {input.stats} --separate {params.separate} --out-file {output.community_plot}
         """
 
 # ## -------------- ##
@@ -641,6 +647,106 @@ rule go_enrichment:
         echo Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --sig-thresh {params.sig_thresh} --statistic {params.statistic} --algorithm params.algorithm --output-dir {params.out_dir}
         Rscript {params.script} --gmt-file {input.gmt} --bg-file {input.bg} --auto-bg {params.auto_bg} --save-all {params.save_all} --thresh {params.sig_thresh} --statistic {params.statistic} --algorithm {params.algorithm} --output-dir {params.out_dir}
 
+        """
+
+rule consolidate_community_stats:
+    """
+    This rule consolidates the community stats into a single file.
+
+    Inputs
+    ------
+    COMMUNITY_STATS:
+        A TXT file with the community stats.
+    ------
+    Outputs
+    -------
+    COMMUNITY_STATS:
+        A TXT file with the consolidated community stats.
+    """
+    input:
+        community_stats = expand(COMMUNITY_STATS, tissue_type = TISSUE), \
+        selected_communities = expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
+        go_summery = expand(GO_ENRICHMENT, tissue_type = TISSUE)
+    output:
+        consolidated_community_stats = COMMUNITY_STATS_CONSOLIDATED
+    params:
+        script = os.path.join(SRC, "utils/consolidate_community_stats.py"), \
+        stats_joined = lambda wildcards, input: ",".join(input.community_stats), \
+        gmt_joined = lambda wildcards, input: ",".join(input.selected_communities), \
+        go_summary_joined = lambda wildcards, input: ",".join(input.go_summery)
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Consolidating community stats with script {params.script} " \
+            "{input.community_stats} " \
+            "{input.selected_communities} " \
+            "{output.consolidated_community_stats}"
+    shell:
+        """
+        python {params.script} "{params.stats_joined}" "{params.gmt_joined}" "{params.go_summary_joined}" {output.consolidated_community_stats}
+        """
+
+rule plot_n_communities:
+    """
+    This rule plots the number of selected communities.
+
+    Inputs
+    ------
+    COMMUNITY_STATS_CONSOLIDATED:
+        A TXT file with the consolidated community stats.
+    ------
+    Outputs
+    -------
+    COMMUNITY_PLOT:
+        A PDF file with the community plot.
+    """
+    input:
+        df = COMMUNITY_STATS_CONSOLIDATED
+    output:
+        community_plot = COMMUNITY_PLOT
+    params:
+        script = os.path.join(SRC, "analysis/community_plot.R")
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Plotting communities with script {params.script}"
+    shell:
+        """
+        Rscript {params.script} --input {input.df} --output {output.community_plot}
+        """
+
+rule plot_n_enriched_communities:
+    """
+    This rule plots the number of enriched communities.
+
+    Inputs
+    ------
+    GO_ENRICHMENT:
+        A TXT file with the GO enrichment results.
+    ------
+    Outputs
+    -------
+    GO_ENRICHMENT_PLOT:
+        A PDF file with the GO enrichment plot.
+    """
+    input:
+        go_enrichment = GO_ENRICHMENT
+    output:
+        go_enrichment_plot = GO_ENRICHMENT_BARPLOT
+    params:
+        script = os.path.join(SRC, "analysis/go_enrichment_plot.R"), \
+        out_dir = GO_DIR
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Running GO enrichment plot with script {params.script}" \
+            "--go-enrichment {input.go_enrichment} " \
+            "--out-dir {params.out_dir} " \
+            "--plot-file {output.go_enrichment_plot} "
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        Rscript {params.script} --input {input.go_enrichment} --out-dir {params.out_dir} --file-name {output.go_enrichment_plot}
         """
 
 # rule go_enrichment_plot:

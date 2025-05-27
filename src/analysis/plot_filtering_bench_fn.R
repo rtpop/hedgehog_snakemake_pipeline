@@ -152,8 +152,9 @@ plot_heatmap <- function(df, output_file, metric = "Modularity", filtering = "Pr
   p <- ggplot(data, aes(x = resolution, y = tissue_type, fill = fill_metric)) +
     geom_tile() +
     facet_wrap(~ Network) +
-    scale_fill_gradient(low = "white", high = "blue",
-                        label = custom_label) +
+    scale_fill_gradient(low = "white", high = "steelblue",
+                        label = custom_label,
+                        name = metric) +
     labs(title = plot_title, x = "Tissue", y = "Resolution") +
     theme_minimal() +
     theme(axis.text.x = element_text(angle = 45, hjust = 1))

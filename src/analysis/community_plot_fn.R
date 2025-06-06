@@ -70,7 +70,7 @@ plot_n_communities <- function(data, file_name = NULL) {
     geom_text(aes(label = Count, color = Type), 
               position = position_identity(), 
               size = 3.5, angle = 90, hjust = 1) +
-    scale_fill_manual(values = fill_map, name = "Community Type") +
+    scale_fill_manual(values = fill_map, name = "Communities") +
     scale_color_manual(values = text_color, guide = "none") +
     labs(title = "Communities per Tissue",
          x = "Tissue",

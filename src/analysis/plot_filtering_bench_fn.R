@@ -132,7 +132,7 @@ plot_filtering_bench <- function(df, output_dir, plot_type = "all", plot_title =
 plot_heatmap <- function(df, output_file, metric = "Modularity", filtering = "Prior filtered", plot_title = NULL) {
   data <- data.table::fread(df, header = TRUE)
   
-  # Exclude "Unfiltered" network
+  # select filtering method
   data <- data[data$Network == filtering, ]
 
   # Make sure resolution is a factor (for ordering)
@@ -157,7 +157,12 @@ plot_heatmap <- function(df, output_file, metric = "Modularity", filtering = "Pr
                         name = metric) +
     labs(title = plot_title, x = "Tissue", y = "Resolution") +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1),
+          axis.title.x = element_text(size = 12),
+          axis.title.y = element_text(size = 12),
+          legend.title = element_text(size = 12),
+          legend.text = element_text(size = 10),
+          strip.text = element_text(size = 12))
 
   return(p)
 }

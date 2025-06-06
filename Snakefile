@@ -498,14 +498,16 @@ rule plot_bench_heatmap:
     output:
         benchmark_heatmap = FILTERING_HEATMAP
     params:
-        script = os.path.join(SRC, "analysis/plot_filtering_bench_heatmap.R")
+        script = os.path.join(SRC, "analysis/plot_filtering_bench_heatmap.R"), \
+        metric = "Modularity",  \
+        filtering_method = "Prior filtered"
     container:
         ANALYSIS_CONTAINER
     message:
         "; Plotting benchmark heatmap with script {params.script}"
     shell:
         """
-        Rscript {params.script} --file {input.filtering_bench_df} --output {output.benchmark_heatmap}
+        Rscript {params.script} --input "{input.filtering_bench_df}" --output {output.benchmark_heatmap} --metric {params.metric} --filtering "{params.filtering_method}"
         """
 
 # --------------- ##

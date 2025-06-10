@@ -1,8 +1,8 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/eland-run:0.0.23"
-analysis_container: "docker://rtpop/eland-downstream:0.0.7"
+python_container: "docker://rtpop/hedgehog-run:1.0"
+analysis_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
 ## Directories ##

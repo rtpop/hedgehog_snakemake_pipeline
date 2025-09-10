@@ -42,6 +42,7 @@ R_CONTAINER = config["r_container"]
 DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
 SRC = config["src_dir"]
+HEDGEHOG_DIR = os.path.join(OUTPUT_DIR, "hedgehog")
 
 # Other params
 DELIMITER = config["delimiter"]
@@ -51,12 +52,18 @@ TISSUE = config["tissue"]
 ## GTEx data ##
 ## --------- ##
 GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", config["gtex_data_file"])
-PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", config["panda_edgelist_file"])
+PANDA_NET = os.path.join(DATA_DIR, "{tissue_type}", config["panda_net_file"])
 MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior_file"])
 PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 
+## ------------------------ ##
+## Filtering panda networks ##
+## ------------------------ ##
+PANDA_NET_FILTERED = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_filtered.txt")
+PRIOR_ONLY = config["prior_only"]
+
 ##-------##
-## Rules ##
+## RULES ##
 ##-------##
 
 ## -------- ##
@@ -112,8 +119,8 @@ rule process_gtex_data:
     ------
     Outputs
     -------
-    PANDA_EDGELIST:
-        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
+    PANDA_NET:
+        A TXT file with the PANDA network.
     """
     input:
         gtex_data = GTEX_DATA_FILE
@@ -137,45 +144,42 @@ rule process_gtex_data:
 ## Filtering PANDA network for BiHiDef ##
 ##-------------------------------------##
 
-# rule process_and_filter_panda:
-#     """
-#     This rule processes and filters the PANDA network.
+rule process_and_filter_panda:
+    """
+    This rule processes and filters the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     MOTIF_PRIOR:
-#         A TXT file with filtered motif prior.
-#     ------
-#     Outputs
-#     -------
-#     # PANDA_EDGELIST:
-#     #     A TXT file with the PANDA network processed as an edgelist compatible with networkx.
-#     PANDA_NET_FILTERED:
-#         A TXT file with the PANDA edgelist filtered.
-#     """
-#     input:
-#         panda = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt"), \
-#         prior = MOTIF_PRIOR
-#     output:
-#         filtered_net = PANDA_NET_FILTERED
-#     params:
-#         filter = os.path.join(SRC, "process_networks/filter_panda.py"), \
-#         delimiter = DELIMITER, \
-#         prior_only = PRIOR_ONLY, \
-#         out_dir = ELAND_DIR
-#     container:
-#         PYTHON_CONTAINER
-#     message: 
-#         "; Processing and filtering PANDA network." \
-#         # "Running {params.process} on {input.panda} and {input.prior} to create {output.edgelist} with --delimiter {params.delimiter}." \
-#         "Running {params.filter} on {input.panda} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
-#     shell:
-#         """
-#         mkdir -p {params.out_dir}
-#         python {params.filter} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
-#         """
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with the motif prior.
+    ------
+    Outputs
+    -------
+    PANDA_NET_FILTERED:
+        A TXT file with the PANDA edgelist filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        prior = MOTIF_PRIOR
+    output:
+        filtered_net = PANDA_NET_FILTERED
+    params:
+        script = os.path.join(SRC, "process_networks/filter_panda.py"), \
+        delimiter = DELIMITER, \
+        prior_only = PRIOR_ONLY, \
+        out_dir = HEDGEHOG_DIR
+    container:
+        PYTHON_CONTAINER
+    message: 
+        "; Processing and filtering PANDA network." \
+        "Running {params.script} on {input.panda} and {input.prior} to create {output.filtered_net} with --delimiter {params.delimiter} and --prior_only {params.prior_only}."
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
+        """
 
 # # ## ------------------- ##
 # # ## Benchmark filtering ##

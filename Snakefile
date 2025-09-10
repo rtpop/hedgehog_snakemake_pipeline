@@ -52,10 +52,72 @@ TISSUE = config["tissue"]
 ## Rules ##
 ##-------##
 
+## -------- ##
 ## Rule ALL ##
+## -------- ##
+
 rule all:
     input:
-        expand(PANDA_NET_FILTERED, tissue_type = TISSUE)
+        
+
+## ---------------------------- ##
+## Download & process GTEX data ##
+## ---------------------------- ##
+
+rule download_gtex_data:
+    """
+    This rule downloads PANDA GRNs modelled on GTEx data. Available on Zenodo (https://zenodo.org/records/838734).
+
+    Inputs
+    ------
+    ------
+    Outputs
+    -------
+    EXP_FILE:
+        A TXT file with the processed expression data.
+    GENE_BACKGROUND:
+        A TXT file with the gene background.
+    """
+    output:
+        exp = EXP_FILE, \
+        bg = GENE_BACKGROUND
+    params:
+        script = os.path.join(SRC, "process_data/process_gtex.py"), \
+        out_dir = os.path.join(DATA_DIR, "gtex"), \
+        tissue = TISSUE, \
+        delimiter = DELIMITER
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Downloading and processing GTEx data with script {params.script} for tissue {params.tissue} to create {output.exp} and {output.bg} with --delimiter {params.delimiter}."
+    shell:
+        """
+        mkdir -p {params.out_dir}
+        python {params.script} {params.tissue} {params.out_dir} --delimiter '{params.delimiter}' --exp_out {output.exp} --bg_out {output.bg}
+        """
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ##-------------------------------------##
 ## Filtering PANDA network for BiHiDef ##

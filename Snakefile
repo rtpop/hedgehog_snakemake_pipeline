@@ -126,7 +126,7 @@ rule process_gtex_data:
         "; Processing GTEx data with script {params.script} to create {output.panda_edgelist}."
     shell:
         """
-        Rscript {params.script} -i {input.gtex_data} --out_dir {params.out_dir} --edgelist {params.edgelist}
+        Rscript {params.script} -i {input.gtex_data} --out-dir {params.out_dir} --edgelist {params.edgelist}
         """
 
 ##-------------------------------------##

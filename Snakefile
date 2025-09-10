@@ -86,7 +86,8 @@ rule download_gtex_data:
     output:
         GTEX_DATA_FILE
     params:
-        out_dir = os.path.join(DATA_DIR, "download")
+        out_dir = os.path.join(DATA_DIR, "download"), \
+        log_file = os.path.join(DATA_DIR, "download", "download_gtex.log")
     container:
         PYTHON_CONTAINER
     message:
@@ -94,7 +95,7 @@ rule download_gtex_data:
     shell:
         """
         mkdir -p {params.out_dir}
-        curl --output {output} https://zenodo.org/records/838734/files/GTEx_PANDA_tissues.RData?download=1
+        curl --output {output} https://zenodo.org/records/838734/files/GTEx_PANDA_tissues.RData?download=1 > {params.log_file} 2>&1
         """
 
 rule process_gtex_data:

@@ -25,7 +25,7 @@ opt <- optparse::parse_args(opt_parser)
 ## Variables ##
 ## --------- ##
 DATA <- opt$`input`
-EXTRACT_EDGES <- opt$`extract-edges`
+EXTRACT_EDGES <- opt$`edgelist`
 OUT_DIR <- opt$`out-dir`
 
 # source functions

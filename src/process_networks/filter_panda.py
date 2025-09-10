@@ -1,7 +1,7 @@
 # Import libraries
 import argparse
 import pandas as pd
-import eland
+import hedgehog
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Process and filter panda network.")
@@ -19,7 +19,7 @@ def main():
     args = parse_arguments()
 
     # process panda result into edgelist
-    eland.filter_panda.filter_panda(args.prior_file, args.input_file, args.output_file, delimiter = args.delimiter, prior_only = args.prior_only)
+    hedgehog.filter_panda.filter_panda(args.prior_file, args.input_file, args.output_file, delimiter = args.delimiter, prior_only = args.prior_only)
 
 if __name__ == "__main__":
     main()

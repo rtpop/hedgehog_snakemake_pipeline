@@ -10,6 +10,9 @@ r_container: "docker://rtpop/hedgehog-downstream:1.0"
 src: "src" # Code directory
 data_dir: "data"
 output_dir: "output" # this will be a parent directory for different runs
+src_dir: "src"
+
+
 # list of tissues
 tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
   "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
@@ -17,14 +20,16 @@ tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_ao
   "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
   "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
-#tissue: ["Liver"]
-src_dir: "src"
-eland_dir: "eland"
 
-##-------------##
-## Input files ##
-##-------------##
+
+## ---------- ##
+## GTEX files ##
+## ---------- ##
+gtex_data_file: "GTEx_PANDA_net.RData"
 motif_prior_file: "motif_prior.txt"
+panda_edgelist_file: "panda_network_edgelist.txt"
+processing_log: "process_gtex.log"
+
 
 ## ------------------------------ ##
 ## Filtering and benchmark params ##

@@ -50,10 +50,10 @@ TISSUE = config["tissue"]
 ## --------- ##
 ## GTEx data ##
 ## --------- ##
-GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", "GTEx_PANDA_net.RData")
-PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
-MOTIF_PRIOR = os.path.join(DATA_DIR, "motif_prior.txt")
-PROCESS_GTEX_LOG = os.path.join(DATA_DIR, "process_gtex.log")
+GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", config["gtex_data_file"])
+PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", config["panda_edgelist_file"])
+MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior_file"])
+PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 
 ##-------##
 ## Rules ##

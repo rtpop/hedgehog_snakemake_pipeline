@@ -14,7 +14,7 @@ options(stringsAsFactors = FALSE)
 
 option_list <- list(
     optparse::make_option(c("-i", "--input"), type = "character", help = "RData file containing GTEx data."),
-    optparse::make_option(c("-e", "--extract-edges"), type = "logical", default = TRUE, help = "If edges should be extracted for each tissue. If FALSE, expression will be extracted instead."),
+    optparse::make_option(c("-e", "--edgelist"), type = "logical", default = TRUE, help = "If edges should be extracted for each tissue. If FALSE, expression will be extracted instead."),
     optparse::make_option(c("-d", "--out-dir"), type = "character", default = "data/", help = "Path to output directory.")
 )
 

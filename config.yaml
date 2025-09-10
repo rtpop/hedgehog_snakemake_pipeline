@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/hedgehog-run:1.0"
+python_container: "docker://rtpop/hedgehog-run:1.1"
 r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
@@ -27,9 +27,8 @@ tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_ao
 ## ---------- ##
 gtex_data_file: "GTEx_PANDA_net.RData"
 motif_prior_file: "motif_prior.txt"
-panda_edgelist_file: "panda_network_edgelist.txt"
+panda_net_file: "panda_network_edgelist.txt"
 processing_log: "process_gtex.log"
-
 
 ## ------------------------------ ##
 ## Filtering and benchmark params ##

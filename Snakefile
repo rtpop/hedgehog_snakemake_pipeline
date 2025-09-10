@@ -88,7 +88,7 @@ rule download_gtex_data:
     params:
         out_dir = os.path.join(DATA_DIR, "download")
     container:
-        R_CONTAINER
+        PYTHON_CONTAINER
     message:
         "; Downloading GTEx data."
     shell:

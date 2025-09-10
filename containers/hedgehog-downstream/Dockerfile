@@ -63,7 +63,7 @@ RUN apt-get update -qq && \
 ## Copy required files ##
 ## ------------------- ##
 
-COPY containers/eland-downstream/requirements.R /opt/requirements.R
+COPY containers/hedgehog-downstream/requirements.R /opt/requirements.R
 
 ## ---------------------------- ##
 ## Install package requirements ##

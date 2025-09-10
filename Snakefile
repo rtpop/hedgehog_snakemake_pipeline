@@ -59,7 +59,7 @@ PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 ## ------------------------ ##
 ## Filtering panda networks ##
 ## ------------------------ ##
-PANDA_NET_FILTERED = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_filtered.txt")
+PANDA_NET_FILTERED = os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered.txt")
 PRIOR_ONLY = config["prior_only"]
 
 ##-------##
@@ -72,8 +72,8 @@ PRIOR_ONLY = config["prior_only"]
 
 rule all:
     input:
-        MOTIF_PRIOR, \
-        PROCESS_GTEX_LOG
+        PROCESS_GTEX_LOG, \
+        expand(PANDA_NET_FILTERED, tissue_type = TISSUE)
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##

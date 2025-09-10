@@ -1,2 +1,2 @@
-# eland_snakemake_pipeline
-Repository for the ELAND snakemake pipeline
+# Hedgehog snakemake pipeline
+Repository for the HEDGEHOG snakemake pipeline

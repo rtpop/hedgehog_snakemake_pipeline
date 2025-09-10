@@ -51,6 +51,7 @@ TISSUE = config["tissue"]
 ## GTEx data ##
 ## --------- ##
 GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", "GTEx_PANDA_net.RData")
+PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
 
 ##-------##
 ## Rules ##
@@ -62,7 +63,7 @@ GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", "GTEx_PANDA_net.RData")
 
 rule all:
     input:
-        GTEX_DATA_FILE
+        expand(PANDA_EDGELIST, tissue_type=TISSUE)
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -107,26 +108,24 @@ rule process_gtex_data:
     ------
     Outputs
     -------
-    EXP_FILE:
-        A TXT file with the processed expression data.
-    GENE_BACKGROUND:
-        A TXT file with the gene background.
+    PANDA_EDGELIST:
+        A TXT file with the PANDA network processed as an edgelist compatible with networkx.
     """
     input:
         gtex_data = GTEX_DATA_FILE
     output:
-        exp = os.path.join(DATA_DIR, "GTEx_expression.txt"), \
-        gene_bg = os.path.join(DATA_DIR, "GTEx_gene_background.txt")
+        panda_edgelist = PANDA_EDGELIST
     params:
-        script = os.path.join(SRC, "process_networks/process_gtex_data.R"), \
-        out_dir = os.path.join(DATA_DIR, "download")
+        script = os.path.join(SRC, "process_networks/process_gtex.R"), \
+        out_dir = os.path.join(DATA_DIR), \
+        edgelist = True
     container:
-        ANALYSIS_CONTAINER
+        R_CONTAINER
     message:
-        "; Processing GTEx data with script {params.script} to create {output.exp} and {output.gene_bg}."
+        "; Processing GTEx data with script {params.script} to create {output.panda_edgelist}."
     shell:
         """
-        Rscript {params.script} {input.gtex_data} {output.exp} {output.gene_bg}
+        Rscript {params.script} -i {input.gtex_data} --out_dir {params.out_dir} --edgelist {params.edgelist}
         """
 
 ##-------------------------------------##

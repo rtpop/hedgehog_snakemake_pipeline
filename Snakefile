@@ -36,7 +36,7 @@ configfile: CONFIG_PATH
 
 # Containers
 PYTHON_CONTAINER = config["python_container"]
-ANALYSIS_CONTAINER = config["analysis_container"]
+R_CONTAINER = config["r_container"]
 
 # Directories
 DATA_DIR = config["data_dir"]
@@ -96,28 +96,38 @@ rule download_gtex_data:
         curl --output {output} https://zenodo.org/records/838734/files/GTEx_PANDA_tissues.RData?download=1
         """
 
+rule process_gtex_data:
+    """
+    This rule processes the GTEx data.
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    Inputs
+    ------
+    GTEX_DATA_FILE:
+        A RData file with the PANDA networks modelled on GTEx data.
+    ------
+    Outputs
+    -------
+    EXP_FILE:
+        A TXT file with the processed expression data.
+    GENE_BACKGROUND:
+        A TXT file with the gene background.
+    """
+    input:
+        gtex_data = GTEX_DATA_FILE
+    output:
+        exp = os.path.join(DATA_DIR, "GTEx_expression.txt"), \
+        gene_bg = os.path.join(DATA_DIR, "GTEx_gene_background.txt")
+    params:
+        script = os.path.join(SRC, "process_networks/process_gtex_data.R"), \
+        out_dir = os.path.join(DATA_DIR, "download")
+    container:
+        ANALYSIS_CONTAINER
+    message:
+        "; Processing GTEx data with script {params.script} to create {output.exp} and {output.gene_bg}."
+    shell:
+        """
+        Rscript {params.script} {input.gtex_data} {output.exp} {output.gene_bg}
+        """
 
 ##-------------------------------------##
 ## Filtering PANDA network for BiHiDef ##

@@ -2,7 +2,7 @@
 ## Containers ##
 ##------------##
 python_container: "docker://rtpop/hedgehog-run:1.0"
-analysis_container: "docker://rtpop/hedgehog-downstream:1.0"
+r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
 ## Directories ##

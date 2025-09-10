@@ -3,7 +3,7 @@ FROM python:3.10.16
 ## ------------ ##
 ## How to build ##
 ## ------------ ##
-# sudo docker build --file containers/eland-run/Dockerfile --no-cache -t rtpop/eland-run:tag --progress=plain . 2>&1 | tee containers/eland-run/logs/eland-run:tag
+# sudo docker build --file containers/hedgehog-run/Dockerfile --no-cache -t rtpop/hedgehog-run:tag --progress=plain . 2>&1 | tee containers/hedgehog-run/logs/hedgehog-run:tag
 
 ## --------------------------- ##
 ## Install system requirements ##
@@ -60,26 +60,15 @@ RUN pip install --upgrade pip \
         python-louvain \
         pyyaml
 
-## ---------------##
-## Install sisana ##
-## ---------------##
-
-# try installing from github until he pushes fixes to pypi
-WORKDIR /opt/software
-RUN git clone https://github.com/kuijjerlab/sisana.git
-WORKDIR /opt/software/sisana
-RUN git checkout v1.2.0
-RUN pip install .
-
-#RUN pip install sisana
-
-## ------------- ##
-## Install eland ##
-## ------------- ##
+## ---------------- ##
+## Install hedgehog ##
+## ---------------- ##
 
 WORKDIR /opt/software
-RUN git clone https://github.com/rtpop/ELAND.git
-WORKDIR /opt/software/ELAND
+# getting refactoring branch for now
+# remember to change when finalised
+RUN git clone --branch refactoring https://github.com/rtpop/HEDGEHOG.git
+WORKDIR /opt/software/HEDGEHOG
 RUN pip install .
 
 # install netzoopy from my for for now

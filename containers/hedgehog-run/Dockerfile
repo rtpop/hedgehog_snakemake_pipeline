@@ -3,7 +3,7 @@ FROM python:3.10.16
 ## ------------ ##
 ## How to build ##
 ## ------------ ##
-# sudo docker build --file containers/eland-run/Dockerfile --no-cache -t rtpop/eland-run:tag --progress=plain . 2>&1 | tee containers/eland-run/logs/eland-run:tag
+# sudo docker build --file containers/hedgehog-run/Dockerfile --no-cache -t rtpop/hedgehog-run:tag --progress=plain . 2>&1 | tee containers/hedgehog-run/logs/hedgehog-run:tag
 
 ## --------------------------- ##
 ## Install system requirements ##

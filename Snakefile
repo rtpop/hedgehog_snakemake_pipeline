@@ -88,7 +88,7 @@ rule download_gtex_data:
     params:
         out_dir = os.path.join(DATA_DIR, "download")
     container:
-        PYTHON_CONTAINER
+        R_CONTAINER
     message:
         "; Downloading GTEx data."
     shell:
@@ -116,7 +116,7 @@ rule process_gtex_data:
     output:
         panda_edgelist = PANDA_EDGELIST
     params:
-        script = os.path.join(SRC, "process_networks/process_gtex.R"), \
+        script = os.path.join(SRC, "process_data/process_gtex.R"), \
         out_dir = os.path.join(DATA_DIR), \
         edgelist = True
     container:

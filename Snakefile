@@ -52,6 +52,8 @@ TISSUE = config["tissue"]
 ## --------- ##
 GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", "GTEx_PANDA_net.RData")
 PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
+MOTIF_PRIOR = os.path.join(DATA_DIR, "motif_prior.txt")
+PROCESS_GTEX_LOG = os.path.join(DATA_DIR, "process_gtex.log")
 
 ##-------##
 ## Rules ##
@@ -63,7 +65,8 @@ PANDA_EDGELIST = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist
 
 rule all:
     input:
-        expand(PANDA_EDGELIST, tissue_type=TISSUE)
+        MOTIF_PRIOR, \
+        PROCESS_GTEX_LOG
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -115,7 +118,8 @@ rule process_gtex_data:
     input:
         gtex_data = GTEX_DATA_FILE
     output:
-        panda_edgelist = PANDA_EDGELIST
+        prior = MOTIF_PRIOR, \
+        log = PROCESS_GTEX_LOG
     params:
         script = os.path.join(SRC, "process_data/process_gtex.R"), \
         out_dir = os.path.join(DATA_DIR), \
@@ -123,7 +127,7 @@ rule process_gtex_data:
     container:
         R_CONTAINER
     message:
-        "; Processing GTEx data with script {params.script} to create {output.panda_edgelist}."
+        "; Processing GTEx data with script {params.script} to create {output.prior} & {output.log}."
     shell:
         """
         Rscript {params.script} -i {input.gtex_data} --out-dir {params.out_dir} --edgelist {params.edgelist}

@@ -15,6 +15,15 @@ get_gtex_data <- function(data, extract_edges = TRUE, out_dir = "data/") {
     edges[,2] <- gene_names
     data.table::fwrite(edges, file = file.path(out_dir, "motif_prior.txt"), sep = ",", row.names = FALSE, col.names = FALSE)
 
+    # Initialise log file
+    log_file <- file.path(out_dir, "process_gtex.log")
+    
+    if (file.exists(log_file)) {
+        file.remove(log_file)
+    }
+
+    cat(paste0("Processing GTEx data. Extracting ", ifelse(extract_edges, "edges", "expression"), " for each tissue.\n"), file = log_file, append = TRUE)
+
     for (i in tissues) {
         tissue_samples <- samples[samples$Tissue == i, 1]
         
@@ -40,5 +49,6 @@ get_gtex_data <- function(data, extract_edges = TRUE, out_dir = "data/") {
 
         # Save the data with row names
         data.table::fwrite(res, file = file.path(dir_path, file_name), sep = ",", row.names = FALSE, col.names = FALSE)
+        cat(paste0("Processed tissue: ", i, "\n"), file = log_file, append = TRUE)
     }
 }

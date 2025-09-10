@@ -60,13 +60,26 @@ RUN pip install --upgrade pip \
         python-louvain \
         pyyaml
 
-## ---------------- ##
-## Install hedgehog ##
-## ---------------- ##
+## ---------------##
+## Install sisana ##
+## ---------------##
+
+# try installing from github until he pushes fixes to pypi
+WORKDIR /opt/software
+RUN git clone https://github.com/kuijjerlab/sisana.git
+WORKDIR /opt/software/sisana
+RUN git checkout v1.2.0
+RUN pip install .
+
+#RUN pip install sisana
+
+## ------------- ##
+## Install eland ##
+## ------------- ##
 
 WORKDIR /opt/software
-RUN git clone https://github.com/rtpop/HEDGEHOG.git
-WORKDIR /opt/software/HEDGEHOG
+RUN git clone https://github.com/rtpop/ELAND.git
+WORKDIR /opt/software/ELAND
 RUN pip install .
 
 # install netzoopy from my for for now

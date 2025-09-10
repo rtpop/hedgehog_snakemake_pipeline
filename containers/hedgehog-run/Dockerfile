@@ -67,7 +67,7 @@ RUN pip install --upgrade pip \
 WORKDIR /opt/software
 # getting refactoring branch for now
 # remember to change when finalised
-RUN git clone --branch refactor https://github.com/rtpop/HEDGEHOG.git
+RUN git clone --branch refactoring https://github.com/rtpop/HEDGEHOG.git
 WORKDIR /opt/software/HEDGEHOG
 RUN pip install .
 

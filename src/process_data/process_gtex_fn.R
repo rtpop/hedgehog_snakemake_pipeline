@@ -51,4 +51,5 @@ get_gtex_data <- function(data, extract_edges = TRUE, out_dir = "data/") {
         data.table::fwrite(res, file = file.path(dir_path, file_name), sep = ",", row.names = FALSE, col.names = FALSE)
         cat(paste0("Processed tissue: ", i, "\n"), file = log_file, append = TRUE)
     }
+    cat("Processing completed at ", Sys.time(),".\n", file = log_file, append = TRUE)
 }

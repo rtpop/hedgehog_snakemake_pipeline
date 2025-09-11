@@ -64,6 +64,7 @@ PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 FILTERING_METHOD = config["filtering"]
 BENCHMARK = config["benchmark"]
 
+# set benchmarking params if benchmarking is enabled
 if BENCHMARK:
     BENCHMARK_DIR = os.path.join(HEDGEHOG_DIR, "benchmark")
     MAX_COMMUNITIES = config["max_communities"]
@@ -71,6 +72,7 @@ if BENCHMARK:
     FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
     FILTERING_METHOD = "both"  # always run both for benchmarking
 
+# set filtering params
 if FILTERING_METHOD == "both":
     PANDA_NET_FILTERED = [
         os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
@@ -234,22 +236,21 @@ rule panda_filtering_benchmark:
         delimiter = DELIMITER, \
         panda_filtered = PANDA_NET_FILTERED, \
         resolution = '{bench_resolution}', \
-        max_communities = MAX_COMMUNITIES, \
+        max_communities = MAX_COMMUNITIES
     container:
         PYTHON_CONTAINER
     message:
         "; Filtering benchmark data with script {params.script}" \
-            "--filtered_net {input.panda_network_filtered}" \
+            "--filtered_net {params.panda_filtered}" \
             "--prior_file {input.prior}" \
             "--panda {input.panda}" \
             "--output_file {output.filtering_bench}" \
             "--delimiter {params.delimiter}" \
             "--resolution {params.resolution}" \
-            "--max_communities {params.max_communities}" \
+            "--max_communities {params.max_communities}"
     shell:
         """
-        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
-        """
+        python {params.script} --filtered_net {params.panda_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities}
 
 # rule plot_benchmark:
 #     """

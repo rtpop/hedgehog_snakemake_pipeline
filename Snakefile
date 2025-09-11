@@ -51,16 +51,18 @@ TISSUE = config["tissue"]
 ## --------- ##
 ## GTEx data ##
 ## --------- ##
+
 GTEX_DATA_FILE = os.path.join(DATA_DIR, "download", config["gtex_data_file"])
 PANDA_NET = os.path.join(DATA_DIR, "{tissue_type}", config["panda_net_file"])
 MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior_file"])
 PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 
-## ------------------------ ##
-## Filtering panda networks ##
-## ------------------------ ##
+## -------------------------------------- ##
+## Filtering panda networks and benchmark ##
+## -------------------------------------- ##
+BENCHMARK = config["benchmark"]
+FILTERING_METHOD = config["filtering"]
 PANDA_NET_FILTERED = os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered.txt")
-PRIOR_ONLY = config["prior_only"]
 
 ##-------##
 ## RULES ##
@@ -73,7 +75,9 @@ PRIOR_ONLY = config["prior_only"]
 rule all:
     input:
         PROCESS_GTEX_LOG, \
-        expand(PANDA_NET_FILTERED, tissue_type = TISSUE)
+        expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
+        *( [FILTERING_BENCH] if config["benchmark"] else [] )
+        # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -168,7 +172,7 @@ rule process_and_filter_panda:
     params:
         script = os.path.join(SRC, "process_networks/filter_panda.py"), \
         delimiter = DELIMITER, \
-        prior_only = PRIOR_ONLY, \
+        filtering_method = FILTERING_METHOD, \
         out_dir = HEDGEHOG_DIR
     container:
         PYTHON_CONTAINER
@@ -181,56 +185,54 @@ rule process_and_filter_panda:
         python {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
         """
 
-# # ## ------------------- ##
-# # ## Benchmark filtering ##
-# # ## ------------------- ##
-# rule benchmark_filtering:
-#     """
-#     This rule benchmarks filtering methods for the PANDA network.
+## ------------------- ##
+## Benchmark filtering ##
+## ------------------- ##
+rule panda_filtering_and_benchmark:
+    """
+    This rule benchmarks filtering methods for the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET_FILTERED:
-#         A TXT file with the filtered PANDA network.
-#     MOTIF_PRIOR:
-#         A TXT file with the filtered motif prior.
-#     PANDA_EDGELIST:
-#         A TXT file with the PANDA edgelist.
-#     ------
-#     Outputs
-#     -------
-#     BENCHMARK_FILTERED:
-#         A TXT file with the benchmark data filtered.
-#     """
-#     input:
-#         panda_network_filtered = PANDA_NET_FILTERED, \
-#         prior = MOTIF_PRIOR, \
-#         panda_edgelist = os.path.join(DATA_DIR, "{tissue_type}", "panda_network_edgelist.txt")
-#     output:
-#         filtering_bench = FILTERING_BENCH
-#     params:
-#         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
-#         out_dir = os.path.join(BENCHMARK_DIR), \
-#         delimiter = DELIMITER, \
-#         resolution = '{bench_resolution}', \
-#         max_communities = MAX_COMMUNITIES, \
-#         prior_only = PRIOR_ONLY
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Filtering benchmark data with script {params.script}" \
-#             "--filtered_net {input.panda_network_filtered}" \
-#             "--prior_file {input.prior}" \
-#             "--panda_edgelist {input.panda_edgelist}" \
-#             "--output_file {output.filtering_bench}" \
-#             "--delimiter {params.delimiter}" \
-#             "--resolution {params.resolution}" \
-#             "--max_communities {params.max_communities}" \
-#             "--prior_only {params.prior_only}"
-#     shell:
-#         """
-#         python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
-#         """
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with the motif prior.
+    ------
+    Outputs
+    -------
+    BENCHMARK_FILTERED:
+        A TXT file with the benchmark data filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        prior = MOTIF_PRIOR
+    output:
+        filtering_bench = FILTERING_BENCH
+    params:
+        script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
+        benchmark = BENCHMARK, \
+        out_dir = os.path.join(BENCHMARK_DIR), \
+        delimiter = DELIMITER, \
+        resolution = '{bench_resolution}', \
+        max_communities = MAX_COMMUNITIES, \
+        filtering_method = FILTERING_METHOD
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Filtering benchmark data with script {params.script}" \
+            "--filtered_net {input.panda_network_filtered}" \
+            "--prior_file {input.prior}" \
+            "--panda_edgelist {input.panda_edgelist}" \
+            "--output_file {output.filtering_bench}" \
+            "--delimiter {params.delimiter}" \
+            "--resolution {params.resolution}" \
+            "--max_communities {params.max_communities}" \
+            "--prior_only {params.prior_only}"
+    shell:
+        """
+        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
+        """
 
 # rule plot_benchmark:
 #     """

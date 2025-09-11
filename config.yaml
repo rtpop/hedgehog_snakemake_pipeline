@@ -33,7 +33,8 @@ processing_log: "process_gtex.log"
 ## ------------------------------ ##
 ## Filtering and benchmark params ##
 ## ------------------------------ ##
-prior_only: True
+filtering: "prior" # options: prior, hedgehog, both, none
+benchmark: True # whether to run the filtering benchmark
 bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
 plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
 

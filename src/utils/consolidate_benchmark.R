@@ -1,4 +1,4 @@
-required_libraries <- c("data.table")
+required_libraries <- c("data.table", "optparse")
 
 for (library in required_libraries) {
     suppressPackageStartupMessages(library(library, character.only = TRUE, quietly = TRUE))
@@ -27,30 +27,21 @@ input_files <- strsplit(opt$files, ",")[[1]]
 ## --------- ##
 OUT <- opt$output
 
-consolidate_data <- function(files) {
-    data_list <- lapply(files, function(file) {
-        if (file.exists(file)) {
-            data <- fread(file, header = TRUE, sep = "\t", data.table = FALSE)
-            # Ensure the 'file' column is present
-            if (!"file" %in% colnames(data)) {
-                data$file <- file
-            }
-            return(data)
-        } else {
-            warning(paste("File not found:", file))
-            return(NULL)
-        }
+## source functions
+source(file.path("src", "utils", "consolidate_benchmark_fn.R"))
+
+## Consolidate data
+df_list <- lapply(input_files, function(file) {
+    if (!file.exists(file)) {
+        stop(paste("The file", file, "does not exist."))
+    }
+    prepare_filtering_bench(file_name = file, tissue_type = TISSUE_TYPE)
     })
+    consolidated_df <- data.table::rbindlist(df_list)
 
-    # Remove NULL entries (files that were not found)
-    data_list <- Filter(Negate(is.null), data_list)
+# Save the consolidated data frame
+data.table::fwrite(consolidated_df, file = DATA_FRAME, sep = "\t", row.names = FALSE)
 
-    # Combine all data frames into one
-    consolidated_data <- do.call(rbind, data_list)
+consolidated_data <- consolidate_data(df_list, OUT)
 
-    fwrite(consolidated_data, file = OUT, sep = "\t", row.names = FALSE, quote = FALSE)
-    message(paste("Consolidated data written to:", OUT))
-}
-
-consolidate_data(input_files)
 # End of the script

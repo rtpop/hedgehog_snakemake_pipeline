@@ -71,6 +71,8 @@ if BENCHMARK:
     BENCH_RESOLUTION = config["bench_resolution"]
     FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
     FILTERING_METHOD = "both"  # always run both for benchmarking
+    FILTERING_BENCH_DF = os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt")
+    FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -96,8 +98,10 @@ else:
 rule all:
     input:
         PROCESS_GTEX_LOG, \
-        #expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
-        *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] )
+        expand(PANDA_NET_FILTERED, tissue_type = TISSUE), \
+        *( [expand(FILTERING_BENCH, tissue_type = TISSUE, bench_resolution = BENCH_RESOLUTION)] if config["benchmark"] else [] ), \
+        *( [expand(FILTERING_BENCH_DF, tissue_type = TISSUE)] if config["benchmark"] else [] ), \
+        FILTERING_BENCH_CONSOLIDATED
         # temp ones so I don't have to rerun everything all the time
 
 ## ---------------------------- ##
@@ -251,6 +255,71 @@ rule panda_filtering_benchmark:
     shell:
         """
         python {params.script} --filtered_net {params.panda_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities}
+        """
+
+rule consolidate_benchmark_resolutions:
+    """
+    This rule consolidates the different resolutions into one file per tissue.
+
+    Inputs
+    ------
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_DF:
+        A TXT file with the consolidated benchmark data.
+    """
+    input:
+        filtering_bench_list = lambda wildcards: expand(
+            FILTERING_BENCH,
+            tissue_type=wildcards.tissue_type,
+            bench_resolution=BENCH_RESOLUTION
+        )
+    output:
+        filtering_bench_df=FILTERING_BENCH_DF
+    params:
+        script=os.path.join(SRC, "utils/consolidate_resolutions.R"),
+        files=lambda wildcards, input: ",".join(input.filtering_bench_list)
+    container:
+        R_CONTAINER
+    message:
+        "; Consolidating benchmark data for {wildcards.tissue_type} with script {params.script}"
+    shell:
+        """
+        Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
+        """
+
+rule consolidate_benchmark_all:
+    """
+    This rule consolidates all benchmark data into a single file.
+
+    Inputs
+    ------
+    FILTERING_BENCH_DF:
+        A list of TXT files with the benchmark data for all tissues and resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_CONSOLIDATED:
+        A TXT file with the consolidated benchmark data for all tissues.
+    """
+    input:
+        filtering_bench_dfs = expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
+    output:
+        filtering_benchmark_consolidated=FILTERING_BENCH_CONSOLIDATED
+    params:
+        script=os.path.join(SRC, "utils/consolidate_benchmark.R"),
+        files=lambda wildcards, input: ",".join(input.filtering_bench_dfs)
+    container:
+        R_CONTAINER
+    message:
+        "; Consolidating all benchmark data with script {params.script}"
+    shell:
+        """
+        Rscript {params.script} --files "{params.files}" --output {output.filtering_benchmark_consolidated}
+        """
 
 # rule plot_benchmark:
 #     """
@@ -300,38 +369,6 @@ rule panda_filtering_benchmark:
 #             --plot-title "{params.plot_title}" \
 #             --plot-file {output.benchmark_plot} \
 #             --include-unfiltered {params.include_unfiltered}
-#         """
-
-# rule consolidate_benchmark:
-#     """
-#     This rule consolidates the benchmark data into a single file.
-
-#     Inputs
-#     ------
-#     FILTERING_BENCH_LIST:
-#         A list of TXT files with the benchmark data for all resolutions.
-#     ------
-#     Outputs
-#     -------
-#     FILTERING_BENCH_DF:
-#         A TXT file with the consolidated benchmark data.
-#     """
-#     input:
-#         filtering_bench_list=expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
-#     output:
-#         filtering_bench_df=FILTERING_BENCH_CONSOLIDATED
-#     params:
-#         script=os.path.join(SRC, "utils/consolidate_benchmark.R"), \
-#         files=lambda wildcards, input: ",".join(input.filtering_bench_list)
-#     container:
-#         ANALYSIS_CONTAINER
-#     message:
-#         "; Consolidating benchmark data with script {params.script} with params:" \
-#             "--files {params.files}" \
-#             "--output-file {output.filtering_bench_df}"
-#     shell:
-#         """
-#         Rscript {params.script} --files "{params.files}" --output {output.filtering_bench_df}
 #         """
 
 # rule plot_bench_heatmap:

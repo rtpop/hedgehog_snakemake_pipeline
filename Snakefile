@@ -194,7 +194,7 @@ rule process_and_filter_panda:
     shell:
         """
         mkdir -p {params.out_dir}
-        python {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --prior_only '{params.prior_only}'
+        python {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --filtering_method '{params.filtering_method}'
         """
 
 ## ------------------- ##

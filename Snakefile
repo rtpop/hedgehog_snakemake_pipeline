@@ -62,6 +62,14 @@ PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 ## ------------------------------------------------ ##
 
 FILTERING_METHOD = config["filtering"]
+BENCHMARK = config["benchmark"]
+
+if BENCHMARK:
+    BENCHMARK_DIR = os.path.join(HEDGEHOG_DIR, "benchmark")
+    MAX_COMMUNITIES = config["max_communities"]
+    BENCH_RESOLUTION = config["bench_resolution"]
+    FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
+    FILTERING_METHOD = "both"  # always run both for benchmarking
 
 if FILTERING_METHOD == "both":
     PANDA_NET_FILTERED = [
@@ -74,14 +82,6 @@ elif FILTERING_METHOD == "hedgehog":
     PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")]
 else:
     raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
-
-BENCHMARK = config["benchmark"]
-
-if BENCHMARK:
-    BENCHMARK_DIR = os.path.join(HEDGEHOG_DIR, "benchmark")
-    MAX_COMMUNITIES = config["max_communities"]
-    BENCH_RESOLUTION = config["bench_resolution"]
-    FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
 
 ##-------##
 ## RULES ##
@@ -232,24 +232,23 @@ rule panda_filtering_benchmark:
         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
         out_dir = os.path.join(BENCHMARK_DIR), \
         delimiter = DELIMITER, \
+        panda_filtered = PANDA_NET_FILTERED, \
         resolution = '{bench_resolution}', \
         max_communities = MAX_COMMUNITIES, \
-        filtering_method = FILTERING_METHOD
     container:
         PYTHON_CONTAINER
     message:
         "; Filtering benchmark data with script {params.script}" \
             "--filtered_net {input.panda_network_filtered}" \
             "--prior_file {input.prior}" \
-            "--panda_edgelist {input.panda_edgelist}" \
+            "--panda {input.panda}" \
             "--output_file {output.filtering_bench}" \
             "--delimiter {params.delimiter}" \
             "--resolution {params.resolution}" \
             "--max_communities {params.max_communities}" \
-            "--prior_only {params.prior_only}"
     shell:
         """
-        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
+        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
         """
 
 # rule plot_benchmark:

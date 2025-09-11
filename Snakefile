@@ -42,7 +42,7 @@ R_CONTAINER = config["r_container"]
 DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
 SRC = config["src_dir"]
-HEDGEHOG_DIR = os.path.join(OUTPUT_DIR, "hedgehog")
+HEDGEHOG_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "hedgehog")
 
 # Other params
 DELIMITER = config["delimiter"]
@@ -65,13 +65,13 @@ FILTERING_METHOD = config["filtering"]
 
 if FILTERING_METHOD == "both":
     PANDA_NET_FILTERED = [
-        os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_prior.txt"),
-        os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_hedgehog.txt")
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")
     ]
 elif FILTERING_METHOD == "prior":
-    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_prior.txt")]
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt")]
 elif FILTERING_METHOD == "hedgehog":
-    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_hedgehog.txt")]
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")]
 else:
     raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
 
@@ -207,50 +207,50 @@ rule process_and_filter_panda:
 ## ------------------- ##
 ## Benchmark filtering ##
 ## ------------------- ##
-# rule panda_filtering_benchmark:
-#     """
-#     This rule benchmarks filtering methods for the PANDA network.
+rule panda_filtering_benchmark:
+    """
+    This rule benchmarks filtering methods for the PANDA network.
 
-#     Inputs
-#     ------
-#     PANDA_NET:
-#         A TXT file with the PANDA network.
-#     MOTIF_PRIOR:
-#         A TXT file with the motif prior.
-#     ------
-#     Outputs
-#     -------
-#     BENCHMARK_FILTERED:
-#         A TXT file with the benchmark data filtered.
-#     """
-#     input:
-#         panda = PANDA_NET, \
-#         prior = MOTIF_PRIOR
-#     output:
-#         filtering_bench = FILTERING_BENCH
-#     params:
-#         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
-#         out_dir = os.path.join(BENCHMARK_DIR), \
-#         delimiter = DELIMITER, \
-#         resolution = '{bench_resolution}', \
-#         max_communities = MAX_COMMUNITIES, \
-#         filtering_method = FILTERING_METHOD
-#     container:
-#         PYTHON_CONTAINER
-#     message:
-#         "; Filtering benchmark data with script {params.script}" \
-#             "--filtered_net {input.panda_network_filtered}" \
-#             "--prior_file {input.prior}" \
-#             "--panda_edgelist {input.panda_edgelist}" \
-#             "--output_file {output.filtering_bench}" \
-#             "--delimiter {params.delimiter}" \
-#             "--resolution {params.resolution}" \
-#             "--max_communities {params.max_communities}" \
-#             "--prior_only {params.prior_only}"
-#     shell:
-#         """
-#         python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
-#         """
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with the motif prior.
+    ------
+    Outputs
+    -------
+    BENCHMARK_FILTERED:
+        A TXT file with the benchmark data filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        prior = MOTIF_PRIOR
+    output:
+        filtering_bench = FILTERING_BENCH
+    params:
+        script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
+        out_dir = os.path.join(BENCHMARK_DIR), \
+        delimiter = DELIMITER, \
+        resolution = '{bench_resolution}', \
+        max_communities = MAX_COMMUNITIES, \
+        filtering_method = FILTERING_METHOD
+    container:
+        PYTHON_CONTAINER
+    message:
+        "; Filtering benchmark data with script {params.script}" \
+            "--filtered_net {input.panda_network_filtered}" \
+            "--prior_file {input.prior}" \
+            "--panda_edgelist {input.panda_edgelist}" \
+            "--output_file {output.filtering_bench}" \
+            "--delimiter {params.delimiter}" \
+            "--resolution {params.resolution}" \
+            "--max_communities {params.max_communities}" \
+            "--prior_only {params.prior_only}"
+    shell:
+        """
+        python {params.script} --filtered_net {input.panda_network_filtered} --prior_file {input.prior} --panda_edgelist {input.panda_edgelist} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities} --prior_only {params.prior_only}
+        """
 
 # rule plot_benchmark:
 #     """

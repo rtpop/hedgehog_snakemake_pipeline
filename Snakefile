@@ -62,7 +62,19 @@ PROCESS_GTEX_LOG = os.path.join(DATA_DIR, config["processing_log"])
 ## -------------------------------------- ##
 BENCHMARK = config["benchmark"]
 FILTERING_METHOD = config["filtering"]
-PANDA_NET_FILTERED = os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered.txt")
+
+if FILTERING_METHOD == "both":
+    PANDA_NET_FILTERED = [
+        os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_prior.txt"),
+        os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_hedgehog.txt")
+    ]
+elif FILTERING_METHOD == "prior":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_prior.txt")]
+elif FILTERING_METHOD == "hedgehog":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "{tissue_type}", "panda_network_filtered_hedgehog.txt")]
+else:
+    raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
+
 
 ##-------##
 ## RULES ##
@@ -188,7 +200,7 @@ rule process_and_filter_panda:
 ## ------------------- ##
 ## Benchmark filtering ##
 ## ------------------- ##
-rule panda_filtering_and_benchmark:
+rule panda_filtering_benchmark:
     """
     This rule benchmarks filtering methods for the PANDA network.
 
@@ -211,7 +223,6 @@ rule panda_filtering_and_benchmark:
         filtering_bench = FILTERING_BENCH
     params:
         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
-        benchmark = BENCHMARK, \
         out_dir = os.path.join(BENCHMARK_DIR), \
         delimiter = DELIMITER, \
         resolution = '{bench_resolution}', \

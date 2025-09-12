@@ -10,7 +10,7 @@ def parse_arguments():
     # Parse args for the main function
     parser.add_argument('--prior_file', type=str, help='Path to edge list file.')
     parser.add_argument('--panda', type=str, help='Path to edge list file.')
-    parser.add_argument('--filtered_net', type=str, help='Path to filtered network file.')
+    parser.add_argument('--filtered_net', type=str, nargs="+", help='Path to filtered network file.')
     parser.add_argument('--output_file', type=str, help='Path to output file.')
     parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files')
     parser.add_argument('--resolution', type=float, help='Resolution for modularity calculation')
@@ -23,7 +23,7 @@ def main():
     
     # Load the unfiltered PANDA network
     print("Loading PANDA network")
-    panda = pd.read_csv(args.panda_edgelist, delimiter=args.delimiter)
+    panda = pd.read_csv(args.panda, delimiter=args.delimiter)
     
     # Load filtered networks
     print("Loading filtered networks")

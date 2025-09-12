@@ -207,7 +207,7 @@ rule process_and_filter_panda:
     shell:
         """
         mkdir -p {params.out_dir}
-        python {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --filtering_method '{params.filtering_method}'
+    python -u {params.script} {input.prior} {input.panda} {output.filtered_net} --delimiter '{params.delimiter}' --filtering_method '{params.filtering_method}'
         """
 
 ## ------------------- ##
@@ -231,21 +231,21 @@ rule panda_filtering_benchmark:
     """
     input:
         panda = PANDA_NET, \
+        panda_filtered = PANDA_NET_FILTERED, \
         prior = MOTIF_PRIOR
     output:
         filtering_bench = FILTERING_BENCH
     params:
         script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
-        out_dir = os.path.join(BENCHMARK_DIR), \
+        out_dir = BENCHMARK_DIR, \
         delimiter = DELIMITER, \
-        panda_filtered = PANDA_NET_FILTERED, \
         resolution = '{bench_resolution}', \
         max_communities = MAX_COMMUNITIES
     container:
         PYTHON_CONTAINER
     message:
         "; Filtering benchmark data with script {params.script}" \
-            "--filtered_net {params.panda_filtered}" \
+            "--filtered_net {input.panda_filtered}" \
             "--prior_file {input.prior}" \
             "--panda {input.panda}" \
             "--output_file {output.filtering_bench}" \
@@ -254,7 +254,8 @@ rule panda_filtering_benchmark:
             "--max_communities {params.max_communities}"
     shell:
         """
-        python {params.script} --filtered_net {params.panda_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities}
+        mkdir -p {params.out_dir}
+        python {params.script} --filtered_net {input.panda_filtered} --prior_file {input.prior} --panda {input.panda} --output_file {output.filtering_bench} --delimiter {params.delimiter} --resolution {params.resolution} --max_communities {params.max_communities}
         """
 
 rule consolidate_benchmark_resolutions:

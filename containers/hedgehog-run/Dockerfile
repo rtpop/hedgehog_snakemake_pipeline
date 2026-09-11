@@ -60,9 +60,9 @@ RUN pip install --upgrade pip \
         python-louvain \
         pyyaml
         
-## ------------- ##
-## Install eland ##
-## ------------- ##
+## ---------------- ##
+## Install hedgehog ##
+## ---------------- ##
 
 WORKDIR /opt/software
 RUN git clone https://github.com/rtpop/HEDGEHOG.git

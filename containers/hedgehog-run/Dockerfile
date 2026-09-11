@@ -59,23 +59,10 @@ RUN pip install --upgrade pip \
         "setuptools<82" \ 
         python-louvain \
         pyyaml
-
-## ---------------##
-## Install sisana ##
-## ---------------##
-
-# try installing from github until he pushes fixes to pypi
-WORKDIR /opt/software
-RUN git clone https://github.com/kuijjerlab/sisana.git
-WORKDIR /opt/software/sisana
-RUN git checkout v1.2.0
-RUN pip install .
-
-#RUN pip install sisana
-
-## ---------------- ##
-## Install hedgehog ##
-## ---------------- ##
+        
+## ------------- ##
+## Install eland ##
+## ------------- ##
 
 WORKDIR /opt/software
 RUN git clone https://github.com/rtpop/HEDGEHOG.git

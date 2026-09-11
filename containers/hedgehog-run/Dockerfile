@@ -54,9 +54,9 @@ RUN apt-get update -qq && \
 ## ------------ ##
 ## Pip installs ##
 ## ------------ ##
-                
+## setuptools version enforced by sambar which even though not used, gets imported by netzoopy and only supporst up to 82.0.0
 RUN pip install --upgrade pip \
-        setuptools \
+        "setuptools<82" \ 
         python-louvain \
         pyyaml
 
@@ -73,9 +73,9 @@ RUN pip install .
 
 #RUN pip install sisana
 
-## ------------- ##
-## Install eland ##
-## ------------- ##
+## ---------------- ##
+## Install hedgehog ##
+## ---------------- ##
 
 WORKDIR /opt/software
 RUN git clone https://github.com/rtpop/HEDGEHOG.git
@@ -84,10 +84,10 @@ RUN git checkout feat-qscore
 RUN pip install .
 
 # install netzoopy from my fork for now
-WORKDIR /opt/software
-RUN git clone https://github.com/rtpop/netZooPy.git
-WORKDIR /opt/software/netZooPy
-RUN pip install .
+# WORKDIR /opt/software
+# RUN git clone https://github.com/rtpop/netZooPy.git
+# WORKDIR /opt/software/netZooPy
+# RUN pip install .
 
 ## ----------------------------------------- ##
 ## Force older versions of numpy and scipy   ##

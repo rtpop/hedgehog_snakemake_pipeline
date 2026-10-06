@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/hedgehog-run:qscore-test-0.3"
+python_container: "docker://rtpop/hedgehog-run:1.6"
 r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
@@ -10,6 +10,7 @@ r_container: "docker://rtpop/hedgehog-downstream:1.0"
 data_dir: "data"
 output_dir: "output/new" # this will be a parent directory for different runs
 src_dir: "src/new"
+ncores: 10
 
 # list of tissues
 # tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
@@ -37,3 +38,16 @@ panda_net_file: "panda_network_edgelist.txt"
 panda_net_filtered_file: "panda_network_filtered_edgelist.txt"
 filtering_method: "both" # options: prior, hedgehog, both; note that you must set the filtering for bihidef separately (see below).
 
+## ----------- ##
+## Run bihidef ##
+## ----------- ##
+max_communities: 3 # multiplier for the maximum number of communities passed to condor
+max_resolution: 5 # the maximum resolution parameter for bihidef
+min_resolution: 0.001 # the minimum resolution parameter for bihidef (not used in the snakemake atm)
+resolution_step: 0.001 # the step size for the resolution parameter (not used in the snakemake atm)
+target_tag: "gene"
+regulator_tag: "TF"
+filtering_bihidef: "prior" # options: prior, hedgehog; BiHiDef does not support both filtering methods at the same time. It is recommended to use the benchmarking to determine a filtering method for BiHiDef.
+# the minimum and maximum number of genes in a community
+min_genes: 10
+max_genes: 200

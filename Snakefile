@@ -31,6 +31,8 @@ import time
 
 configfile: "config.yaml"
 
+NCORES = config["ncores"]
+
 # Containers
 PYTHON_CONTAINER = config["python_container"]
 R_CONTAINER = config["r_container"]
@@ -40,11 +42,13 @@ DATA_DIR = config["data_dir"]
 OUTPUT_DIR = config["output_dir"]
 SRC = config["src_dir"]
 HEDGEHOG_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "hedgehog_bug_fix_q_score")
+BIHIDEF_RUN_DIR = os.path.join(HEDGEHOG_DIR, "bihidef_run")
 GO_DIR = os.path.join(OUTPUT_DIR, "{tissue_type}", "go_enrichment")
 
 # Other params
 DELIMITER = config["delimiter"]
 TISSUE = config["tissue"] # wildcard
+TAR_TAG = config["target_tag"]
 
 ## ------------------------------ ##
 ## Download and process GTEx data ##
@@ -58,6 +62,18 @@ MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior"])
 ##-------------------------------------##
 PANDA_NET = os.path.join(DATA_DIR, "{tissue_type}", config["panda_net_file"])
 FILTERING_METHOD = config["filtering_method"]
+
+
+## ----------- ##
+## Run BiHiDef ##
+## ----------- ##
+GENE_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + ".nodes")
+MAX_COMMUNITIES = config["max_communities"]
+MAX_RESOLUTION = config["max_resolution"]
+FILTERING_BIHIDEF = config["filtering_bihidef"]
+REG_TAG = config["regulator_tag"]
+TAR_TAG = config["target_tag"]
+
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -78,7 +94,8 @@ else:
 
 rule all:
     input:
-        expand(PANDA_NET_FILTERED, tissue_type=TISSUE)
+        expand(PANDA_NET_FILTERED, tissue_type=TISSUE),
+        expand(GENE_COMMUNITIES, tissue_type=TISSUE)
 ## ---------------------------- ##
 ## Download & process GTEX data ##
 ## ---------------------------- ##
@@ -132,3 +149,32 @@ rule process_and_filter_panda:
         PYTHON_CONTAINER
     script:
         os.path.join(SRC, "filter_panda.py")
+
+## --------------- ##
+## Running BiHiDeF ##
+## --------------- ##
+
+rule run_bihidef:
+    """
+    This rule runs the BiHiDeF algorithm.
+
+    BiHiDeF is available at
+    """
+    input:
+        net = PANDA_NET_FILTERED
+    output:
+        gene_communities = GENE_COMMUNITIES
+    params:
+        run_script = os.path.join(SRC, "run_bihidef.py"), \
+        max_communities = MAX_COMMUNITIES, \
+        max_resolution = MAX_RESOLUTION, \
+        output_prefix_reg = REG_TAG, \
+        output_prefix_tar = TAR_TAG, \
+        outdir = BIHIDEF_RUN_DIR, \
+        resource_log = os.path.join(BIHIDEF_RUN_DIR, "run_resources.log"), \
+        filtering_method = FILTERING_BIHIDEF,
+        ncores = NCORES
+    container:
+        PYTHON_CONTAINER
+    script:
+        params.run_script

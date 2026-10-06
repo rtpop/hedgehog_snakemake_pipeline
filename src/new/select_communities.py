@@ -1,23 +1,18 @@
-import argparse
 from hedgehog import process_bihidef
 
-def parse_args():
-    parser = argparse.ArgumentParser("Select communities")
-    parser.add_argument("communities", type = str, help="Input file")
-    parser.add_argument("output_gmt", type = str, help="File name for the gmt file to be saved.")
-    parser.add_argument("--logs", type = str, help="File name for log file detailing the selected communities.")
-    parser.add_argument("--min_size", type = int, help="Minimum size of the community to be selected.")
-    parser.add_argument("--max_size", type = int, help="Maximum size of the community to be selected.")
-    return parser.parse_args()
+communities = snakemake.input.communities
+selected_communities = snakemake.output.selected_communities
+max_genes = snakemake.params.max_genes
+min_genes = snakemake.params.min_genes
+stats = snakemake.output.stats
 
 def main():
-    args = parse_args()
     
     # Select communities
-    communities = process_bihidef.select_communities(args.communities, args.min_size, args.max_size, args.logs)
+    communities = process_bihidef.select_communities(communities, min_genes, max_genes, stats)
     
     # Save selected communities to a gmt file    
-    process_bihidef.gmt_from_bihidef(communities, args.output_gmt)
+    process_bihidef.gmt_from_bihidef(communities, selected_communities)
     
 if __name__ == "__main__":
     main()

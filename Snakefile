@@ -74,6 +74,15 @@ FILTERING_BIHIDEF = config["filtering_bihidef"]
 REG_TAG = config["regulator_tag"]
 TAR_TAG = config["target_tag"]
 
+## ------------------ ##
+## Select communities ##
+## ------------------ ##
+SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_communities.gmt")
+COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
+MAX_GENES = config["max_genes"]
+MIN_GENES = config["min_genes"]
+
+
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -95,7 +104,10 @@ else:
 rule all:
     input:
         expand(PANDA_NET_FILTERED, tissue_type=TISSUE),
-        expand(GENE_COMMUNITIES, tissue_type=TISSUE)
+        expand(GENE_COMMUNITIES, tissue_type=TISSUE),
+        expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
+        expand(COMMUNITY_STATS, tissue_type=TISSUE)
+
 ## ---------------------------- ##
 ## Download & process GTEX data ##
 ## ---------------------------- ##
@@ -178,3 +190,37 @@ rule run_bihidef:
         PYTHON_CONTAINER
     script:
         params.run_script
+
+## --------------------- ##
+## Selecting communities ##
+## --------------------- ##
+
+rule select_communities:
+    """
+    This rule selects the communities from the BiHiDeF output and formats them as a GMT file.
+
+    Inputs
+    ------
+    GENE_COMMUNITIES:
+        A TXT file with the communities from BiHiDeF.
+    ------
+    Outputs
+    -------
+    SELECTED_COMMUNITIES:
+        A TXT file with the selected communities.
+    COMMUNITY_STATS:
+        A TXT file with statistics about the communities.
+    """
+    input:
+        GENE_COMMUNITIES
+    output:
+        selected_communities = SELECTED_COMMUNITIES, \
+        stats = COMMUNITY_STATS
+    params:
+        script = os.path.join(SRC, "select_communities.py"), \
+        max_genes = MAX_GENES, \
+        min_genes = MIN_GENES
+    container:
+        PYTHON_CONTAINER
+    script:
+        params.script

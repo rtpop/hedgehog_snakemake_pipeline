@@ -162,6 +162,43 @@ rule process_and_filter_panda:
     script:
         os.path.join(SRC, "filter_panda.py")
 
+## ------------------- ##
+## Benchmark filtering ##
+## ------------------- ##
+
+rule panda_filtering_benchmark:
+    """
+    This rule benchmarks filtering methods for the PANDA network.
+
+    Inputs
+    ------
+    PANDA_NET:
+        A TXT file with the PANDA network.
+    MOTIF_PRIOR:
+        A TXT file with the motif prior.
+    ------
+    Outputs
+    -------
+    BENCHMARK_FILTERED:
+        A TXT file with the benchmark data filtered.
+    """
+    input:
+        panda = PANDA_NET, \
+        panda_filtered = PANDA_NET_FILTERED, \
+        prior = MOTIF_PRIOR
+    output:
+        filtering_bench = FILTERING_BENCH
+    params:
+        script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
+        out_dir = BENCHMARK_DIR, \
+        delimiter = DELIMITER, \
+        resolution = '{bench_resolution}', \
+        max_communities = MAX_COMMUNITIES
+    container:
+        PYTHON_CONTAINER
+    script:
+        params.script
+
 ## --------------- ##
 ## Running BiHiDeF ##
 ## --------------- ##

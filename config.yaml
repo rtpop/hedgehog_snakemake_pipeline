@@ -1,7 +1,7 @@
 ##------------##
 ## Containers ##
 ##------------##
-python_container: "docker://rtpop/hedgehog-run:1.6"
+python_container: "docker://rtpop/hedgehog-run:1.8"
 r_container: "docker://rtpop/hedgehog-downstream:1.0"
 
 ##-------------##
@@ -19,7 +19,7 @@ ncores: 10
 #   "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
 #   "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
 #   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
-tissue: ["Artery_aorta"]
+tissue: ["Artery_aorta", "Artery_coronary", "Artery_tibial"]
 
 ## Delimiter
 delimiter: ","
@@ -37,6 +37,13 @@ motif_prior: "motif_prior.txt"
 panda_net_file: "panda_network_edgelist.txt"
 panda_net_filtered_file: "panda_network_filtered_edgelist.txt"
 filtering_method: "both" # options: prior, hedgehog, both; note that you must set the filtering for bihidef separately (see below).
+
+## ------------------- ##
+## Filtering benchmark ##
+## ------------------- ##
+benchmark: true
+bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
+plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
 
 ## ----------- ##
 ## Run bihidef ##

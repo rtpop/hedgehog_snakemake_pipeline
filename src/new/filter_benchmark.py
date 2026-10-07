@@ -1,39 +1,32 @@
 # import libraries
-import argparse
 import pandas as pd
 import networkx as nx
 import hedgehog
 
-def parse_arguments():
-    parser = argparse.ArgumentParser(description="benchmark filtering methods")
+prior_file = snakemake.input.prior
+panda_file = snakemake.input.panda
+panda_filtered = snakemake.input.panda_filtered
+filtering_bench = snakemake.output.filtering_bench
+delimiter = snakemake.params.delimiter
+resolution = float(snakemake.params.resolution)
+max_communities = int(snakemake.params.max_communities)
 
-    # Parse args for the main function
-    parser.add_argument('--prior_file', type=str, help='Path to edge list file.')
-    parser.add_argument('--panda', type=str, help='Path to edge list file.')
-    parser.add_argument('--filtered_net', type=str, nargs="+", help='Path to filtered network file.')
-    parser.add_argument('--output_file', type=str, help='Path to output file.')
-    parser.add_argument('--delimiter', type=str, help='Delimiter used in the edge list files')
-    parser.add_argument('--resolution', type=float, help='Resolution for modularity calculation')
-    parser.add_argument('--max_communities', type=float, help='Maximum number of communities')
-
-    return parser.parse_args()
 
 def main():
-    args = parse_arguments()
     
     # Load the unfiltered PANDA network
     print("Loading PANDA network")
-    panda = pd.read_csv(args.panda, delimiter=args.delimiter)
+    panda = pd.read_csv(panda_file, delimiter=delimiter)
     
     # Load filtered networks
     print("Loading filtered networks")
-    prior_fil = pd.read_csv(args.filtered_net[0], delimiter=args.delimiter)
-    hedgehog_fil = pd.read_csv(args.filtered_net[1], delimiter=args.delimiter)
+    prior_fil = pd.read_csv(panda_filtered[0], delimiter=delimiter)
+    hedgehog_fil = pd.read_csv(panda_filtered[1], delimiter=delimiter)
 
     # Calculate modularity for all networks
-    modularity_hedgehog = hedgehog.filter_panda.calculate_modularity(hedgehog_fil, resolution=args.resolution, comm_mult=args.max_communities)
-    modularity_prior = hedgehog.filter_panda.calculate_modularity(prior_fil, resolution=args.resolution, comm_mult=args.max_communities)
-    modularity_unfiltered = hedgehog.filter_panda.calculate_modularity(panda, resolution=args.resolution, comm_mult=args.max_communities)
+    modularity_hedgehog = hedgehog.filter_panda.calculate_modularity(hedgehog_fil, resolution=resolution, comm_mult=max_communities)
+    modularity_prior = hedgehog.filter_panda.calculate_modularity(prior_fil, resolution=resolution, comm_mult=max_communities)
+    modularity_unfiltered = hedgehog.filter_panda.calculate_modularity(panda, resolution=resolution, comm_mult=max_communities)
 
     # Convert dataframes to networkx graphs
     hedgehog_graph = nx.from_pandas_edgelist(hedgehog_fil, source=hedgehog_fil.columns[0], target=hedgehog_fil.columns[1], edge_attr=hedgehog_fil.columns[2])
@@ -70,7 +63,7 @@ def main():
     })
     
     # Save the results to a CSV file
-    results.to_csv(args.output_file, index=False)
+    results.to_csv(filtering_bench, index=False)
 
 if __name__ == '__main__':
     main()

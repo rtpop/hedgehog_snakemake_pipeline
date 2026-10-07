@@ -9,10 +9,10 @@ stats = snakemake.output.stats
 def main():
     
     # Select communities
-    communities = process_bihidef.select_communities(communities, min_genes, max_genes, stats)
+    comms = process_bihidef.select_communities(communities, min_genes, max_genes, stats)
     
     # Save selected communities to a gmt file    
-    process_bihidef.gmt_from_bihidef(communities, selected_communities)
+    process_bihidef.gmt_from_bihidef(comms, selected_communities)
     
 if __name__ == "__main__":
     main()

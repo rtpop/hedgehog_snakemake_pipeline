@@ -63,6 +63,38 @@ MOTIF_PRIOR = os.path.join(DATA_DIR, config["motif_prior"])
 PANDA_NET = os.path.join(DATA_DIR, "{tissue_type}", config["panda_net_file"])
 FILTERING_METHOD = config["filtering_method"]
 
+## ------------------- ##
+## Filtering benchmark ##
+## ------------------- ##
+BENCHMARK = config["benchmark"]
+BENCH_RESOLUTION = config["bench_resolution"]
+UNFILTERED = config["plot_unfiltered"]
+
+# set benchmarking params if benchmarking is enabled
+if BENCHMARK:
+    BENCHMARK_DIR = os.path.join(HEDGEHOG_DIR, "benchmark")
+    MAX_COMMUNITIES = config["max_communities"]
+    BENCH_RESOLUTION = config["bench_resolution"]
+    UNFILTERED = config["plot_unfiltered"]
+    FILTERING_BENCH = os.path.join(BENCHMARK_DIR, "filtering_benchmark_res_{bench_resolution}.txt")
+    FILTERING_METHOD = "both"  # always run both for benchmarking
+    FILTERING_BENCH_DF = os.path.join(BENCHMARK_DIR, "filtering_benchmark_df.txt")
+    FILTERING_BENCH_CONSOLIDATED = os.path.join(OUTPUT_DIR, "filtering_benchmark_consolidated.txt")
+    BENCHMARK_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
+    FILTERING_HEATMAP = os.path.join(OUTPUT_DIR, "filtering_benchmark_heatmaps")
+
+# set filtering params
+if FILTERING_METHOD == "both":
+    PANDA_NET_FILTERED = [
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+        os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")
+    ]
+elif FILTERING_METHOD == "prior":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt")]
+elif FILTERING_METHOD == "hedgehog":
+    PANDA_NET_FILTERED = [os.path.join(HEDGEHOG_DIR, "panda_network_filtered_hedgehog.txt")]
+else:
+    raise ValueError("Unknown filtering method: {}".format(FILTERING_METHOD))
 
 ## ----------- ##
 ## Run BiHiDef ##
@@ -106,7 +138,8 @@ rule all:
         expand(PANDA_NET_FILTERED, tissue_type=TISSUE),
         expand(GENE_COMMUNITIES, tissue_type=TISSUE),
         expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
-        expand(COMMUNITY_STATS, tissue_type=TISSUE)
+        expand(COMMUNITY_STATS, tissue_type=TISSUE),
+        expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else []
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -189,7 +222,7 @@ rule panda_filtering_benchmark:
     output:
         filtering_bench = FILTERING_BENCH
     params:
-        script = os.path.join(SRC, "process_networks/filter_benchmark.py"), \
+        script = os.path.join(SRC, "filter_benchmark.py"), \
         out_dir = BENCHMARK_DIR, \
         delimiter = DELIMITER, \
         resolution = '{bench_resolution}', \
@@ -249,7 +282,7 @@ rule select_communities:
         A TXT file with statistics about the communities.
     """
     input:
-        GENE_COMMUNITIES
+        communities = GENE_COMMUNITIES
     output:
         selected_communities = SELECTED_COMMUNITIES, \
         stats = COMMUNITY_STATS

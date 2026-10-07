@@ -139,7 +139,9 @@ rule all:
         expand(GENE_COMMUNITIES, tissue_type=TISSUE),
         expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
         expand(COMMUNITY_STATS, tissue_type=TISSUE),
-        expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else []
+        expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
+        expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
+        FILTERING_BENCH_CONSOLIDATED if BENCHMARK else []
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -231,6 +233,65 @@ rule panda_filtering_benchmark:
         PYTHON_CONTAINER
     script:
         params.script
+
+rule consolidate_benchmark_resolutions:
+    """
+    This rule consolidates the different resolutions into one file per tissue.
+
+    Inputs
+    ------
+    FILTERING_BENCH_LIST:
+        A list of TXT files with the benchmark data for all resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_DF:
+        A TXT file with the consolidated benchmark data.
+    """
+    input:
+        filtering_bench_list = lambda wildcards: expand(
+            FILTERING_BENCH,
+            tissue_type=wildcards.tissue_type,
+            bench_resolution=BENCH_RESOLUTION
+        )
+    output:
+        filtering_bench_df=FILTERING_BENCH_DF
+    params:
+        function_file=os.path.join(SRC, "consolidate_benchmark_fn.R"),
+        tissue_type="{tissue_type}"
+    container:
+        R_CONTAINER
+    message:
+        "; Consolidating benchmark data for {wildcards.tissue_type}"
+    script:
+        os.path.join(SRC, "consolidate_resolutions.R")
+
+rule consolidate_benchmark_all:
+    """
+    This rule consolidates all benchmark data into a single file.
+
+    Inputs
+    ------
+    FILTERING_BENCH_DF:
+        A list of TXT files with the benchmark data for all tissues and resolutions.
+    ------
+    Outputs
+    -------
+    FILTERING_BENCH_CONSOLIDATED:
+        A TXT file with the consolidated benchmark data for all tissues.
+    """
+    input:
+        filtering_bench_dfs = expand(FILTERING_BENCH_DF, tissue_type=TISSUE)
+    output:
+        filtering_benchmark_consolidated=FILTERING_BENCH_CONSOLIDATED
+    params:
+        function_file=os.path.join(SRC, "consolidate_benchmark_fn.R")
+    container:
+        R_CONTAINER
+    message:
+        "; Consolidating all benchmark data"
+    script:
+        os.path.join(SRC, "consolidate_benchmark.R")
 
 ## --------------- ##
 ## Running BiHiDeF ##

@@ -141,7 +141,8 @@ rule all:
         expand(COMMUNITY_STATS, tissue_type=TISSUE),
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
-        FILTERING_BENCH_CONSOLIDATED if BENCHMARK else []
+        FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
+        FILTERING_HEATMAP if BENCHMARK else []
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -292,6 +293,36 @@ rule consolidate_benchmark_all:
         "; Consolidating all benchmark data"
     script:
         os.path.join(SRC, "consolidate_benchmark.R")
+
+rule plot_bench_heatmap:
+    """
+    This rule plots the benchmark heatmap.
+
+    Inputs
+    ------
+    FILTERING_BENCH_CONSOLIDATED:
+        A TXT file with the consolidated benchmark data.
+    ------
+    Outputs
+    -------
+    BENCHMARK_HEATMAP:
+        A PDF file with the benchmark heatmap.
+    """
+    input:
+        filtering_bench_df = FILTERING_BENCH_CONSOLIDATED
+    output:
+        benchmark_heatmap = directory(FILTERING_HEATMAP)
+    params:
+        function_file = os.path.join("src", "old", "analysis", "plot_filtering_bench_fn.R"), \
+        metric = "Modularity",  \
+        filtering_method = "all", \
+        separate_files = True
+    container:
+        R_CONTAINER
+    message:
+        "; Plotting benchmark heatmap"
+    script:
+        os.path.join(SRC, "plot_filtering_bench_heatmap.R")
 
 ## --------------- ##
 ## Running BiHiDeF ##

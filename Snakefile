@@ -116,6 +116,20 @@ COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt"
 MAX_GENES = config["max_genes"]
 MIN_GENES = config["min_genes"]
 
+## --------------------------- ##
+## GO enrichment and qscores ##
+## --------------------------- ##
+AUTO_BG = config["auto_bg"]
+GENE_BACKGROUND = os.path.join(DATA_DIR, config["bg_file"])
+GO_ENRICHMENT = os.path.join(GO_DIR, config["go_results"])
+GO_DETAILS = os.path.join(GO_DIR, "community_terms")
+GO_ENRICHMENT_PLOT = os.path.join(GO_DIR, "go_enrichment_counts.pdf")
+QSCORE_TAR = os.path.join(BIHIDEF_RUN_DIR, "qscore_tar.csv")
+QSCORE_REG = os.path.join(BIHIDEF_RUN_DIR, "qscore_reg.csv")
+SELECTED_QSCORE_PLOT = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.pdf")
+SELECTED_QSCORE_MATCHES = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.csv")
+SELECTED_QSCORE_COVERAGE = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscore_coverage.csv")
+
 
 
 # set filtering params
@@ -141,6 +155,11 @@ rule all:
         expand(GENE_COMMUNITIES, tissue_type=TISSUE),
         expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
         expand(COMMUNITY_STATS, tissue_type=TISSUE),
+        expand(GO_ENRICHMENT, tissue_type=TISSUE),
+        expand(GO_ENRICHMENT_PLOT, tissue_type=TISSUE),
+        expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
+        expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
+        expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
@@ -340,7 +359,9 @@ rule run_bihidef:
     input:
         net = PANDA_NET_FILTERED
     output:
-        gene_communities = GENE_COMMUNITIES
+        gene_communities = GENE_COMMUNITIES,
+        qscore_tar = QSCORE_TAR,
+        qscore_reg = QSCORE_REG
     params:
         run_script = os.path.join(SRC, "run_bihidef.py"), \
         max_communities = MAX_COMMUNITIES, \
@@ -354,7 +375,7 @@ rule run_bihidef:
     container:
         PYTHON_CONTAINER
     script:
-        params.run_script
+        os.path.join(SRC, "run_bihidef.py")
 
 ## --------------------- ##
 ## Selecting communities ##
@@ -419,3 +440,57 @@ rule plot_jaccard_heatmaps:
         "; Plotting Jaccard heatmaps for all configured tissue pairs"
     script:
         os.path.join(SRC, "plot_jaccard_heatmaps.r")
+
+## ---------------------------- ##
+## GO enrichment of communities ##
+## ---------------------------- ##
+
+rule go_enrichment:
+    input:
+        gmt = SELECTED_COMMUNITIES,
+        bg = [] if AUTO_BG else GENE_BACKGROUND
+    output:
+        go_enrichment = GO_ENRICHMENT,
+        details = directory(GO_DETAILS)
+    params:
+        function_file = os.path.join(SRC, "GO_enrichment_fn.R"),
+        auto_bg = AUTO_BG,
+        save_all = config["save_all"],
+        sig_thresh = config["sig_thresh"],
+        statistic = config["statistic"],
+        algorithm = config["algorithm"]
+    container:
+        R_CONTAINER
+    message:
+        "GO enrichment of selected communities for {wildcards.tissue_type}"
+    script:
+        os.path.join(SRC, "GO_enrichment.R")
+
+
+rule plot_n_enriched_communities:
+    input:
+        go_enrichment = GO_ENRICHMENT
+    output:
+        go_enrichment_plot = GO_ENRICHMENT_PLOT
+    params:
+        function_file = os.path.join(SRC, "go_enrichment_plot_fn.r")
+    container:
+        R_CONTAINER
+    script:
+        os.path.join(SRC, "go_enrichment_plot.R")
+
+
+rule plot_selected_community_qscores:
+    input:
+        communities = SELECTED_COMMUNITIES,
+        qscores = QSCORE_TAR
+    output:
+        plot = SELECTED_QSCORE_PLOT,
+        matched_scores = SELECTED_QSCORE_MATCHES,
+        coverage = SELECTED_QSCORE_COVERAGE
+    container:
+        PYTHON_CONTAINER
+    message:
+        "Plotting qscores for exact selected-community matches in {wildcards.tissue_type}"
+    script:
+        os.path.join(SRC, "plot_selected_qscores.py")

@@ -58,3 +58,17 @@ filtering_bihidef: "prior" # options: prior, hedgehog; BiHiDef does not support 
 # the minimum and maximum number of genes in a community
 min_genes: 10
 max_genes: 200
+
+## ------------------------ ##
+## GO enrichment parameters ##
+## ------------------------ ##
+# Restored from config_old.yaml. Human gene symbols and BP ontology are used.
+# With auto_bg: false, column 2 of data_dir/bg_file supplies background symbols.
+# With auto_bg: true, use the union of selected GMT genes; no bg file is needed.
+bg_file: "annotation.txt"
+auto_bg: false
+save_all: true
+sig_thresh: 0.05
+statistic: "fisher"
+algorithm: "classic"
+go_results: "go_enrichment_results_bug_fix_q_score.txt"

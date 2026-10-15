@@ -503,9 +503,11 @@ rule plot_selected_community_qscores:
         plot = SELECTED_QSCORE_PLOT,
         matched_scores = SELECTED_QSCORE_MATCHES,
         coverage = SELECTED_QSCORE_COVERAGE
+    params:
+        function_file = os.path.join(SRC, "selected_qscores_fn.R")
     container:
-        PYTHON_CONTAINER
+        R_CONTAINER
     message:
         "Plotting qscores for exact selected-community matches in {wildcards.tissue_type}"
     script:
-        os.path.join(SRC, "plot_selected_qscores.py")
+        os.path.join(SRC, "plot_selected_qscores.R")

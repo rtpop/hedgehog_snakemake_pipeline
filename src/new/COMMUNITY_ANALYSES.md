@@ -34,7 +34,7 @@ status column. The detailed result tables retain raw and adjusted p-values.
 ## Qscore distributions
 
 `run_bihidef` now declares `qscore_tar.csv` and `qscore_reg.csv` as outputs.
-The new `plot_selected_community_qscores` rule consumes the target CSV and the
+The `plot_selected_community_qscores` rule runs entirely in R and consumes the target CSV and the
 selected GMT. Under the corresponding `bihidef_run` directory it writes:
 
 - `selected_community_qscores.pdf`: an overview and one distribution page per
@@ -57,11 +57,11 @@ so a gene can contribute once per matching resolution. Regulator scores are not
 mixed into the selected gene-community plots.
 
 The R container already lists topGO, org.Hs.eg.db, data.table and ggplot2, and
-the Python container lists matplotlib/numpy. No new runtime packages or container
+the qscore matching and plotting scripts use base R. No new runtime packages or container
 rebuild are required for these workflow scripts if those images match their
 Dockerfiles. Adding the CSV outputs may make Snakemake rerun existing bihidef jobs
 if either CSV is missing; do not create placeholder score files.
 
 Validate on the execution host with `snakemake --cores 1 --dry-run`, then run
 the desired targets using the usual container flags. Matching regression tests:
-`python -m unittest discover -s tests -p 'test_selected_qscores.py'`.
+`Rscript tests/test_selected_qscores.R`.

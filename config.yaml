@@ -13,13 +13,13 @@ src_dir: "src/new"
 ncores: 10
 
 # list of tissues
-# tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
-#   "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
-#   "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
-#   "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
-#   "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
-#   "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
-tissue: ["Artery_aorta", "Artery_coronary", "Artery_tibial"]
+tissue: ["Adipose_subcutaneous", "Adipose_visceral", "Adrenal_gland", "Artery_aorta",
+  "Artery_coronary", "Artery_tibial", "Brain_basal_ganglia", "Brain_cerebellum", "Brain_other",
+  "Breast", "Colon_sigmoid", "Colon_transverse", "Esophagus_mucosa", "Esophagus_muscularis",
+  "Heart_atrial_appendage","Heart_left_ventricle", "Intestine_terminal_ileum",
+  "Kidney_cortex", "Liver", "Lung", "Minor_salivary_gland", "Ovary", "Pancreas", "Pituitary",
+  "Prostate", "Skin", "Spleen","Stomach", "Testis", "Thyroid", "Tibial_nerve","Uterus", "Vagina", "Whole_blood"]
+#tissue: ["Artery_aorta", "Artery_coronary", "Artery_tibial"]
 
 ## Delimiter
 delimiter: ","

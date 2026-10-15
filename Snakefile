@@ -83,6 +83,8 @@ if BENCHMARK:
     BENCHMARK_PLOT = os.path.join(BENCHMARK_DIR, "filtering_benchmark_plot.pdf")
     FILTERING_HEATMAP = os.path.join(OUTPUT_DIR, "filtering_benchmark_heatmaps")
 
+JACCARD_HEATMAP = os.path.join(OUTPUT_DIR, "jaccard_heatmaps")
+
 # set filtering params
 if FILTERING_METHOD == "both":
     PANDA_NET_FILTERED = [
@@ -142,7 +144,8 @@ rule all:
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
-        FILTERING_HEATMAP if BENCHMARK else []
+        FILTERING_HEATMAP if BENCHMARK else [],
+        JACCARD_HEATMAP
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -386,3 +389,33 @@ rule select_communities:
         PYTHON_CONTAINER
     script:
         params.script
+
+## ---------------------------------- ##
+## Compare communities across tissues ##
+## ---------------------------------- ##
+rule plot_jaccard_heatmaps:
+    """
+    This rule plots Jaccard heatmaps for all configured tissue pairs.
+
+    Inputs
+    ------
+    SELECTED_COMMUNITIES:
+        A list of BiHiDef community files for all configured tissues.
+    ------
+    Outputs
+    -------
+    JACCARD_HEATMAP:
+        A directory containing one heatmap for each tissue pair.
+    """
+    input:
+        selected_communities = expand(SELECTED_COMMUNITIES, tissue_type=TISSUE)
+    output:
+        jaccard_heatmaps = directory(JACCARD_HEATMAP)
+    params:
+        tissues = TISSUE
+    container:
+        R_CONTAINER
+    message:
+        "; Plotting Jaccard heatmaps for all configured tissue pairs"
+    script:
+        os.path.join(SRC, "plot_jaccard_heatmaps.r")

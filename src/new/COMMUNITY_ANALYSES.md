@@ -12,8 +12,14 @@ are tracked in its `community_terms` directory when `save_all` is true.
 
 The defaults restored from `config_old.yaml` use human gene symbols,
 biological-process terms, and topGO classic/Fisher testing. With `auto_bg: false`,
-`<data_dir>/<bg_file>` must contain background symbols in its second column
-(no header). With `auto_bg: true`, the union of the selected GMT genes supplies
+the `derive_go_background` rule reads ALL unique target symbols (column 2) from
+the tissue's original, unfiltered PANDA edge list. It writes
+`<output_dir>/<tissue>/go_enrichment/network_background.tsv`, with a row number
+and gene symbol, without a header. This includes targets outside selected
+communities and targets removed by edge filtering. No external annotation file
+is required. Missing target identifiers cause an explicit error. topGO performs
+the human BP annotation mapping using this supplied universe.
+With `auto_bg: true`, the union of the selected GMT genes supplies
 the background and no background file is required. These backgrounds answer
 different enrichment questions; the configuration choice is deliberate.
 

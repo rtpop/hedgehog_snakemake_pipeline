@@ -120,7 +120,7 @@ MIN_GENES = config["min_genes"]
 ## GO enrichment and qscores ##
 ## --------------------------- ##
 AUTO_BG = config["auto_bg"]
-GENE_BACKGROUND = os.path.join(DATA_DIR, config["bg_file"])
+GENE_BACKGROUND = os.path.join(GO_DIR, "network_background.tsv")
 GO_ENRICHMENT = os.path.join(GO_DIR, config["go_results"])
 GO_DETAILS = os.path.join(GO_DIR, "community_terms")
 GO_ENRICHMENT_PLOT = os.path.join(GO_DIR, "go_enrichment_counts.pdf")
@@ -444,6 +444,21 @@ rule plot_jaccard_heatmaps:
 ## ---------------------------- ##
 ## GO enrichment of communities ##
 ## ---------------------------- ##
+
+rule derive_go_background:
+    input:
+        network = PANDA_NET
+    output:
+        background = GENE_BACKGROUND
+    params:
+        delimiter = DELIMITER
+    container:
+        PYTHON_CONTAINER
+    message:
+        "Deriving GO background from all PANDA targets for {wildcards.tissue_type}"
+    script:
+        os.path.join(SRC, "derive_go_background.py")
+
 
 rule go_enrichment:
     input:

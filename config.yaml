@@ -62,10 +62,9 @@ max_genes: 200
 ## ------------------------ ##
 ## GO enrichment parameters ##
 ## ------------------------ ##
-# Restored from config_old.yaml. Human gene symbols and BP ontology are used.
-# With auto_bg: false, column 2 of data_dir/bg_file supplies background symbols.
-# With auto_bg: true, use the union of selected GMT genes; no bg file is needed.
-bg_file: "annotation.txt"
+# Human gene symbols and BP ontology are used.
+# Keep false to derive the background from ALL targets in each unfiltered PANDA
+# network. No external annotation.txt is required. True uses only selected GMT genes.
 auto_bg: false
 save_all: true
 sig_thresh: 0.05

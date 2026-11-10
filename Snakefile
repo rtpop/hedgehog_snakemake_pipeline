@@ -439,7 +439,7 @@ rule plot_jaccard_heatmaps:
     message:
         "; Plotting Jaccard heatmaps for all configured tissue pairs"
     script:
-        os.path.join(SRC, "plot_jaccard_heatmaps.r")
+        os.path.join(SRC, "plot_jaccard_heatmaps.R")
 
 ## ---------------------------- ##
 ## GO enrichment of communities ##

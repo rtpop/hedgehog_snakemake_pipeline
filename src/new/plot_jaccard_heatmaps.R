@@ -99,47 +99,57 @@ for (tissue_pair in utils::combn(tissues, 2, simplify = FALSE)) {
         }))
     }))
 
-    comparisons$pair_id <- paste(
-        tissue_a,
-        comparisons$community1,
-        tissue_b,
-        comparisons$community2,
-        sep = ":"
+    comparisons$community1 <- factor(
+        comparisons$community1, levels = rev(unique(communities_a$community))
     )
-    comparisons$pair_id <- factor(comparisons$pair_id, levels = comparisons$pair_id)
-
-    plot <- ggplot2::ggplot(
-        comparisons,
-        ggplot2::aes(x = 1, y = pair_id, fill = jaccard_index)
-    ) +
-        ggplot2::geom_tile(color = NA) +
-        ggplot2::scale_fill_gradient(
-            low = "white",
-            high = "darkred",
-            limits = c(0, 1)
-        ) +
-        ggplot2::theme_minimal() +
-        ggplot2::theme(
-            axis.text.y = ggplot2::element_blank(),
-            axis.ticks.y = ggplot2::element_blank(),
-            axis.title.y = ggplot2::element_blank(),
-            axis.text.x = ggplot2::element_blank(),
-            axis.ticks.x = ggplot2::element_blank(),
-            axis.title.x = ggplot2::element_blank(),
-            panel.grid = ggplot2::element_blank()
-        ) +
-        ggplot2::labs(
-            title = paste("Jaccard per BiHiDeF community pairing for", tissue_a, "and", tissue_b),
-            subtitle = paste(
-                "Pairs with Jaccard > 0.5:",
-                sum(comparisons$jaccard_index > 0.5, na.rm = TRUE)
-            ),
-            fill = "Jaccard"
-        )
+    comparisons$community2 <- factor(
+        comparisons$community2, levels = unique(communities_b$community)
+    )
 
     output_file <- file.path(
         output_dir,
         paste0(tissue_a, "_", tissue_b, "_jaccard_heatmap.pdf")
     )
-    ggplot2::ggsave(output_file, plot, width = 10, height = 10, dpi = 300)
+    # Split large matrices across pages so every community ID stays readable.
+    row_page <- (nlevels(comparisons$community1) - as.integer(comparisons$community1)) %/% 30L
+    col_page <- (as.integer(comparisons$community2) - 1L) %/% 30L
+    pages <- split(comparisons, list(col_page, row_page), drop = TRUE)
+
+    grDevices::pdf(output_file, width = 12, height = 11)
+    tryCatch({
+        for (page_number in seq_along(pages)) {
+            plot <- ggplot2::ggplot(
+                pages[[page_number]],
+                ggplot2::aes(x = community2, y = community1, fill = jaccard_index)
+            ) +
+                ggplot2::geom_tile(color = "grey85", linewidth = 0.2) +
+                ggplot2::scale_fill_gradient(
+                    low = "white",
+                    high = "darkred",
+                    limits = c(0, 1),
+                    breaks = seq(0, 1, by = 0.25)
+                ) +
+                ggplot2::theme_minimal() +
+                ggplot2::theme(
+                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
+                    panel.grid = ggplot2::element_blank()
+                ) +
+                ggplot2::labs(
+                    title = paste("BiHiDeF community overlap |", tissue_a, "vs", tissue_b),
+                    subtitle = sprintf(
+                        "%d of %d pairs have Jaccard > 0.5 across all pages | Page %d of %d",
+                        sum(comparisons$jaccard_index > 0.5),
+                        nrow(comparisons), page_number, length(pages)
+                    ),
+                    x = paste(tissue_b, "community ID"),
+                    y = paste(tissue_a, "community ID"),
+                    fill = "Jaccard index",
+                    caption = paste(
+                        "Shared genes / genes in either community.",
+                        "0 = no shared genes. 1 = identical gene sets."
+                    )
+                )
+            print(plot)
+        }
+    }, finally = grDevices::dev.off())
 }

@@ -110,46 +110,38 @@ for (tissue_pair in utils::combn(tissues, 2, simplify = FALSE)) {
         output_dir,
         paste0(tissue_a, "_", tissue_b, "_jaccard_heatmap.pdf")
     )
-    # Split large matrices across pages so every community ID stays readable.
-    row_page <- (nlevels(comparisons$community1) - as.integer(comparisons$community1)) %/% 30L
-    col_page <- (as.integer(comparisons$community2) - 1L) %/% 30L
-    pages <- split(comparisons, list(col_page, row_page), drop = TRUE)
-
-    grDevices::pdf(output_file, width = 12, height = 11)
-    tryCatch({
-        for (page_number in seq_along(pages)) {
-            plot <- ggplot2::ggplot(
-                pages[[page_number]],
-                ggplot2::aes(x = community2, y = community1, fill = jaccard_index)
-            ) +
-                ggplot2::geom_tile(color = "grey85", linewidth = 0.2) +
-                ggplot2::scale_fill_gradient(
-                    low = "white",
-                    high = "darkred",
-                    limits = c(0, 1),
-                    breaks = seq(0, 1, by = 0.25)
-                ) +
-                ggplot2::theme_minimal() +
-                ggplot2::theme(
-                    axis.text.x = ggplot2::element_text(angle = 90, hjust = 1, vjust = 0.5),
-                    panel.grid = ggplot2::element_blank()
-                ) +
-                ggplot2::labs(
-                    title = paste("BiHiDeF community overlap |", tissue_a, "vs", tissue_b),
-                    subtitle = sprintf(
-                        "%d of %d pairs have Jaccard > 0.5 across all pages | Page %d of %d",
-                        sum(comparisons$jaccard_index > 0.5),
-                        nrow(comparisons), page_number, length(pages)
-                    ),
-                    x = paste(tissue_b, "community ID"),
-                    y = paste(tissue_a, "community ID"),
-                    fill = "Jaccard index",
-                    caption = paste(
-                        "Shared genes / genes in either community.",
-                        "0 = no shared genes. 1 = identical gene sets."
-                    )
-                )
-            print(plot)
-        }
-    }, finally = grDevices::dev.off())
+    plot <- ggplot2::ggplot(
+        comparisons,
+        ggplot2::aes(x = community2, y = community1, fill = jaccard_index)
+    ) +
+        ggplot2::geom_raster() +
+        ggplot2::scale_fill_gradient(
+            low = "white",
+            high = "darkred",
+            limits = c(0, 1),
+            breaks = seq(0, 1, by = 0.25)
+        ) +
+        ggplot2::theme_minimal() +
+        ggplot2::theme(
+            axis.text = ggplot2::element_blank(),
+            axis.ticks = ggplot2::element_blank(),
+            panel.grid = ggplot2::element_blank()
+        ) +
+        ggplot2::labs(
+            title = paste("BiHiDeF community overlap |", tissue_a, "vs", tissue_b),
+            subtitle = sprintf(
+                "%d of %d pairs have Jaccard > 0.5",
+                sum(comparisons$jaccard_index > 0.5),
+                nrow(comparisons)
+            ),
+            x = sprintf("%s communities (n = %d)", tissue_b, nlevels(comparisons$community2)),
+            y = sprintf("%s communities (n = %d)", tissue_a, nlevels(comparisons$community1)),
+            fill = "Jaccard index",
+            caption = paste(
+                "Each cell compares one community from each tissue.",
+                "Shared genes / genes in either community.",
+                "\n0 = no shared genes. 1 = identical gene sets."
+            )
+        )
+    ggplot2::ggsave(output_file, plot, width = 12, height = 11, dpi = 300)
 }

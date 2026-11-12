@@ -1,4 +1,4 @@
-"""Compare HEDGEHOG's BRIM partition with Leiden CPM on a gene projection."""
+"""Compare selected HEDGEHOG gene sets with Leiden on a gene projection."""
 from pathlib import Path
 from time import perf_counter
 
@@ -7,7 +7,6 @@ import leidenalg as la
 import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
-from hedgehog.filter_panda import condor
 
 
 def load_network(path, delimiter):
@@ -46,21 +45,58 @@ def gene_projection(frame):
     return graph
 
 
-def hedgehog_membership(frame, resolution, comm_mult):
-    # Same calls as hedgehog.filter_panda.calculate_modularity, retaining tar_memb.
-    model = condor.condor_object(dataframe=frame.copy(), silent=True)
-    model.initial_community(resolution=resolution)
-    maximum = int(model.tar_memb.community.nunique() * comm_mult)
-    model.brim(resolution=resolution, c=maximum)
-    # CONDOR adds exactly one tar_ prefix to target identifiers.
-    members = {str(name).removeprefix("tar_"): community
-               for name, community in zip(model.tar_memb.tar, model.tar_memb.community)}
-    if set(members) != set(frame.target):
-        raise ValueError("HEDGEHOG target memberships do not match network genes")
-    return members
+def load_communities(path, genes):
+    """Read final selected GMT sets without flattening overlapping communities."""
+    communities = {}
+    universe = set(genes)
+    for number, line in enumerate(Path(path).read_text().splitlines(), 1):
+        if not line.strip():
+            continue
+        fields = line.split("\t")
+        if len(fields) < 3 or not fields[0] or any(not g for g in fields[2:]):
+            raise ValueError(f"Invalid GMT record at line {number}")
+        name, members = fields[0], set(fields[2:])
+        if name in communities:
+            raise ValueError(f"Duplicate GMT community: {name}")
+        unknown = members - universe
+        if unknown:
+            raise ValueError(f"Community {name} has genes outside the network: {sorted(unknown)[:10]}")
+        communities[name] = members
+    return communities
 
 
-def compare(network, output, delimiter, resolution, comm_mult, tissue, filtering):
+def community_scores(graph, communities, method):
+    # Each set's contribution to standard weighted modularity (gamma=1).
+    # Overlapping contributions must not be summed into partition modularity.
+    total = sum(graph.es["weight"])
+    degree = dict(zip(graph.vs["name"], graph.strength(weights="weight")))
+    adjacency = graph.get_adjacency_sparse(attribute="weight")
+    indices = {gene: i for i, gene in enumerate(graph.vs["name"])}
+    rows = []
+    for name, members in communities.items():
+        selected = [indices[g] for g in members]
+        internal = float(adjacency[selected][:, selected].sum()) / 2
+        contribution = internal / total - (sum(degree[g] for g in members) / (2 * total)) ** 2
+        rows.append(dict(method=method, community=name, n_genes=len(members),
+                         modularity_contribution=contribution))
+    return rows
+
+
+def best_matches(source, target, method):
+    rows = []
+    for name, members in source.items():
+        best_name, best_score, intersection = None, -1, 0
+        for other, candidates in target.items():
+            shared = len(members & candidates)
+            score = shared / len(members | candidates)
+            if score > best_score:
+                best_name, best_score, intersection = other, score, shared
+        rows.append(dict(method=method, community=name, matched_community=best_name,
+                         jaccard=max(0, best_score), intersection_genes=intersection))
+    return rows
+
+
+def compare(network, communities, output, delimiter, resolution, tissue, filtering):
     output = Path(output)
     if output.exists():
         raise FileExistsError(f"Refusing to overwrite existing comparison: {output}")
@@ -68,37 +104,43 @@ def compare(network, output, delimiter, resolution, comm_mult, tissue, filtering
     start = perf_counter()
     graph = gene_projection(frame)
     projection_seconds = perf_counter() - start
+    selected = load_communities(communities, graph.vs["name"])
     start = perf_counter()
-    members = hedgehog_membership(frame, resolution, comm_mult)
-    hedgehog_seconds = perf_counter() - start
-    # Compact arbitrary community labels for igraph.
-    labels = {label: i for i, label in enumerate(dict.fromkeys(members.values()))}
-    hedgehog_partition = [labels[members[gene]] for gene in graph.vs["name"]]
-    start = perf_counter()
-    leiden_partition = la.find_partition(
+    partition = la.find_partition(
         graph, la.CPMVertexPartition, resolution_parameter=resolution,
         weights="weight", seed=0).membership
     leiden_seconds = perf_counter() - start
+    leiden = {}
+    for gene, label in zip(graph.vs["name"], partition):
+        leiden.setdefault(str(label), set()).add(gene)
+    scores = community_scores(graph, selected, "hedgehog") + community_scores(graph, leiden, "leiden")
     rows = []
-    for method, partition, seconds in (
-        ("hedgehog", hedgehog_partition, hedgehog_seconds),
-        ("leiden", leiden_partition, leiden_seconds),
-    ):
+    for method, sets in (("hedgehog", selected), ("leiden", leiden)):
+        covered = set().union(*sets.values()) if sets else set()
+        counts = [sum(g in members for members in sets.values()) for g in covered]
         rows.append(dict(tissue=tissue, filtering=filtering, method=method,
-                         resolution=resolution,
-                         modularity=graph.modularity(partition, weights="weight"),
-                         algorithm_seconds=seconds, projection_seconds=projection_seconds,
-                         n_genes=graph.vcount(), n_projection_edges=graph.ecount(),
-                         n_communities=len(set(partition))))
+                         leiden_resolution=resolution,
+                         modularity=graph.modularity(partition, weights="weight") if method == "leiden" else np.nan,
+                         algorithm_seconds=leiden_seconds if method == "leiden" else np.nan,
+                         projection_seconds=projection_seconds, n_genes=graph.vcount(),
+                         n_projection_edges=graph.ecount(), n_communities=len(sets),
+                         n_covered_genes=len(covered), n_uncovered_genes=graph.vcount()-len(covered),
+                         n_overlapping_genes=sum(c > 1 for c in counts)))
     output.mkdir(parents=True, exist_ok=False)
-    for method, partition in (("hedgehog", hedgehog_partition), ("leiden", leiden_partition)):
-        pd.DataFrame({"gene": graph.vs["name"], "community": partition}).to_csv(
+    for method, sets in (("hedgehog", selected), ("leiden", leiden)):
+        pd.DataFrame([(g, name) for name, members in sets.items() for g in sorted(members)],
+                     columns=["gene", "community"]).to_csv(
             output / f"{method}_gene_membership.tsv", sep="\t", index=False, mode="x")
+    pd.DataFrame(scores, columns=["method", "community", "n_genes", "modularity_contribution"]).to_csv(
+        output / "community_scores.tsv", sep="\t", index=False, mode="x")
+    pd.DataFrame(best_matches(selected, leiden, "hedgehog") + best_matches(leiden, selected, "leiden"),
+                 columns=["method", "community", "matched_community", "jaccard", "intersection_genes"]).to_csv(
+        output / "community_matches.tsv", sep="\t", index=False, mode="x")
     pd.DataFrame(rows).to_csv(output / "summary.tsv", sep="\t", index=False, mode="x")
 
 
 if __name__ == "__main__":
-    compare(snakemake.input.network, snakemake.output.results,
+    compare(snakemake.input.network, snakemake.input.communities, snakemake.output.results,
             snakemake.params.delimiter, float(snakemake.params.resolution),
-            int(snakemake.params.comm_mult), snakemake.params.tissue,
+            snakemake.params.tissue,
             snakemake.params.filtering)

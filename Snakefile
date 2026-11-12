@@ -70,12 +70,11 @@ BENCHMARK = config["benchmark"]
 BENCH_RESOLUTION = config["bench_resolution"]
 UNFILTERED = config["plot_unfiltered"]
 
-# Separate, opt-in comparison; never reuses filtering/CONDOR/Leiden outputs.
+# Opt-in comparison of final selected HEDGEHOG communities with Leiden.
 HEDGEHOG_LEIDEN_RUN = os.path.join(
-    HEDGEHOG_DIR, "hedgehog_leiden_gene_projection", "{comparison_filter}",
+    HEDGEHOG_DIR, "hedgehog_selected_leiden_gene_projection", "{comparison_filter}",
     "res_{bench_resolution}"
 )
-COMPARISON_FILTERS = ["prior", "hedgehog"] if FILTERING_METHOD == "both" else [FILTERING_METHOD]
 
 # set benchmarking params if benchmarking is enabled
 if BENCHMARK:
@@ -234,20 +233,20 @@ rule process_and_filter_panda:
 rule hedgehog_leiden_benchmark:
     input:
         expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
-               comparison_filter=COMPARISON_FILTERS, bench_resolution=BENCH_RESOLUTION)
+               comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION)
 
 
 rule compare_hedgehog_leiden:
     input:
-        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt")
+        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt"),
+        communities = SELECTED_COMMUNITIES
     output:
         results = directory(HEDGEHOG_LEIDEN_RUN)
     wildcard_constraints:
-        comparison_filter = "prior|hedgehog"
+        comparison_filter = FILTERING_BIHIDEF
     params:
         delimiter = DELIMITER,
         resolution = "{bench_resolution}",
-        comm_mult = config["max_communities"],
         tissue = "{tissue_type}",
         filtering = "{comparison_filter}"
     container:

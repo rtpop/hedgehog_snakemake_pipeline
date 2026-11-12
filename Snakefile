@@ -70,7 +70,7 @@ BENCHMARK = config["benchmark"]
 BENCH_RESOLUTION = config["bench_resolution"]
 UNFILTERED = config["plot_unfiltered"]
 
-# Opt-in comparison of final selected HEDGEHOG communities with Leiden.
+# Compare final selected HEDGEHOG communities with Leiden when benchmarking is enabled.
 HEDGEHOG_LEIDEN_RUN = os.path.join(
     HEDGEHOG_DIR, "hedgehog_selected_leiden_gene_projection", "{comparison_filter}",
     "res_{bench_resolution}"
@@ -166,6 +166,8 @@ rule all:
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
+        expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
+               comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],

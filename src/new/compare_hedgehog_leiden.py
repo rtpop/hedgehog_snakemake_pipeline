@@ -17,10 +17,8 @@ def load_network(path, delimiter):
     frame["weight"] = pd.to_numeric(frame["weight"], errors="raise")
     if frame.empty or (frame[["source", "target"]] == "").any().any():
         raise ValueError("Network must contain nonempty TF and gene identifiers")
-    if not np.isfinite(frame.weight).all() or (frame.weight < 0).any():
-        raise ValueError("This weighted benchmark requires finite, nonnegative weights")
-    if frame.weight.sum() <= 0:
-        raise ValueError("Network must have positive total weight")
+    if not np.isfinite(frame.weight).all():
+        raise ValueError("Network weights must be finite")
     return frame
 
 
@@ -65,10 +63,12 @@ def load_communities(path, genes):
     return communities
 
 
-def community_scores(graph, communities, method):
+def community_scores(graph, communities, method, resolution):
     # Each set's contribution to standard weighted modularity (gamma=1).
     # Overlapping contributions must not be summed into partition modularity.
     total = sum(graph.es["weight"])
+    # Standard modularity is undefined for signed weights. CPM supports them.
+    modularity_defined = total > 0 and all(w >= 0 for w in graph.es["weight"])
     degree = dict(zip(graph.vs["name"], graph.strength(weights="weight")))
     adjacency = graph.get_adjacency_sparse(attribute="weight")
     indices = {gene: i for i, gene in enumerate(graph.vs["name"])}
@@ -76,9 +76,11 @@ def community_scores(graph, communities, method):
     for name, members in communities.items():
         selected = [indices[g] for g in members]
         internal = float(adjacency[selected][:, selected].sum()) / 2
-        contribution = internal / total - (sum(degree[g] for g in members) / (2 * total)) ** 2
+        contribution = (internal / total - (sum(degree[g] for g in members) / (2 * total)) ** 2
+                        if modularity_defined else np.nan)
         rows.append(dict(method=method, community=name, n_genes=len(members),
-                         modularity_contribution=contribution))
+                         modularity_contribution=contribution,
+                         cpm_contribution=2 * internal - resolution * len(members) * (len(members) - 1)))
     return rows
 
 
@@ -106,21 +108,27 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
     projection_seconds = perf_counter() - start
     selected = load_communities(communities, graph.vs["name"])
     start = perf_counter()
-    partition = la.find_partition(
+    result = la.find_partition(
         graph, la.CPMVertexPartition, resolution_parameter=resolution,
-        weights="weight", seed=0).membership
+        weights="weight", seed=0)
+    partition = result.membership
     leiden_seconds = perf_counter() - start
     leiden = {}
     for gene, label in zip(graph.vs["name"], partition):
         leiden.setdefault(str(label), set()).add(gene)
-    scores = community_scores(graph, selected, "hedgehog") + community_scores(graph, leiden, "leiden")
+    scores = (community_scores(graph, selected, "hedgehog", resolution)
+              + community_scores(graph, leiden, "leiden", resolution))
+    modularity_defined = all(w >= 0 for w in graph.es["weight"])
     rows = []
     for method, sets in (("hedgehog", selected), ("leiden", leiden)):
         covered = set().union(*sets.values()) if sets else set()
         counts = [sum(g in members for members in sets.values()) for g in covered]
         rows.append(dict(tissue=tissue, filtering=filtering, method=method,
                          leiden_resolution=resolution,
-                         modularity=graph.modularity(partition, weights="weight") if method == "leiden" else np.nan,
+                         modularity=(graph.modularity(partition, weights="weight")
+                                     if method == "leiden" and modularity_defined else np.nan),
+                         modularity_defined=modularity_defined,
+                         cpm_quality=result.quality() if method == "leiden" else np.nan,
                          algorithm_seconds=leiden_seconds if method == "leiden" else np.nan,
                          projection_seconds=projection_seconds, n_genes=graph.vcount(),
                          n_projection_edges=graph.ecount(), n_communities=len(sets),
@@ -131,7 +139,7 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
         pd.DataFrame([(g, name) for name, members in sets.items() for g in sorted(members)],
                      columns=["gene", "community"]).to_csv(
             output / f"{method}_gene_membership.tsv", sep="\t", index=False, mode="x")
-    pd.DataFrame(scores, columns=["method", "community", "n_genes", "modularity_contribution"]).to_csv(
+    pd.DataFrame(scores, columns=["method", "community", "n_genes", "modularity_contribution", "cpm_contribution"]).to_csv(
         output / "community_scores.tsv", sep="\t", index=False, mode="x")
     pd.DataFrame(best_matches(selected, leiden, "hedgehog") + best_matches(leiden, selected, "leiden"),
                  columns=["method", "community", "matched_community", "jaccard", "intersection_genes"]).to_csv(

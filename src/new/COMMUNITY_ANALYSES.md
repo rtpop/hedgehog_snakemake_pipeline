@@ -65,3 +65,32 @@ if either CSV is missing; do not create placeholder score files.
 Validate on the execution host with `snakemake --cores 1 --dry-run`, then run
 the desired targets using the usual container flags. Matching regression tests:
 `Rscript tests/test_selected_qscores.R`.
+
+## Community consolidation and counts
+
+`rule all` now includes `consolidate_community_stats` and `plot_n_communities`.
+The consolidation rule consumes the selected GMT, selection statistics, and GO
+summary for every configured tissue. Their existing producer rules supply any
+missing inputs automatically. Tissue labels come directly from `tissue` in
+`config.yaml`, so nested or custom output directories are supported.
+
+The following config values are paths relative to `output_dir`:
+
+- `community_stats_consolidated`: `community_stats_consolidated.tsv`, one row per
+  selected community with its unique gene count, significant GO term count and
+  tissue-level selection statistics.
+- `community_tissue_summary`: `community_tissue_summary.tsv`, one row per tissue
+  including tissues with zero selected communities. `n_enriched` counts selected
+  communities with at least one significant GO term, using the existing GO output.
+- `community_plot`: `community_counts.pdf`, total, selected and GO-enriched counts
+  across tissues, generated from the tissue summary.
+
+Run the normal workflow or target `plot_n_communities` / `consolidate_community_stats`
+directly with the usual Snakemake container flags. The Python script uses only the
+standard library, and the plot uses base R. The rules use the existing
+`python_container` and `r_container`; no additional packages or images are needed
+for these steps. Archived `Snakefile_old` and `config_old.yaml` are unchanged.
+
+Consolidation fails on missing or duplicate GO community IDs, incomplete input
+lists, or inconsistent selected counts rather than silently dropping records.
+Regression checks: `python -m unittest discover -s tests -p test_community_consolidation.py -v`.

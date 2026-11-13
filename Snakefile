@@ -121,6 +121,9 @@ SELECTED_COMMUNITIES = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_selected_commun
 COMMUNITY_STATS = os.path.join(BIHIDEF_RUN_DIR, TAR_TAG + "_community_stats.txt")
 MAX_GENES = config["max_genes"]
 MIN_GENES = config["min_genes"]
+COMMUNITY_STATS_CONSOLIDATED = os.path.join(OUTPUT_DIR, config["community_stats_consolidated"])
+COMMUNITY_TISSUE_SUMMARY = os.path.join(OUTPUT_DIR, config["community_tissue_summary"])
+COMMUNITY_PLOT = os.path.join(OUTPUT_DIR, config["community_plot"])
 
 ## --------------------------- ##
 ## GO enrichment and qscores ##
@@ -161,6 +164,9 @@ rule all:
         expand(GENE_COMMUNITIES, tissue_type=TISSUE),
         expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
         expand(COMMUNITY_STATS, tissue_type=TISSUE),
+        COMMUNITY_STATS_CONSOLIDATED,
+        COMMUNITY_TISSUE_SUMMARY,
+        COMMUNITY_PLOT,
         expand(GO_ENRICHMENT, tissue_type=TISSUE),
         expand(GO_ENRICHMENT_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
@@ -549,67 +555,33 @@ rule plot_selected_community_qscores:
 ## Community stats ##
 ## --------------- ##
 rule consolidate_community_stats:
-    """
-    This rule consolidates the community stats into a single file.
-
-    Inputs
-    ------
-    COMMUNITY_STATS:
-        A TXT file with the community stats.
-    ------
-    Outputs
-    -------
-    COMMUNITY_STATS:
-        A TXT file with the consolidated community stats.
-    """
     input:
-        community_stats = expand(COMMUNITY_STATS, tissue_type = TISSUE), \
-        selected_communities = expand(SELECTED_COMMUNITIES, tissue_type = TISSUE), \
-        go_summery = expand(GO_ENRICHMENT, tissue_type = TISSUE)
+        community_stats = expand(COMMUNITY_STATS, tissue_type=TISSUE),
+        selected_communities = expand(SELECTED_COMMUNITIES, tissue_type=TISSUE),
+        go_summary = expand(GO_ENRICHMENT, tissue_type=TISSUE)
     output:
-        consolidated_community_stats = COMMUNITY_STATS_CONSOLIDATED
+        consolidated_community_stats = COMMUNITY_STATS_CONSOLIDATED,
+        tissue_summary = COMMUNITY_TISSUE_SUMMARY
     params:
-        script = os.path.join(SRC, "utils/consolidate_community_stats.py"), \
-        stats_joined = lambda wildcards, input: ",".join(input.community_stats), \
-        gmt_joined = lambda wildcards, input: ",".join(input.selected_communities), \
-        go_summary_joined = lambda wildcards, input: ",".join(input.go_summery)
+        tissues = TISSUE
+    threads: 1
     container:
         PYTHON_CONTAINER
     message:
-        "; Consolidating community stats with script {params.script} " \
-            "{input.community_stats} " \
-            "{input.selected_communities} " \
-            "{output.consolidated_community_stats}"
-    shell:
-        """
-        python {params.script} "{params.stats_joined}" "{params.gmt_joined}" "{params.go_summary_joined}" {output.consolidated_community_stats}
-        """
+        "Consolidating selected community statistics and GO enrichment across tissues"
+    script:
+        os.path.join(SRC, "consolidate_community_stats.py")
+
 
 rule plot_n_communities:
-    """
-    This rule plots the number of selected communities.
-
-    Inputs
-    ------
-    COMMUNITY_STATS_CONSOLIDATED:
-        A TXT file with the consolidated community stats.
-    ------
-    Outputs
-    -------
-    COMMUNITY_PLOT:
-        A PDF file with the community plot.
-    """
     input:
-        df = COMMUNITY_STATS_CONSOLIDATED
+        tissue_summary = COMMUNITY_TISSUE_SUMMARY
     output:
         community_plot = COMMUNITY_PLOT
-    params:
-        script = os.path.join(SRC, "analysis/community_plot.R")
+    threads: 1
     container:
-        ANALYSIS_CONTAINER
+        R_CONTAINER
     message:
-        "; Plotting communities with script {params.script}"
-    shell:
-        """
-        Rscript {params.script} --input {input.df} --output {output.community_plot}
-        """
+        "Plotting total and selected community counts across tissues"
+    script:
+        os.path.join(SRC, "community_plot.R")

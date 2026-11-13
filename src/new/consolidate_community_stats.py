@@ -1,78 +1,96 @@
-import sys
-import os
-import pandas as pd
+"""Consolidate selected community and GO statistics with explicit tissue labels."""
+import csv
+from pathlib import Path
 
-def parse_stats_file(stats_file):
-    """Parse a stats file and return a dictionary of stats."""
+STAT_KEYS = {
+    "Maximum number of genes per community": "max_genes",
+    "Minimum number of genes per community": "min_genes",
+    "Selected communities": "n_selected",
+    "Total communities": "n_total",
+}
+SUMMARY_COLUMNS = ["tissue", "max_genes", "min_genes", "n_selected", "n_enriched", "n_total"]
+COMMUNITY_COLUMNS = ["tissue", "community", "size", "n_sig_terms"] + SUMMARY_COLUMNS[1:]
+
+
+def parse_stats_file(path):
     stats = {}
-    with open(stats_file) as f:
-        lines = f.readlines()
-        
-    # Skip the first line (date/time)
-    for line in lines[1:]:
-        if ':' in line:
-            key, value = line.strip().split(':', 1)
-            stats[key.strip()] = value.strip()      
+    for line in Path(path).read_text().splitlines():
+        key, separator, value = line.partition(":")
+        if separator and key.strip() in STAT_KEYS:
+            number = int(value.strip())
+            if number < 0:
+                raise ValueError(f"Negative statistic in {path}: {key}")
+            stats[STAT_KEYS[key.strip()]] = number
+    if set(stats) != set(STAT_KEYS.values()):
+        raise ValueError(f"Missing community statistics in {path}")
     return stats
 
-def parse_gmt_file(gmt_file):
-    """Parse a GMT file and return a list of (community_name, size) tuples."""
-    comms = []
-    with open(gmt_file) as f:
-        for line in f:
-            parts = line.strip().split('\t')
-            if len(parts) >= 3:
-                comm_name = parts[0]
-                size = len(parts) - 2
-                comms.append((comm_name, size))
-    return comms
 
-def infer_tissue_from_path(path):
-    """Infer tissue name from file path: o"""
-    parts = path.split(os.sep)
-    try:
-        idx = parts.index('output')
-        tissue = parts[idx + 1]
-    except Exception:
-        tissue = "unknown"
-    return tissue
+def parse_gmt_file(path):
+    communities = {}
+    for line in Path(path).read_text().splitlines():
+        if not line.strip():
+            continue
+        fields = line.split("\t")
+        if len(fields) < 3 or not fields[0] or fields[0] in communities:
+            raise ValueError(f"Invalid or duplicate GMT community in {path}")
+        genes = {gene.strip() for gene in fields[2:] if gene.strip()}
+        if not genes:
+            raise ValueError(f"Empty GMT community in {path}")
+        communities[fields[0]] = len(genes)
+    return communities
 
-def main():
-    stats_files = sys.argv[1].split(",")
-    gmt_files = sys.argv[2].split(",")
-    go_files = sys.argv[3].split(",")
-    out_file = sys.argv[4]
-    
-    all_records = []
-    for stats_file, gmt_file, go_file in zip(stats_files, gmt_files, go_files):
-        tissue = infer_tissue_from_path(stats_file)
+
+def read_go_summary(path):
+    result = {}
+    with open(path, newline="") as handle:
+        reader = csv.DictReader(handle, delimiter="\t")
+        if not {"community", "n_sig_terms"}.issubset(reader.fieldnames or []):
+            raise ValueError(f"Missing GO summary columns in {path}")
+        for row in reader:
+            name = row["community"]
+            if not name or name in result:
+                raise ValueError(f"Missing or duplicate GO community in {path}")
+            count = int(row["n_sig_terms"])
+            if count < 0:
+                raise ValueError(f"Negative significant term count in {path}")
+            result[name] = count
+    return result
+
+
+def write_table(path, rows, columns):
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=columns, delimiter="\t")
+        writer.writeheader()
+        writer.writerows(rows)
+
+
+def consolidate(tissues, stats_files, gmt_files, go_files, output, summary_output):
+    if len(set(tissues)) != len(tissues):
+        raise ValueError("Tissue labels must be unique")
+    if not (len(tissues) == len(stats_files) == len(gmt_files) == len(go_files)):
+        raise ValueError("Expected one statistics, GMT and GO file per tissue")
+    records, summaries = [], []
+    for tissue, stats_file, gmt_file, go_file in zip(tissues, stats_files, gmt_files, go_files):
         stats = parse_stats_file(stats_file)
-        comms = parse_gmt_file(gmt_file)
-        go_summary = pd.read_csv(go_file, sep="\t")
-        n_enriched = (go_summary['n_sig_terms'] > 0).sum()
-        
-        for comm_name, size in comms:
-            record = {
-                "tissue": tissue,
-                "community": comm_name,
-                "size": size,
-                "n_enriched": n_enriched,
-            }
-            record.update(stats)
-            all_records.append(record)
-    
-    df = pd.DataFrame(all_records)
-    
-    # Rename columns
-    df = df.rename(columns={
-        "Maximum number of genes per community": "max_genes",
-        "Minimum number of genes per community": "min_genes",
-        "Selected communities": "n_selected",
-        "Total communities": "n_total"
-    })
-    # Reorder columns
-    df = df[["tissue", "community", "size", "max_genes", "min_genes", "n_selected", "n_enriched", "n_total"]]
-    df.to_csv(out_file, sep="\t", index=False)
+        communities = parse_gmt_file(gmt_file)
+        go = read_go_summary(go_file)
+        if stats["n_selected"] != len(communities):
+            raise ValueError(f"Selected count differs from GMT for {tissue}")
+        if stats["n_total"] < stats["n_selected"]:
+            raise ValueError(f"Total community count is smaller than selected count for {tissue}")
+        if set(go) != set(communities):
+            raise ValueError(f"GO and selected GMT community IDs differ for {tissue}")
+        summary = dict(tissue=tissue, **stats, n_enriched=sum(n > 0 for n in go.values()))
+        summaries.append(summary)
+        for name, size in communities.items():
+            records.append(dict(summary, community=name, size=size, n_sig_terms=go[name]))
+    write_table(output, records, COMMUNITY_COLUMNS)
+    write_table(summary_output, summaries, SUMMARY_COLUMNS)
+
 
 if __name__ == "__main__":
-    main()
+    consolidate(list(snakemake.params.tissues), list(snakemake.input.community_stats),
+                list(snakemake.input.selected_communities), list(snakemake.input.go_summary),
+                snakemake.output.consolidated_community_stats, snakemake.output.tissue_summary)

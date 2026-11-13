@@ -71,3 +71,11 @@ sig_thresh: 0.05
 statistic: "fisher"
 algorithm: "classic"
 go_results: "go_enrichment_results_bug_fix_q_score.txt"
+
+## ----------------------------- ##
+## Community consolidation      ##
+## ----------------------------- ##
+# Paths relative to output_dir. These outputs always run through rule all.
+community_stats_consolidated: "community_stats_consolidated.tsv"
+community_tissue_summary: "community_tissue_summary.tsv"
+community_plot: "community_counts.pdf"

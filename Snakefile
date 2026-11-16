@@ -497,8 +497,7 @@ rule run_bihidef:
     BiHiDeF is available at
     """
     input:
-        net = PANDA_NET_FILTERED,
-        resource_helper = os.path.join(SRC, "measure_resources.py")
+        net = PANDA_NET_FILTERED
     output:
         gene_communities = GENE_COMMUNITIES,
         qscore_tar = QSCORE_TAR,

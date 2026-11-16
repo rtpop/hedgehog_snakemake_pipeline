@@ -90,6 +90,10 @@ if BENCHMARK:
     FILTERING_HEATMAP = os.path.join(OUTPUT_DIR, "filtering_benchmark_heatmaps")
 
 JACCARD_HEATMAP = os.path.join(OUTPUT_DIR, "jaccard_heatmaps")
+JACCARD_BOXPLOT = os.path.join(OUTPUT_DIR, config["jaccard_boxplot"])
+JACCARD_BOXPLOT_TISSUES = config.get("jaccard_boxplot_tissues", TISSUE)
+if not set(JACCARD_BOXPLOT_TISSUES).issubset(TISSUE):
+    raise ValueError("jaccard_boxplot_tissues must be included in tissue")
 
 # set filtering params
 if FILTERING_METHOD == "both":
@@ -178,7 +182,8 @@ rule all:
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
         FILTERING_HEATMAP if BENCHMARK else [],
-        JACCARD_HEATMAP
+        JACCARD_HEATMAP,
+        JACCARD_BOXPLOT
 
 ## ---------------------------- ##
 ## Download & process GTEX data ##
@@ -479,6 +484,23 @@ rule plot_jaccard_heatmaps:
         "; Plotting Jaccard heatmaps for all configured tissue pairs"
     script:
         os.path.join(SRC, "plot_jaccard_heatmaps.R")
+
+rule plot_jaccard_boxplot:
+    input:
+        selected_communities = expand(SELECTED_COMMUNITIES, tissue_type=JACCARD_BOXPLOT_TISSUES)
+    output:
+        jaccard_boxplot = JACCARD_BOXPLOT
+    params:
+        tissues = JACCARD_BOXPLOT_TISSUES,
+        min_jaccard = config["jaccard_boxplot_min_jaccard"]
+    threads: 1
+    container:
+        R_CONTAINER
+    message:
+        "Plotting selected-community Jaccard distributions for tissue pairs"
+    script:
+        os.path.join(SRC, "plot_jaccard_boxplot.R")
+
 
 ## ---------------------------- ##
 ## GO enrichment of communities ##

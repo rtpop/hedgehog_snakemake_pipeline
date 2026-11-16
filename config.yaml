@@ -80,3 +80,12 @@ go_enrichment_plot: "go_enrichment_counts.pdf" # One overall plot under output_d
 community_stats_consolidated: "community_stats_consolidated.tsv"
 community_tissue_summary: "community_tissue_summary.tsv"
 community_plot: "community_counts.pdf"
+
+## ----------------------------- ##
+## Jaccard boxplot              ##
+## ----------------------------- ##
+# Compare final selected HEDGEHOG communities, using all community pairs.
+# These tissues must also be present in the tissue list above.
+jaccard_boxplot_tissues: ["Artery_aorta", "Artery_coronary", "Brain_cerebellum"]
+jaccard_boxplot_min_jaccard: 0.2
+jaccard_boxplot: "jaccard_boxplot_selected_communities.pdf" # Relative to output_dir

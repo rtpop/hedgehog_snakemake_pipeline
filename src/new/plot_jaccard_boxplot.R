@@ -135,8 +135,7 @@ p_box <- ggplot(df_pairs_filt, aes(x = pair, y = jaccard_index)) +
         y = "Jaccard index",
         caption = paste(
             "Exploratory two-sided Wilcoxon tests; BH-adjusted p-values.",
-            "* < 0.05; ** < 0.01; *** < 0.001; **** < 0.0001.",
-            "\nCommunity overlaps are dependent; these are not replicate-level tests."
+            "* < 0.05; ** < 0.01; *** < 0.001; **** < 0.0001."
         )
     )
 

@@ -75,6 +75,11 @@ HEDGEHOG_LEIDEN_RUN = os.path.join(
     HEDGEHOG_DIR, "hedgehog_selected_leiden_gene_projection", "{comparison_filter}",
     "res_{bench_resolution}"
 )
+HEDGEHOG_LEIDEN_MODULARITY_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_modularity_heatmap"])
+HEDGEHOG_LEIDEN_PARTITION_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_partition_modularity_heatmap"])
+HEDGEHOG_LEIDEN_RUNTIME_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_runtime_heatmap"])
+CONDOR_LEIDEN_NATIVE_HEATMAP = os.path.join(OUTPUT_DIR, config["condor_leiden_native_modularity_heatmap"])
+LEIDEN_PRIOR_RUN = os.path.join(HEDGEHOG_DIR, "leiden_prior_gene_projection", "res_{bench_resolution}")
 
 # set benchmarking params if benchmarking is enabled
 if BENCHMARK:
@@ -139,6 +144,7 @@ GO_DETAILS = os.path.join(GO_DIR, "community_terms")
 GO_ENRICHMENT_PLOT = os.path.join(OUTPUT_DIR, config["go_enrichment_plot"])
 QSCORE_TAR = os.path.join(BIHIDEF_RUN_DIR, "qscore_tar.csv")
 QSCORE_REG = os.path.join(BIHIDEF_RUN_DIR, "qscore_reg.csv")
+BIHIDEF_RESOURCE_LOG = os.path.join(BIHIDEF_RUN_DIR, "run_resources.log")
 SELECTED_QSCORE_PLOT = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.pdf")
 SELECTED_QSCORE_MATCHES = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.csv")
 SELECTED_QSCORE_COVERAGE = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscore_coverage.csv")
@@ -182,6 +188,10 @@ rule all:
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
         FILTERING_HEATMAP if BENCHMARK else [],
+        HEDGEHOG_LEIDEN_MODULARITY_HEATMAP if BENCHMARK else [],
+        HEDGEHOG_LEIDEN_PARTITION_HEATMAP if BENCHMARK else [],
+        HEDGEHOG_LEIDEN_RUNTIME_HEATMAP if BENCHMARK else [],
+        CONDOR_LEIDEN_NATIVE_HEATMAP if BENCHMARK else [],
         JACCARD_HEATMAP,
         JACCARD_BOXPLOT
 
@@ -266,6 +276,65 @@ rule compare_hedgehog_leiden:
         config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
     script:
         os.path.join(SRC, "compare_hedgehog_leiden.py")
+
+
+rule plot_hedgehog_leiden_heatmaps:
+    input:
+        comparisons = expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
+                             comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION),
+        resource_logs = expand(BIHIDEF_RESOURCE_LOG, tissue_type=TISSUE)
+    output:
+        modularity = HEDGEHOG_LEIDEN_MODULARITY_HEATMAP,
+        partition_modularity = HEDGEHOG_LEIDEN_PARTITION_HEATMAP,
+        runtime = HEDGEHOG_LEIDEN_RUNTIME_HEATMAP
+    params:
+        tissues = TISSUE,
+        resolutions = BENCH_RESOLUTION
+    threads: 1
+    container:
+        R_CONTAINER
+    message:
+        "Plotting HEDGEHOG and Leiden modularity and runtime heatmaps"
+    script:
+        os.path.join(SRC, "plot_hedgehog_leiden_heatmaps.R")
+
+
+rule leiden_prior_benchmark:
+    input:
+        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+        comparison_script = os.path.join(SRC, "compare_hedgehog_leiden.py")
+    output:
+        results = directory(LEIDEN_PRIOR_RUN)
+    params:
+        delimiter = DELIMITER,
+        resolution = "{bench_resolution}",
+        tissue = "{tissue_type}"
+    threads: 1
+    container:
+        config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
+    script:
+        os.path.join(SRC, "leiden_prior_benchmark.py")
+
+
+rule plot_condor_leiden_native_modularity:
+    input:
+        filtering_benchmark = FILTERING_BENCH_CONSOLIDATED,
+        leiden_results = expand(
+            HEDGEHOG_LEIDEN_RUN if FILTERING_BIHIDEF == "prior" else LEIDEN_PRIOR_RUN,
+            tissue_type=TISSUE, comparison_filter=["prior"], bench_resolution=BENCH_RESOLUTION
+        )
+    output:
+        heatmap = CONDOR_LEIDEN_NATIVE_HEATMAP
+    params:
+        tissues = TISSUE,
+        resolutions = BENCH_RESOLUTION
+    threads: 1
+    container:
+        R_CONTAINER
+    message:
+        "Comparing stored prior-filtered CONDOR modularity with Leiden projection modularity"
+    script:
+        os.path.join(SRC, "plot_condor_leiden_native_modularity.R")
 
 
 rule panda_filtering_benchmark:
@@ -401,11 +470,13 @@ rule run_bihidef:
     BiHiDeF is available at
     """
     input:
-        net = PANDA_NET_FILTERED
+        net = PANDA_NET_FILTERED,
+        resource_helper = os.path.join(SRC, "measure_resources.py")
     output:
         gene_communities = GENE_COMMUNITIES,
         qscore_tar = QSCORE_TAR,
-        qscore_reg = QSCORE_REG
+        qscore_reg = QSCORE_REG,
+        resource_log = BIHIDEF_RESOURCE_LOG
     params:
         run_script = os.path.join(SRC, "run_bihidef.py"), \
         max_communities = MAX_COMMUNITIES, \
@@ -413,7 +484,6 @@ rule run_bihidef:
         output_prefix_reg = REG_TAG, \
         output_prefix_tar = TAR_TAG, \
         outdir = BIHIDEF_RUN_DIR, \
-        resource_log = os.path.join(BIHIDEF_RUN_DIR, "run_resources.log"), \
         filtering_method = FILTERING_BIHIDEF,
         ncores = NCORES
     container:

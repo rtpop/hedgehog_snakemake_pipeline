@@ -44,6 +44,10 @@ filtering_method: "both" # options: prior, hedgehog, both; note that you must se
 benchmark: true
 bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
 plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
+hedgehog_leiden_modularity_heatmap: "hedgehog_leiden_modularity_heatmap.pdf"
+hedgehog_leiden_partition_modularity_heatmap: "hedgehog_leiden_partition_modularity_heatmap.pdf"
+hedgehog_leiden_runtime_heatmap: "hedgehog_leiden_runtime_heatmap.pdf"
+condor_leiden_native_modularity_heatmap: "condor_leiden_native_modularity_heatmap.pdf"
 
 ## ----------- ##
 ## Run bihidef ##

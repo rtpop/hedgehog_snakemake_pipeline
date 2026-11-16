@@ -84,6 +84,52 @@ def community_scores(graph, communities, method, resolution):
     return rows
 
 
+def whole_partition_modularity(graph, communities):
+    """Score a fractional cover at gamma=1, including uncovered singletons.
+
+    A gene in k communities receives membership 1/k in each. Uncovered genes
+    each receive their own singleton. For disjoint exhaustive communities this
+    is exactly standard weighted partition modularity.
+    """
+    weights = graph.es["weight"]
+    total = sum(weights)
+    if total <= 0 or any(weight < 0 for weight in weights):
+        return np.nan
+
+    genes = graph.vs["name"]
+    indices = {gene: index for index, gene in enumerate(genes)}
+    memberships = [[] for _ in genes]
+    for column, members in enumerate(communities.values()):
+        for gene in members:
+            memberships[indices[gene]].append(column)
+
+    # Every row sums to one. Add one distinct column for each uncovered gene;
+    # these singletons are used only for whole-partition scoring, not GMT output.
+    row_indices, column_indices, values = [], [], []
+    next_column = len(communities)
+    for row, columns in enumerate(memberships):
+        if not columns:
+            columns = [next_column]
+            next_column += 1
+        row_indices.extend([row] * len(columns))
+        column_indices.extend(columns)
+        values.extend([1 / len(columns)] * len(columns))
+    membership = coo_matrix(
+        (values, (row_indices, column_indices)),
+        shape=(len(genes), next_column),
+    ).tocsr()
+
+    # Q = sum_c [alpha_c^T A alpha_c / (2W)
+    #            - (sum_i strength_i * alpha_ic / (2W))^2].
+    # Sparse operations avoid constructing a dense gene-by-gene modularity matrix.
+    adjacency = graph.get_adjacency_sparse(attribute="weight")
+    observed = float(membership.multiply(adjacency @ membership).sum()) / (2 * total)
+    strengths = np.asarray(graph.strength(weights="weight"), dtype=float)
+    community_strengths = np.asarray(membership.T @ strengths).ravel()
+    expected = np.square(community_strengths / (2 * total)).sum()
+    return float(observed - expected)
+
+
 def best_matches(source, target, method):
     rows = []
     for name, members in source.items():
@@ -118,7 +164,8 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
         leiden.setdefault(str(label), set()).add(gene)
     scores = (community_scores(graph, selected, "hedgehog", resolution)
               + community_scores(graph, leiden, "leiden", resolution))
-    modularity_defined = all(w >= 0 for w in graph.es["weight"])
+    modularity_defined = (sum(graph.es["weight"]) > 0
+                          and all(w >= 0 for w in graph.es["weight"]))
     rows = []
     for method, sets in (("hedgehog", selected), ("leiden", leiden)):
         covered = set().union(*sets.values()) if sets else set()
@@ -128,6 +175,8 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
                          modularity=(graph.modularity(partition, weights="weight")
                                      if method == "leiden" and modularity_defined else np.nan),
                          modularity_defined=modularity_defined,
+                         whole_partition_modularity=whole_partition_modularity(graph, sets),
+                         whole_partition_scoring="fractional_membership_uncovered_singletons_gamma1",
                          cpm_quality=result.quality() if method == "leiden" else np.nan,
                          algorithm_seconds=leiden_seconds if method == "leiden" else np.nan,
                          projection_seconds=projection_seconds, n_genes=graph.vcount(),

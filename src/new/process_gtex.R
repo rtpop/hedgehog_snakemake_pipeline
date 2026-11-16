@@ -70,6 +70,9 @@ get_gtex_data <- function(data, extract_edges = TRUE, prior, log, out_dir = "dat
         cat(paste0("Processed tissue: ", i, "\n"), file = log_file, append = TRUE)
     }
     cat("Processing completed at ", Sys.time(),".\n", file = log_file, append = TRUE)
+
+    # save genes as bg
+    writeLines(as.character(gene_names), file.path(out_dir, "gene_background.tsv"))
 }
 
 # run

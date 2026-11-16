@@ -308,15 +308,15 @@ rule compare_hedgehog_leiden:
 rule plot_hedgehog_leiden_heatmaps:
     input:
         comparisons = expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
-                             comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION),
-        resource_logs = expand(BIHIDEF_RESOURCE_LOG, tissue_type=TISSUE)
+                             comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION)
     output:
         modularity = HEDGEHOG_LEIDEN_MODULARITY_HEATMAP,
         partition_modularity = HEDGEHOG_LEIDEN_PARTITION_HEATMAP,
         runtime = HEDGEHOG_LEIDEN_RUNTIME_HEATMAP
     params:
         tissues = TISSUE,
-        resolutions = BENCH_RESOLUTION
+        resolutions = BENCH_RESOLUTION,
+        resource_logs = expand(BIHIDEF_RESOURCE_LOG, tissue_type=TISSUE)
     threads: 1
     container:
         R_CONTAINER
@@ -502,8 +502,7 @@ rule run_bihidef:
     output:
         gene_communities = GENE_COMMUNITIES,
         qscore_tar = QSCORE_TAR,
-        qscore_reg = QSCORE_REG,
-        resource_log = BIHIDEF_RESOURCE_LOG
+        qscore_reg = QSCORE_REG
     params:
         run_script = os.path.join(SRC, "run_bihidef.py"), \
         max_communities = MAX_COMMUNITIES, \
@@ -511,6 +510,7 @@ rule run_bihidef:
         output_prefix_reg = REG_TAG, \
         output_prefix_tar = TAR_TAG, \
         outdir = BIHIDEF_RUN_DIR, \
+        resource_log = BIHIDEF_RESOURCE_LOG,
         filtering_method = FILTERING_BIHIDEF,
         ncores = NCORES
     container:

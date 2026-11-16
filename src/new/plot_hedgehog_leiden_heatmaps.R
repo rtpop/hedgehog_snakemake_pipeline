@@ -10,7 +10,7 @@ options(stringsAsFactors = FALSE)
 ## Read comparison results ##
 ## ----------------------- ##
 comparison_dirs <- as.character(snakemake@input$comparisons)
-resource_logs <- as.character(snakemake@input$resource_logs)
+resource_logs <- as.character(unlist(snakemake@params$resource_logs))
 tissues <- as.character(unlist(snakemake@params$tissues))
 resolutions <- as.character(unlist(snakemake@params$resolutions))
 
@@ -43,18 +43,31 @@ if (length(resource_logs) != length(tissues)) stop("Expected one BiHiDeF log per
 ## ---------------------------- ##
 # Logs measure the full BiHiDeF call, including its resolution search and output.
 # They do not measure filtering or the subsequent selected-community GMT step.
+# These are optional existing files, not workflow dependencies: plotting must
+# never request a BiHiDeF run just to obtain a missing runtime measurement.
 read_elapsed <- function(path) {
+    if (!file.exists(path)) {
+        message("No existing BiHiDeF runtime log; showing NA: ", path)
+        return(NA_real_)
+    }
     lines <- readLines(path, warn = FALSE)
     elapsed <- grep("^Elapsed time:", lines, value = TRUE)
     status <- grep("^Exit status:", lines, value = TRUE)
     if (length(status) != 1L || trimws(sub("^Exit status:", "", status)) != "0") {
-        stop("BiHiDeF resource log does not record a successful run: ", path)
+        message("BiHiDeF log does not record a successful run; showing NA: ", path)
+        return(NA_real_)
     }
-    if (length(elapsed) != 1L) stop("Missing or duplicate elapsed time in ", path)
+    if (length(elapsed) != 1L) {
+        message("Missing or duplicate BiHiDeF elapsed time; showing NA: ", path)
+        return(NA_real_)
+    }
     seconds <- suppressWarnings(as.numeric(sub(
         "^Elapsed time: ([0-9.eE+-]+) seconds$", "\\1", elapsed
     )))
-    if (!is.finite(seconds) || seconds < 0) stop("Invalid elapsed time in ", path)
+    if (!is.finite(seconds) || seconds < 0) {
+        message("Invalid BiHiDeF elapsed time; showing NA: ", path)
+        return(NA_real_)
+    }
     seconds
 }
 hedgehog_seconds <- setNames(vapply(resource_logs, read_elapsed, numeric(1)), tissues)
@@ -129,7 +142,8 @@ plot_heatmap(
     paste(
         "HEDGEHOG: full BiHiDeF call, repeated across columns; selection and filtering excluded.",
         "\nLeiden: partition detection at each resolution; projection and scoring excluded.",
-        "\nThese timings measure different scopes and are not an equal-work speed comparison."
+        "\nThese timings measure different scopes and are not an equal-work speed comparison.",
+        "\nGrey NA cells indicate unavailable or invalid recorded timings."
     ),
     snakemake@output$runtime
 )

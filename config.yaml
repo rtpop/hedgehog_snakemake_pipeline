@@ -71,6 +71,7 @@ sig_thresh: 0.05
 statistic: "fisher"
 algorithm: "classic"
 go_results: "go_enrichment_results_bug_fix_q_score.txt"
+go_enrichment_plot: "go_enrichment_counts.pdf" # One overall plot under output_dir
 
 ## ----------------------------- ##
 ## Community consolidation      ##

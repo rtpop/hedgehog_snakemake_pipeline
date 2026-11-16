@@ -132,7 +132,7 @@ AUTO_BG = config["auto_bg"]
 GENE_BACKGROUND = os.path.join(GO_DIR, "network_background.tsv")
 GO_ENRICHMENT = os.path.join(GO_DIR, config["go_results"])
 GO_DETAILS = os.path.join(GO_DIR, "community_terms")
-GO_ENRICHMENT_PLOT = os.path.join(GO_DIR, "go_enrichment_counts.pdf")
+GO_ENRICHMENT_PLOT = os.path.join(OUTPUT_DIR, config["go_enrichment_plot"])
 QSCORE_TAR = os.path.join(BIHIDEF_RUN_DIR, "qscore_tar.csv")
 QSCORE_REG = os.path.join(BIHIDEF_RUN_DIR, "qscore_reg.csv")
 SELECTED_QSCORE_PLOT = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.pdf")
@@ -168,7 +168,7 @@ rule all:
         COMMUNITY_TISSUE_SUMMARY,
         COMMUNITY_PLOT,
         expand(GO_ENRICHMENT, tissue_type=TISSUE),
-        expand(GO_ENRICHMENT_PLOT, tissue_type=TISSUE),
+        GO_ENRICHMENT_PLOT,
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
@@ -523,11 +523,9 @@ rule go_enrichment:
 
 rule plot_n_enriched_communities:
     input:
-        go_enrichment = GO_ENRICHMENT
+        tissue_summary = COMMUNITY_TISSUE_SUMMARY
     output:
         go_enrichment_plot = GO_ENRICHMENT_PLOT
-    params:
-        function_file = os.path.join(SRC, "go_enrichment_plot_fn.r")
     container:
         R_CONTAINER
     script:

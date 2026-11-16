@@ -8,7 +8,11 @@ scripts under `src/old` remain available to the archived workflow.
 `go_enrichment` reads the selected GMT and writes the configured `go_results`
 summary under `<output_dir>/<tissue>/go_enrichment/`. Per-community term tables
 are tracked in its `community_terms` directory when `save_all` is true.
-`plot_n_enriched_communities` writes `go_enrichment_counts.pdf`.
+`plot_n_enriched_communities` writes one combined `go_enrichment_counts.pdf`
+under `output_dir` (configured by `go_enrichment_plot`). Each tissue has one
+bar counting selected communities with at least one significant BP term;
+tissues with zero enriched communities are retained. It reads the consolidated
+tissue summary rather than producing a separate plot for each tissue.
 
 The defaults restored from `config_old.yaml` use human gene symbols,
 biological-process terms, and topGO classic/Fisher testing. With `auto_bg: false`,

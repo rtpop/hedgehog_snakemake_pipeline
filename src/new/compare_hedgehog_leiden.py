@@ -1,46 +1,32 @@
-"""Compare selected HEDGEHOG gene sets with Leiden on a gene projection."""
+"""Score saved Leiden memberships and selected HEDGEHOG sets without detection."""
 from pathlib import Path
 from time import perf_counter
+import importlib.util
 
-import igraph as ig
-import leidenalg as la
 import numpy as np
 import pandas as pd
 from scipy.sparse import coo_matrix
 
 
+def projection_helpers():
+    """Compatibility helpers for the existing optional prior-only benchmark.
+
+    That benchmark imports this source module directly, so __file__ points to
+    src/new rather than Snakemake's temporary copy of this scoring entry point.
+    """
+    path = Path(__file__).with_name("leiden_gene_projection.py")
+    spec = importlib.util.spec_from_file_location("projection", path)
+    projection = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(projection)
+    return projection
+
+
 def load_network(path, delimiter):
-    # filter_panda writes headerless edge lists. Preserve identifiers literally.
-    frame = pd.read_csv(path, sep=delimiter, header=None,
-                        names=["source", "target", "weight"],
-                        dtype={"source": str, "target": str}, keep_default_na=False)
-    frame["weight"] = pd.to_numeric(frame["weight"], errors="raise")
-    if frame.empty or (frame[["source", "target"]] == "").any().any():
-        raise ValueError("Network must contain nonempty TF and gene identifiers")
-    if not np.isfinite(frame.weight).all():
-        raise ValueError("Network weights must be finite")
-    return frame
+    return projection_helpers().load_network(path, delimiter)
 
 
 def gene_projection(frame):
-    genes = sorted(frame.target.unique())
-    tfs = sorted(frame.source.unique())
-    matrix = coo_matrix((frame.weight.to_numpy(), (
-        frame.source.map({name: i for i, name in enumerate(tfs)}),
-        frame.target.map({name: i for i, name in enumerate(genes)}))),
-        shape=(len(tfs), len(genes))).tocsr()
-    projection = (matrix.T @ matrix).tocsr()
-    projection.setdiag(0)
-    projection.eliminate_zeros()
-    edges = projection.tocoo()
-    upper = edges.row < edges.col
-    graph = ig.Graph(n=len(genes), edges=list(zip(
-        edges.row[upper].tolist(), edges.col[upper].tolist())), directed=False)
-    graph.vs["name"] = genes
-    graph.es["weight"] = edges.data[upper].tolist()
-    if not graph.ecount():
-        raise ValueError("Gene projection has no edges; modularity is undefined")
-    return graph
+    return projection_helpers().gene_projection(frame)
 
 
 def load_communities(path, genes):
@@ -144,24 +130,51 @@ def best_matches(source, target, method):
     return rows
 
 
-def compare(network, communities, output, delimiter, resolution, tissue, filtering):
+def load_leiden_membership(path, genes):
+    """Require exactly one saved community label per projected gene."""
+    frame = pd.read_csv(path, sep="\t", dtype=str, keep_default_na=False)
+    if not {"gene", "community"}.issubset(frame.columns):
+        raise ValueError("Leiden membership must contain gene and community columns")
+    if frame.gene.duplicated().any() or (frame[["gene", "community"]] == "").any().any():
+        raise ValueError("Leiden membership contains duplicate genes or empty identifiers")
+    if set(frame.gene) != set(genes):
+        raise ValueError("Saved Leiden memberships do not match the filtered network genes")
+    members = dict(zip(frame.gene, frame.community))
+    labels = {label: index for index, label in enumerate(dict.fromkeys(frame.community))}
+    partition = [labels[members[gene]] for gene in genes]
+    communities = {}
+    for gene in genes:
+        communities.setdefault(members[gene], set()).add(gene)
+    return communities, partition
+
+
+def compare(network, communities, membership_file, detection_file, projection_script,
+            output, delimiter, resolution, tissue, filtering):
     output = Path(output)
     if output.exists():
-        raise FileExistsError(f"Refusing to overwrite existing comparison: {output}")
-    frame = load_network(network, delimiter)
+        raise FileExistsError(f"Refusing to overwrite existing scores: {output}")
+    spec = importlib.util.spec_from_file_location("projection", projection_script)
+    projection = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(projection)
+    frame = projection.load_network(network, delimiter)
     start = perf_counter()
-    graph = gene_projection(frame)
-    projection_seconds = perf_counter() - start
+    graph = projection.gene_projection(frame)
+    scoring_projection_seconds = perf_counter() - start
     selected = load_communities(communities, graph.vs["name"])
-    start = perf_counter()
-    result = la.find_partition(
-        graph, la.CPMVertexPartition, resolution_parameter=resolution,
-        weights="weight", seed=0)
-    partition = result.membership
-    leiden_seconds = perf_counter() - start
-    leiden = {}
-    for gene, label in zip(graph.vs["name"], partition):
-        leiden.setdefault(str(label), set()).add(gene)
+    leiden, partition = load_leiden_membership(membership_file, graph.vs["name"])
+
+    # Both the original combined summary and the new detection-only summary
+    # contain a Leiden row. Read its timing without rerunning find_partition.
+    detection = pd.read_csv(detection_file, sep="\t")
+    detection = detection.loc[detection.method == "leiden"]
+    if len(detection) != 1:
+        raise ValueError("Expected one Leiden detection summary row")
+    metadata = detection.iloc[0]
+    if (str(metadata.tissue) != tissue or str(metadata.filtering) != filtering
+            or not np.isclose(float(metadata.leiden_resolution), resolution)):
+        raise ValueError("Saved Leiden detection metadata does not match the scoring job")
+    leiden_seconds = metadata.get("algorithm_seconds", np.nan)
+    projection_seconds = metadata.get("projection_seconds", np.nan)
     scores = (community_scores(graph, selected, "hedgehog", resolution)
               + community_scores(graph, leiden, "leiden", resolution))
     modularity_defined = (sum(graph.es["weight"]) > 0
@@ -177,9 +190,11 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
                          modularity_defined=modularity_defined,
                          whole_partition_modularity=whole_partition_modularity(graph, sets),
                          whole_partition_scoring="fractional_membership_uncovered_singletons_gamma1",
-                         cpm_quality=result.quality() if method == "leiden" else np.nan,
+                         cpm_quality=(sum(row["cpm_contribution"] for row in scores if row["method"] == "leiden")
+                                      if method == "leiden" else np.nan),
                          algorithm_seconds=leiden_seconds if method == "leiden" else np.nan,
-                         projection_seconds=projection_seconds, n_genes=graph.vcount(),
+                         projection_seconds=projection_seconds,
+                         scoring_projection_seconds=scoring_projection_seconds, n_genes=graph.vcount(),
                          n_projection_edges=graph.ecount(), n_communities=len(sets),
                          n_covered_genes=len(covered), n_uncovered_genes=graph.vcount()-len(covered),
                          n_overlapping_genes=sum(c > 1 for c in counts)))
@@ -197,7 +212,8 @@ def compare(network, communities, output, delimiter, resolution, tissue, filteri
 
 
 if __name__ == "__main__":
-    compare(snakemake.input.network, snakemake.input.communities, snakemake.output.results,
+    compare(snakemake.input.network, snakemake.input.communities,
+            snakemake.input.membership, snakemake.input.detection_summary,
+            snakemake.input.projection_script, snakemake.output.results,
             snakemake.params.delimiter, float(snakemake.params.resolution),
-            snakemake.params.tissue,
-            snakemake.params.filtering)
+            snakemake.params.tissue, snakemake.params.filtering)

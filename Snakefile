@@ -24,6 +24,7 @@ import sys
 import glob
 from pathlib import Path
 import time
+import hashlib
 
 ## ----------------- ##
 ## Global parameters ##
@@ -75,6 +76,7 @@ HEDGEHOG_LEIDEN_RUN = os.path.join(
     HEDGEHOG_DIR, "hedgehog_selected_leiden_gene_projection", "{comparison_filter}",
     "res_{bench_resolution}"
 )
+HEDGEHOG_LEIDEN_SCORES = os.path.join(HEDGEHOG_LEIDEN_RUN, "scores")
 HEDGEHOG_LEIDEN_MODULARITY_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_modularity_heatmap"])
 HEDGEHOG_LEIDEN_PARTITION_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_partition_modularity_heatmap"])
 HEDGEHOG_LEIDEN_RUNTIME_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_runtime_heatmap"])
@@ -182,7 +184,7 @@ rule all:
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
-        expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
+        expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
                comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
@@ -255,16 +257,41 @@ rule process_and_filter_panda:
 
 rule hedgehog_leiden_benchmark:
     input:
-        expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
+        expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
                comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION)
+
+
+rule detect_leiden:
+    input:
+        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt")
+    output:
+        membership = os.path.join(HEDGEHOG_LEIDEN_RUN, "leiden_gene_membership.tsv"),
+        detection_summary = os.path.join(HEDGEHOG_LEIDEN_RUN, "summary.tsv")
+    wildcard_constraints:
+        comparison_filter = FILTERING_BIHIDEF
+    params:
+        projection_script = os.path.abspath(os.path.join(SRC, "leiden_gene_projection.py")),
+        projection_version = hashlib.sha256(Path(SRC, "leiden_gene_projection.py").read_bytes()).hexdigest(),
+        delimiter = DELIMITER,
+        resolution = "{bench_resolution}",
+        tissue = "{tissue_type}",
+        filtering = "{comparison_filter}"
+    threads: 1
+    container:
+        config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
+    script:
+        os.path.join(SRC, "detect_leiden.py")
 
 
 rule compare_hedgehog_leiden:
     input:
         network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt"),
-        communities = SELECTED_COMMUNITIES
+        communities = SELECTED_COMMUNITIES,
+        membership = os.path.join(HEDGEHOG_LEIDEN_RUN, "leiden_gene_membership.tsv"),
+        detection_summary = os.path.join(HEDGEHOG_LEIDEN_RUN, "summary.tsv"),
+        projection_script = os.path.join(SRC, "leiden_gene_projection.py")
     output:
-        results = directory(HEDGEHOG_LEIDEN_RUN)
+        results = directory(HEDGEHOG_LEIDEN_SCORES)
     wildcard_constraints:
         comparison_filter = FILTERING_BIHIDEF
     params:
@@ -280,7 +307,7 @@ rule compare_hedgehog_leiden:
 
 rule plot_hedgehog_leiden_heatmaps:
     input:
-        comparisons = expand(HEDGEHOG_LEIDEN_RUN, tissue_type=TISSUE,
+        comparisons = expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
                              comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION),
         resource_logs = expand(BIHIDEF_RESOURCE_LOG, tissue_type=TISSUE)
     output:
@@ -302,7 +329,7 @@ rule plot_hedgehog_leiden_heatmaps:
 rule leiden_prior_benchmark:
     input:
         network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
-        comparison_script = os.path.join(SRC, "compare_hedgehog_leiden.py")
+        comparison_script = ancient(os.path.join(SRC, "compare_hedgehog_leiden.py"))
     output:
         results = directory(LEIDEN_PRIOR_RUN)
     params:
@@ -320,7 +347,7 @@ rule plot_condor_leiden_native_modularity:
     input:
         filtering_benchmark = FILTERING_BENCH_CONSOLIDATED,
         leiden_results = expand(
-            HEDGEHOG_LEIDEN_RUN if FILTERING_BIHIDEF == "prior" else LEIDEN_PRIOR_RUN,
+            HEDGEHOG_LEIDEN_SCORES if FILTERING_BIHIDEF == "prior" else LEIDEN_PRIOR_RUN,
             tissue_type=TISSUE, comparison_filter=["prior"], bench_resolution=BENCH_RESOLUTION
         )
     output:

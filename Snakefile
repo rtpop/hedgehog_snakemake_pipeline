@@ -73,6 +73,9 @@ UNFILTERED = config["plot_unfiltered"]
 # Existing CONDOR and Leiden scripts, using the same prior-filtered PANDA inputs.
 LEIDEN_BENCHMARK_DIR = os.path.join(OUTPUT_DIR, "leiden_benchmark")
 LEIDEN_SUMMARY = os.path.join(LEIDEN_BENCHMARK_DIR, "modularity_condor_leiden_gene_projection.tsv")
+LEIDEN_TISSUE_SUMMARY = os.path.join(
+    LEIDEN_BENCHMARK_DIR, "{tissue_type}", "modularity_condor_leiden_gene_projection.tsv"
+)
 LEIDEN_MEMBERSHIP = os.path.join(LEIDEN_BENCHMARK_DIR, "{tissue_type}", "leiden_output",
                                  "genes_memb_{leiden_resolution}.txt")
 LEIDEN_RESOLUTIONS = config["leiden_resolutions"]
@@ -274,16 +277,34 @@ rule run_condor:
 
 rule run_leiden:
     input:
-        networks = expand(os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
-                          tissue_type=TISSUE),
-        condor_memberships = expand(CONDOR_MEMBERSHIP, tissue_type=TISSUE,
-                                    condor_resolution=CONDOR_RESOLUTIONS)
+        summaries = expand(LEIDEN_TISSUE_SUMMARY, tissue_type=TISSUE)
     output:
-        summary = LEIDEN_SUMMARY,
-        memberships = expand(LEIDEN_MEMBERSHIP, tissue_type=TISSUE,
+        summary = LEIDEN_SUMMARY
+    threads: 1
+    container:
+        PYTHON_CONTAINER
+    message:
+        "Combining CONDOR-Leiden comparison summaries across tissues"
+    script:
+        os.path.join("src", "new", "consolidate_leiden_summaries.py")
+
+
+rule run_leiden_tissue:
+    input:
+        networks = lambda wildcards: expand(
+            os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+            tissue_type=[wildcards.tissue_type]
+        ),
+        condor_memberships = lambda wildcards: expand(
+            CONDOR_MEMBERSHIP, tissue_type=[wildcards.tissue_type],
+            condor_resolution=CONDOR_RESOLUTIONS
+        )
+    output:
+        summary = LEIDEN_TISSUE_SUMMARY,
+        memberships = expand(LEIDEN_MEMBERSHIP, tissue_type="{tissue_type}",
                              leiden_resolution=LEIDEN_RESOLUTIONS)
     params:
-        tissues = TISSUE,
+        tissues = lambda wildcards: [wildcards.tissue_type],
         condor_resolutions = CONDOR_RESOLUTIONS,
         leiden_resolutions = LEIDEN_RESOLUTIONS,
         delimiter = DELIMITER
@@ -291,7 +312,7 @@ rule run_leiden:
     container:
         config.get("leiden_container", PYTHON_CONTAINER)
     message:
-        "Running the existing CONDOR-Leiden gene-projection comparison"
+        "Running the existing CONDOR-Leiden comparison for {wildcards.tissue_type}"
     script:
         os.path.join("src", "run_leiden.py")
 

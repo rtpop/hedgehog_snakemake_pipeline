@@ -24,7 +24,6 @@ import sys
 import glob
 from pathlib import Path
 import time
-import hashlib
 
 ## ----------------- ##
 ## Global parameters ##
@@ -71,17 +70,19 @@ BENCHMARK = config["benchmark"]
 BENCH_RESOLUTION = config["bench_resolution"]
 UNFILTERED = config["plot_unfiltered"]
 
-# Compare final selected HEDGEHOG communities with Leiden when benchmarking is enabled.
-HEDGEHOG_LEIDEN_RUN = os.path.join(
-    HEDGEHOG_DIR, "hedgehog_selected_leiden_gene_projection", "{comparison_filter}",
-    "res_{bench_resolution}"
+# Existing CONDOR and Leiden scripts, using the same prior-filtered PANDA inputs.
+LEIDEN_BENCHMARK_DIR = os.path.join(OUTPUT_DIR, "leiden_benchmark")
+LEIDEN_SUMMARY = os.path.join(LEIDEN_BENCHMARK_DIR, "modularity_condor_leiden_gene_projection.tsv")
+LEIDEN_MEMBERSHIP = os.path.join(LEIDEN_BENCHMARK_DIR, "{tissue_type}", "leiden_output",
+                                 "genes_memb_{leiden_resolution}.txt")
+LEIDEN_RESOLUTIONS = config["leiden_resolutions"]
+CONDOR_RESOLUTIONS = config["leiden_condor_resolutions"]
+CONDOR_BENCHMARK_DIR = os.path.join(LEIDEN_BENCHMARK_DIR, config["leiden_condor_membership_dir"])
+CONDOR_MEMBERSHIP = os.path.join(CONDOR_BENCHMARK_DIR, "genes_memb_{condor_resolution}.txt")
+CONDOR_REG_MEMBERSHIP = os.path.join(CONDOR_BENCHMARK_DIR, "tf_memb_{condor_resolution}.txt")
+CONDOR_SELECTED_COMMUNITIES = os.path.join(
+    CONDOR_BENCHMARK_DIR, "gene_selected_communities_condor_{condor_resolution}.gmt"
 )
-HEDGEHOG_LEIDEN_SCORES = os.path.join(HEDGEHOG_LEIDEN_RUN, "scores")
-HEDGEHOG_LEIDEN_MODULARITY_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_modularity_heatmap"])
-HEDGEHOG_LEIDEN_PARTITION_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_partition_modularity_heatmap"])
-HEDGEHOG_LEIDEN_RUNTIME_HEATMAP = os.path.join(OUTPUT_DIR, config["hedgehog_leiden_runtime_heatmap"])
-CONDOR_LEIDEN_NATIVE_HEATMAP = os.path.join(OUTPUT_DIR, config["condor_leiden_native_modularity_heatmap"])
-LEIDEN_PRIOR_RUN = os.path.join(HEDGEHOG_DIR, "leiden_prior_gene_projection", "res_{bench_resolution}")
 
 # set benchmarking params if benchmarking is enabled
 if BENCHMARK:
@@ -184,16 +185,11 @@ rule all:
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
-        expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
-               comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
+        LEIDEN_SUMMARY if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
         FILTERING_HEATMAP if BENCHMARK else [],
-        HEDGEHOG_LEIDEN_MODULARITY_HEATMAP if BENCHMARK else [],
-        HEDGEHOG_LEIDEN_PARTITION_HEATMAP if BENCHMARK else [],
-        HEDGEHOG_LEIDEN_RUNTIME_HEATMAP if BENCHMARK else [],
-        CONDOR_LEIDEN_NATIVE_HEATMAP if BENCHMARK else [],
         JACCARD_HEATMAP,
         JACCARD_BOXPLOT
 
@@ -255,113 +251,49 @@ rule process_and_filter_panda:
 ## Benchmark filtering ##
 ## ------------------- ##
 
-rule hedgehog_leiden_benchmark:
+rule run_condor:
     input:
-        expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
-               comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION)
-
-
-rule detect_leiden:
-    input:
-        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt")
+        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt")
     output:
-        membership = os.path.join(HEDGEHOG_LEIDEN_RUN, "leiden_gene_membership.tsv"),
-        detection_summary = os.path.join(HEDGEHOG_LEIDEN_RUN, "summary.tsv")
-    wildcard_constraints:
-        comparison_filter = FILTERING_BIHIDEF
+        target_membership = CONDOR_MEMBERSHIP,
+        regulator_membership = CONDOR_REG_MEMBERSHIP,
+        selected_communities = CONDOR_SELECTED_COMMUNITIES
     params:
-        projection_script = os.path.abspath(os.path.join(SRC, "leiden_gene_projection.py")),
-        projection_version = hashlib.sha256(Path(SRC, "leiden_gene_projection.py").read_bytes()).hexdigest(),
+        resolution = "{condor_resolution}",
         delimiter = DELIMITER,
-        resolution = "{bench_resolution}",
-        tissue = "{tissue_type}",
-        filtering = "{comparison_filter}"
+        min_genes = MIN_GENES,
+        max_genes = MAX_GENES
     threads: 1
     container:
-        config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
+        PYTHON_CONTAINER
+    message:
+        "Running CONDOR for {wildcards.tissue_type} at resolution {wildcards.condor_resolution}"
     script:
-        os.path.join(SRC, "detect_leiden.py")
+        os.path.join("src", "old", "hedgehog", "run_condor.py")
 
 
-rule compare_hedgehog_leiden:
+rule run_leiden:
     input:
-        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_{comparison_filter}.txt"),
-        communities = SELECTED_COMMUNITIES,
-        membership = os.path.join(HEDGEHOG_LEIDEN_RUN, "leiden_gene_membership.tsv"),
-        detection_summary = os.path.join(HEDGEHOG_LEIDEN_RUN, "summary.tsv"),
-        projection_script = os.path.join(SRC, "leiden_gene_projection.py")
+        networks = expand(os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
+                          tissue_type=TISSUE),
+        condor_memberships = expand(CONDOR_MEMBERSHIP, tissue_type=TISSUE,
+                                    condor_resolution=CONDOR_RESOLUTIONS)
     output:
-        results = directory(HEDGEHOG_LEIDEN_SCORES)
-    wildcard_constraints:
-        comparison_filter = FILTERING_BIHIDEF
-    params:
-        delimiter = DELIMITER,
-        resolution = "{bench_resolution}",
-        tissue = "{tissue_type}",
-        filtering = "{comparison_filter}"
-    container:
-        config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
-    script:
-        os.path.join(SRC, "compare_hedgehog_leiden.py")
-
-
-rule plot_hedgehog_leiden_heatmaps:
-    input:
-        comparisons = expand(HEDGEHOG_LEIDEN_SCORES, tissue_type=TISSUE,
-                             comparison_filter=[FILTERING_BIHIDEF], bench_resolution=BENCH_RESOLUTION)
-    output:
-        modularity = HEDGEHOG_LEIDEN_MODULARITY_HEATMAP,
-        partition_modularity = HEDGEHOG_LEIDEN_PARTITION_HEATMAP,
-        runtime = HEDGEHOG_LEIDEN_RUNTIME_HEATMAP
+        summary = LEIDEN_SUMMARY,
+        memberships = expand(LEIDEN_MEMBERSHIP, tissue_type=TISSUE,
+                             leiden_resolution=LEIDEN_RESOLUTIONS)
     params:
         tissues = TISSUE,
-        resolutions = BENCH_RESOLUTION,
-        resource_logs = expand(BIHIDEF_RESOURCE_LOG, tissue_type=TISSUE)
+        condor_resolutions = CONDOR_RESOLUTIONS,
+        leiden_resolutions = LEIDEN_RESOLUTIONS,
+        delimiter = DELIMITER
     threads: 1
     container:
-        R_CONTAINER
+        config.get("leiden_container", PYTHON_CONTAINER)
     message:
-        "Plotting HEDGEHOG and Leiden modularity and runtime heatmaps"
+        "Running the existing CONDOR-Leiden gene-projection comparison"
     script:
-        os.path.join(SRC, "plot_hedgehog_leiden_heatmaps.R")
-
-
-rule leiden_prior_benchmark:
-    input:
-        network = os.path.join(HEDGEHOG_DIR, "panda_network_filtered_prior.txt"),
-        comparison_script = ancient(os.path.join(SRC, "compare_hedgehog_leiden.py"))
-    output:
-        results = directory(LEIDEN_PRIOR_RUN)
-    params:
-        delimiter = DELIMITER,
-        resolution = "{bench_resolution}",
-        tissue = "{tissue_type}"
-    threads: 1
-    container:
-        config.get("hedgehog_leiden_container", PYTHON_CONTAINER)
-    script:
-        os.path.join(SRC, "leiden_prior_benchmark.py")
-
-
-rule plot_condor_leiden_native_modularity:
-    input:
-        filtering_benchmark = FILTERING_BENCH_CONSOLIDATED,
-        leiden_results = expand(
-            HEDGEHOG_LEIDEN_SCORES if FILTERING_BIHIDEF == "prior" else LEIDEN_PRIOR_RUN,
-            tissue_type=TISSUE, comparison_filter=["prior"], bench_resolution=BENCH_RESOLUTION
-        )
-    output:
-        heatmap = CONDOR_LEIDEN_NATIVE_HEATMAP
-    params:
-        tissues = TISSUE,
-        resolutions = BENCH_RESOLUTION
-    threads: 1
-    container:
-        R_CONTAINER
-    message:
-        "Comparing stored prior-filtered CONDOR modularity with Leiden projection modularity"
-    script:
-        os.path.join(SRC, "plot_condor_leiden_native_modularity.R")
+        os.path.join("src", "run_leiden.py")
 
 
 rule panda_filtering_benchmark:

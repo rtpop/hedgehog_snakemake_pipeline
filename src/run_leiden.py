@@ -9,9 +9,27 @@ data_dir="output"
 condor_resolutions=[1.25,1.5,1.75]
 leiden_resolutions=[1.25,1.5,1.75]
 summary_out=os.path.join(data_dir,"modularity_condor_leiden_gene_projection.tsv")
+delimiter=","
+
+# Snakemake supplies paths explicitly; standalone defaults above stay available.
+if "snakemake" in globals():
+    tissues=list(snakemake.params.tissues)
+    condor_resolutions=list(snakemake.params.condor_resolutions)
+    leiden_resolutions=list(snakemake.params.leiden_resolutions)
+    delimiter=snakemake.params.delimiter
+    summary_out=str(snakemake.output.summary)
+    network_paths=dict(zip(tissues, map(str, snakemake.input.networks)))
+    condor_paths=dict(zip(
+        ((tissue,str(res)) for tissue in tissues for res in condor_resolutions),
+        map(str, snakemake.input.condor_memberships)
+    ))
+    leiden_paths=dict(zip(
+        ((tissue,str(res)) for tissue in tissues for res in leiden_resolutions),
+        map(str, snakemake.output.memberships)
+    ))
 
 def build_gene_projection(panda_path):
-    df=pd.read_csv(panda_path,header=None,names=["tf","gene","weight"])
+    df=pd.read_csv(panda_path,header=None,names=["tf","gene","weight"],sep=delimiter)
     df["tf"]=df["tf"].astype(str)
     df["gene"]=df["gene"].astype(str)
     tfs=sorted(df["tf"].unique())
@@ -44,6 +62,8 @@ def build_gene_projection(panda_path):
 def load_condor_gene_membership(tissue,res):
     condor_dir=os.path.join(data_dir,tissue,"condor_output")
     memb_path=os.path.join(condor_dir,f"genes_memb_{res}.txt")
+    if "snakemake" in globals():
+        memb_path=condor_paths[(tissue,str(res))]
     if not os.path.exists(memb_path):
         return None
     df=pd.read_csv(memb_path,sep=",",header=0)
@@ -76,6 +96,8 @@ def main():
     for tissue in tissues:
         print(f"Processing tissue: {tissue}")
         panda_path=os.path.join(data_dir,tissue,"hedgehog","panda_network_filtered_prior.txt")
+        if "snakemake" in globals():
+            panda_path=network_paths[tissue]
         if not os.path.exists(panda_path):
             print(f"  PANDA file not found, skipping: {panda_path}")
             continue
@@ -95,8 +117,10 @@ def main():
 
             # save Leiden partition (one file per tissue x resolution)
             leiden_dir = os.path.join(data_dir, tissue, "leiden_output")
-            os.makedirs(leiden_dir, exist_ok=True)
             leiden_path = os.path.join(leiden_dir, f"genes_memb_{res}.txt")
+            if "snakemake" in globals():
+                leiden_path=leiden_paths[(tissue,str(res))]
+            os.makedirs(os.path.dirname(leiden_path), exist_ok=True)
 
             leiden_df = pd.DataFrame({
                 "gene": g.vs["name"],
@@ -113,6 +137,7 @@ def main():
             })
     if rows:
         out_df=pd.DataFrame(rows)
+        os.makedirs(os.path.dirname(os.path.abspath(summary_out)), exist_ok=True)
         out_df.to_csv(summary_out,sep="\t",index=False)
         print(f"Saved modularity summary to: {summary_out}")
     else:

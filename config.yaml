@@ -44,10 +44,6 @@ filtering_method: "both" # options: prior, hedgehog, both; note that you must se
 benchmark: true
 bench_resolution: [0.1, 0.5, 1, 5, 10] # resolution parameter for the BRIM algorithm to calculate modularity
 plot_unfiltered: False # whether to plot the unfiltered networks in the benchmark
-hedgehog_leiden_modularity_heatmap: "hedgehog_leiden_modularity_heatmap.pdf"
-hedgehog_leiden_partition_modularity_heatmap: "hedgehog_leiden_partition_modularity_heatmap.pdf"
-hedgehog_leiden_runtime_heatmap: "hedgehog_leiden_runtime_heatmap.pdf"
-condor_leiden_native_modularity_heatmap: "condor_leiden_native_modularity_heatmap.pdf"
 
 ## ----------- ##
 ## Run bihidef ##
@@ -93,3 +89,16 @@ community_plot: "community_counts.pdf"
 jaccard_boxplot_tissues: ["Artery_aorta", "Artery_coronary", "Brain_cerebellum"]
 jaccard_boxplot_min_jaccard: 0.2
 jaccard_boxplot: "jaccard_boxplot_selected_communities.pdf" # Relative to output_dir
+
+## ----------------------------- ##
+## Existing Leiden comparison  ##
+## ----------------------------- ##
+# Uses src/run_leiden.py; included in rule all when benchmark is true.
+# CONDOR runs first on prior-filtered PANDA networks, followed by run_leiden.py.
+leiden_resolutions: [1.25, 1.5, 1.75]
+leiden_condor_resolutions: [1.25, 1.5, 1.75]
+leiden_condor_membership_dir: "{tissue_type}/condor_output" # Relative to leiden_benchmark/
+# run_condor writes target/regulator memberships and selected community files here.
+# Results go under <output_dir>/leiden_benchmark/.
+# The selected container must include pandas, scipy, igraph and leidenalg.
+# Set leiden_container to your image URI if python_container lacks these packages.

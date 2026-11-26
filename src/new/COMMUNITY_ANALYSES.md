@@ -48,8 +48,9 @@ It ranks finite original TF qscores in descending order separately for each matc
 breaking ties by TF identifier without pooling resolutions or recalculating scores.
 Under each tissue's `go_enrichment` directory it writes:
 
-- `enriched_community_top_tf_qscores.pdf`: an overview and one horizontal barplot
-  per matched enriched community and resolution with available TF scores.
+- `enriched_community_top_tf_qscores.pdf`: one page per tissue, with horizontal
+  barplots arranged in a grid for all matched enriched communities and resolutions
+  with available TF scores. The page grows with the number of panels.
 - `enriched_community_top_tf_qscores.tsv`: plotted TFs, ranks, scores and match IDs.
 - `enriched_community_tf_qscore_coverage.tsv`: all enriched communities, including
   unmatched communities, missing regulator scores and undefined-score counts.

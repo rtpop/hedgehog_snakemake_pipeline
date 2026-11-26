@@ -21,6 +21,8 @@ pdf <- tempfile(fileext = ".pdf")
 for (example in list(result, empty, missing)) {
     plot_enriched_tf_qscores(example, pdf, "test tissue", 2)
     stopifnot(file.info(pdf)$size > 0)
+    pdf_lines <- readLines(pdf, warn = FALSE, skipNul = TRUE)
+    stopifnot(sum(grepl("/Type /Page\\b", pdf_lines, perl = TRUE)) == 1L)
 }
 unlink(pdf)
 cat("Passed enrichment filtering, exact mapping, per-resolution ranking, ties, missing scores and PDF checks.\n")

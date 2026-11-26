@@ -62,18 +62,22 @@ rank_enriched_tf_qscores <- function(go, matches, regulators, top_n) {
 }
 
 plot_enriched_tf_qscores <- function(result, output, tissue, top_n) {
-    grDevices::pdf(output, width = 10, height = max(6, 2 + min(top_n, 40) * .25), onefile = TRUE)
+    plotted <- which(result$coverage$status == "plotted")
+    n_panels <- length(plotted)
+    n_columns <- max(1L, ceiling(sqrt(n_panels)))
+    n_rows <- max(1L, ceiling(n_panels / n_columns))
+    # Grow the single page with the panel count to keep TF labels readable.
+    panel_height <- max(4, 2 + top_n * .25)
+    grDevices::pdf(output, width = 6 * n_columns, height = panel_height * n_rows + .6,
+                   onefile = TRUE)
     on.exit(grDevices::dev.off(), add = TRUE)
-    graphics::plot.new()
-    graphics::title(main = paste("Top TF qscores in GO-enriched communities -", tissue))
-    graphics::text(.05, .85, adj = c(0, 1), labels = paste0(
-        "GO-enriched selected communities: ", result$n_enriched, "\n",
-        "Requested TFs per community / resolution: ", top_n, "\n\n",
-        "Enriched means at least one significant GO term in the existing GO summary.\n",
-        "TFs are ranked by descending original qscore, separately at each exact target-set match.\n",
-        "Ties are resolved by TF identifier; undefined qscores are excluded.\n",
-        "Unmatched communities and missing scores are listed in the coverage TSV."))
-    for (i in which(result$coverage$status == "plotted")) {
+    graphics::par(mfrow = c(n_rows, n_columns), oma = c(0, 0, 3, 0), cex = 1)
+    if (!n_panels) {
+        graphics::plot.new()
+        graphics::text(.5, .5, if (!result$n_enriched) "No GO-enriched communities" else
+                       "No matched finite TF qscores; see the coverage TSV")
+    }
+    for (i in plotted) {
         mapping <- result$coverage[i, ]
         rows <- result$top[result$top$selected_community == mapping$selected_community &
                            result$top$condor_community == mapping$condor_community &
@@ -83,9 +87,11 @@ plot_enriched_tf_qscores <- function(result, output, tissue, top_n) {
         graphics::barplot(rows$qscore, names.arg = rows$reg, horiz = TRUE, las = 1,
                           col = "steelblue", border = NA, xlab = "TF qscore",
                           cex.names = min(1, 30 / nrow(rows)),
-                          main = paste(tissue, mapping$selected_community, sep = " | "))
+                          main = mapping$selected_community)
         graphics::abline(v = 0, col = "grey50")
         graphics::mtext(paste("CONDOR community", mapping$condor_community,
                              "| resolution", mapping$resolution), side = 3, line = .5)
     }
+    graphics::mtext(paste("Top TF qscores in GO-enriched communities -", tissue),
+                    outer = TRUE, side = 3, line = 1, font = 2)
 }

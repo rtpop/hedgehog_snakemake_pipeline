@@ -46,14 +46,16 @@ The rule uses exact target-set matches from `selected_community_qscores.csv`
 to find the corresponding CONDOR community and resolution in `qscore_reg.csv`.
 It ranks finite original TF qscores in descending order separately for each match,
 breaking ties by TF identifier without pooling resolutions or recalculating scores.
-Under each tissue's `go_enrichment` directory it writes:
+Under `<output_dir>/enriched_community_tf_qscores` (configurable with
+`go_tf_qscore_dir`) it writes:
 
-- `enriched_community_top_tf_qscores.pdf`: one page per tissue, with horizontal
+- `<tissue>_top_tf_qscores.pdf`: one page per tissue, with horizontal
   barplots arranged in a grid for all matched enriched communities and resolutions
   with available TF scores. The page grows with the number of panels.
-- `enriched_community_top_tf_qscores.tsv`: plotted TFs, ranks, scores and match IDs.
-- `enriched_community_tf_qscore_coverage.tsv`: all enriched communities, including
+- `<tissue>_top_tf_qscores.tsv`: plotted TFs, ranks, scores and match IDs.
+- `<tissue>_tf_qscore_coverage.tsv`: all enriched communities, including
   unmatched communities, missing regulator scores and undefined-score counts.
+- `<tissue>_go_terms.tsv`: significant GO terms and p-values for enriched communities.
 
 No new R packages are required. Run regression checks with
 `Rscript tests/test_enriched_tf_qscores.R`.

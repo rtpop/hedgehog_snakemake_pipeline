@@ -155,10 +155,11 @@ BIHIDEF_RESOURCE_LOG = os.path.join(BIHIDEF_RUN_DIR, "run_resources.log")
 SELECTED_QSCORE_PLOT = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.pdf")
 SELECTED_QSCORE_MATCHES = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.csv")
 SELECTED_QSCORE_COVERAGE = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscore_coverage.csv")
-GO_TF_QSCORE_PLOT = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.pdf")
-GO_TF_QSCORE_TOP = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.tsv")
-GO_TF_QSCORE_COVERAGE = os.path.join(GO_DIR, "enriched_community_tf_qscore_coverage.tsv")
-GO_TF_TERMS = os.path.join(GO_DIR, "enriched_community_go_terms.tsv")
+GO_TF_QSCORE_DIR = os.path.join(OUTPUT_DIR, config["go_tf_qscore_dir"])
+GO_TF_QSCORE_PLOT = os.path.join(GO_TF_QSCORE_DIR, "{tissue_type}_top_tf_qscores.pdf")
+GO_TF_QSCORE_TOP = os.path.join(GO_TF_QSCORE_DIR, "{tissue_type}_top_tf_qscores.tsv")
+GO_TF_QSCORE_COVERAGE = os.path.join(GO_TF_QSCORE_DIR, "{tissue_type}_tf_qscore_coverage.tsv")
+GO_TF_TERMS = os.path.join(GO_TF_QSCORE_DIR, "{tissue_type}_go_terms.tsv")
 
 
 

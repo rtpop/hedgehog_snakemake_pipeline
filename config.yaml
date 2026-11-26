@@ -73,6 +73,7 @@ algorithm: "classic"
 go_results: "go_enrichment_results_bug_fix_q_score.txt"
 go_enrichment_plot: "go_enrichment_counts.pdf" # One overall plot under output_dir
 go_tf_qscore_top_n: 10 # Highest-scoring TFs per enriched community and exact matching resolution
+go_tf_qscore_dir: "enriched_community_tf_qscores" # Relative to output_dir; all tissues' TF plots and tables
 
 ## ----------------------------- ##
 ## Community consolidation      ##

@@ -37,6 +37,26 @@ status column. The detailed result tables retain raw and adjusted p-values.
 
 ## Qscore distributions
 
+### Top TFs in GO-enriched communities
+
+`plot_enriched_community_tf_qscores` runs through `rule all` for each tissue.
+`go_tf_qscore_top_n` in `config.yaml` controls the number of TFs (default 10).
+Communities qualify when the existing GO summary reports `n_sig_terms > 0`.
+The rule uses exact target-set matches from `selected_community_qscores.csv`
+to find the corresponding CONDOR community and resolution in `qscore_reg.csv`.
+It ranks finite original TF qscores in descending order separately for each match,
+breaking ties by TF identifier without pooling resolutions or recalculating scores.
+Under each tissue's `go_enrichment` directory it writes:
+
+- `enriched_community_top_tf_qscores.pdf`: an overview and one horizontal barplot
+  per matched enriched community and resolution with available TF scores.
+- `enriched_community_top_tf_qscores.tsv`: plotted TFs, ranks, scores and match IDs.
+- `enriched_community_tf_qscore_coverage.tsv`: all enriched communities, including
+  unmatched communities, missing regulator scores and undefined-score counts.
+
+No new R packages are required. Run regression checks with
+`Rscript tests/test_enriched_tf_qscores.R`.
+
 `run_bihidef` now declares `qscore_tar.csv` and `qscore_reg.csv` as outputs.
 The `plot_selected_community_qscores` rule runs entirely in R and consumes the target CSV and the
 selected GMT. Under the corresponding `bihidef_run` directory it writes:

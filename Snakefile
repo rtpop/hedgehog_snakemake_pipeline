@@ -155,6 +155,9 @@ BIHIDEF_RESOURCE_LOG = os.path.join(BIHIDEF_RUN_DIR, "run_resources.log")
 SELECTED_QSCORE_PLOT = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.pdf")
 SELECTED_QSCORE_MATCHES = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscores.csv")
 SELECTED_QSCORE_COVERAGE = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qscore_coverage.csv")
+GO_TF_QSCORE_PLOT = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.pdf")
+GO_TF_QSCORE_TOP = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.tsv")
+GO_TF_QSCORE_COVERAGE = os.path.join(GO_DIR, "enriched_community_tf_qscore_coverage.tsv")
 
 
 
@@ -189,6 +192,9 @@ rule all:
         expand(SELECTED_QSCORE_PLOT, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
+        expand(GO_TF_QSCORE_PLOT, tissue_type=TISSUE),
+        expand(GO_TF_QSCORE_TOP, tissue_type=TISSUE),
+        expand(GO_TF_QSCORE_COVERAGE, tissue_type=TISSUE),
         LEIDEN_SUMMARY if BENCHMARK else [],
         LEIDEN_BOXPLOT if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
@@ -634,6 +640,26 @@ rule plot_selected_community_qscores:
         "Plotting qscores for exact selected-community matches in {wildcards.tissue_type}"
     script:
         os.path.join(SRC, "plot_selected_qscores.R")
+
+rule plot_enriched_community_tf_qscores:
+    input:
+        go_summary = GO_ENRICHMENT,
+        matched_targets = SELECTED_QSCORE_MATCHES,
+        regulator_scores = QSCORE_REG
+    output:
+        plot = GO_TF_QSCORE_PLOT,
+        top_tfs = GO_TF_QSCORE_TOP,
+        coverage = GO_TF_QSCORE_COVERAGE
+    params:
+        top_n = config["go_tf_qscore_top_n"],
+        function_file = os.path.join(SRC, "enriched_tf_qscores_fn.R")
+    container:
+        R_CONTAINER
+    message:
+        "Plotting top TF qscores for GO-enriched communities in {wildcards.tissue_type}"
+    script:
+        os.path.join(SRC, "plot_enriched_tf_qscores.R")
+
 
 ## --------------- ##
 ## Community stats ##

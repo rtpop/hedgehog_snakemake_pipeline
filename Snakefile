@@ -158,6 +158,7 @@ SELECTED_QSCORE_COVERAGE = os.path.join(BIHIDEF_RUN_DIR, "selected_community_qsc
 GO_TF_QSCORE_PLOT = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.pdf")
 GO_TF_QSCORE_TOP = os.path.join(GO_DIR, "enriched_community_top_tf_qscores.tsv")
 GO_TF_QSCORE_COVERAGE = os.path.join(GO_DIR, "enriched_community_tf_qscore_coverage.tsv")
+GO_TF_TERMS = os.path.join(GO_DIR, "enriched_community_go_terms.tsv")
 
 
 
@@ -195,6 +196,7 @@ rule all:
         expand(GO_TF_QSCORE_PLOT, tissue_type=TISSUE),
         expand(GO_TF_QSCORE_TOP, tissue_type=TISSUE),
         expand(GO_TF_QSCORE_COVERAGE, tissue_type=TISSUE),
+        expand(GO_TF_TERMS, tissue_type=TISSUE),
         LEIDEN_SUMMARY if BENCHMARK else [],
         LEIDEN_BOXPLOT if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
@@ -644,14 +646,17 @@ rule plot_selected_community_qscores:
 rule plot_enriched_community_tf_qscores:
     input:
         go_summary = GO_ENRICHMENT,
+        go_details = GO_DETAILS,
         matched_targets = SELECTED_QSCORE_MATCHES,
         regulator_scores = QSCORE_REG
     output:
         plot = GO_TF_QSCORE_PLOT,
         top_tfs = GO_TF_QSCORE_TOP,
-        coverage = GO_TF_QSCORE_COVERAGE
+        coverage = GO_TF_QSCORE_COVERAGE,
+        go_terms = GO_TF_TERMS
     params:
         top_n = config["go_tf_qscore_top_n"],
+        sig_thresh = config["sig_thresh"],
         function_file = os.path.join(SRC, "enriched_tf_qscores_fn.R")
     container:
         R_CONTAINER

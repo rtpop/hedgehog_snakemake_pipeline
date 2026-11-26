@@ -61,23 +61,65 @@ rank_enriched_tf_qscores <- function(go, matches, regulators, top_n) {
     list(top = top, coverage = coverage, n_enriched = length(enriched))
 }
 
-plot_enriched_tf_qscores <- function(result, output, tissue, top_n) {
+read_enriched_go_terms <- function(go, details_dir, sig_thresh) {
+    terms <- data.frame(selected_community = character(), GO.ID = character(), Term = character(),
+                         p_value = numeric(), p_adj = numeric())
+    communities <- as.character(go$community[!is.na(go$n_sig_terms) & as.numeric(go$n_sig_terms) > 0])
+    for (community in communities) {
+        path <- file.path(details_dir, paste0(community, ".txt"))
+        if (!file.exists(path)) stop("Missing GO term details for ", community,
+                                     "; generate GO enrichment with save_all: true")
+        rows <- utils::read.delim(path, check.names = FALSE, stringsAsFactors = FALSE)
+        if (!all(c("GO.ID", "Term", "p_value", "p_adj") %in% names(rows))) {
+            stop("Missing GO term columns in ", path)
+        }
+        rows <- rows[is.finite(rows$p_adj) & rows$p_adj < sig_thresh,
+                     c("GO.ID", "Term", "p_value", "p_adj"), drop = FALSE]
+        rows <- rows[order(rows$p_adj, rows$p_value, rows$GO.ID), , drop = FALSE]
+        if (nrow(rows)) {
+            rows$selected_community <- community
+            terms <- rbind(terms, rows[, names(terms), drop = FALSE])
+        }
+    }
+    terms
+}
+
+plot_enriched_tf_qscores <- function(result, output, tissue, top_n, go_terms = NULL) {
     plotted <- which(result$coverage$status == "plotted")
     n_panels <- length(plotted)
     n_columns <- max(1L, ceiling(sqrt(n_panels)))
     n_rows <- max(1L, ceiling(n_panels / n_columns))
     # Grow the single page with the panel count to keep TF labels readable.
-    panel_height <- max(4, 2 + top_n * .25)
-    grDevices::pdf(output, width = 6 * n_columns, height = panel_height * n_rows + .6,
+    term_labels <- lapply(plotted, function(i) {
+        community <- result$coverage$selected_community[i]
+        terms <- go_terms[go_terms$selected_community == community, , drop = FALSE]
+        if (is.null(terms) || !nrow(terms)) return("No significant GO term details available")
+        unlist(lapply(seq_len(nrow(terms)), function(j) {
+            strwrap(paste0(terms$GO.ID[j], "  ", terms$Term[j],
+                          " (BH-adjusted p = ", format(terms$p_adj[j], digits = 3), ")"), width = 55)
+        }), use.names = FALSE)
+    })
+    panel_height <- max(4, 2 + top_n * .25, 1.5 + max(c(0, lengths(term_labels))) * .17)
+    grDevices::pdf(output, width = 11 * n_columns, height = panel_height * n_rows + .6,
                    onefile = TRUE)
     on.exit(grDevices::dev.off(), add = TRUE)
-    graphics::par(mfrow = c(n_rows, n_columns), oma = c(0, 0, 3, 0), cex = 1)
+    panels <- matrix(0L, nrow = n_rows, ncol = 2 * n_columns)
+    if (n_panels) {
+        for (k in seq_len(n_panels)) {
+            row <- (k - 1L) %/% n_columns + 1L
+            col <- 2 * ((k - 1L) %% n_columns) + 1L
+            panels[row, col:(col + 1L)] <- c(2L * k - 1L, 2L * k)
+        }
+    } else panels[1, 1:2] <- 1L
+    graphics::layout(panels, widths = rep(c(6, 5), n_columns))
+    graphics::par(oma = c(0, 0, 3, 0), cex = 1)
     if (!n_panels) {
         graphics::plot.new()
         graphics::text(.5, .5, if (!result$n_enriched) "No GO-enriched communities" else
                        "No matched finite TF qscores; see the coverage TSV")
     }
-    for (i in plotted) {
+    for (k in seq_along(plotted)) {
+        i <- plotted[k]
         mapping <- result$coverage[i, ]
         rows <- result$top[result$top$selected_community == mapping$selected_community &
                            result$top$condor_community == mapping$condor_community &
@@ -87,10 +129,14 @@ plot_enriched_tf_qscores <- function(result, output, tissue, top_n) {
         graphics::barplot(rows$qscore, names.arg = rows$reg, horiz = TRUE, las = 1,
                           col = "steelblue", border = NA, xlab = "TF qscore",
                           cex.names = min(1, 30 / nrow(rows)),
-                          main = mapping$selected_community)
+                          main = paste("HEDGEHOG community", mapping$selected_community))
         graphics::abline(v = 0, col = "grey50")
-        graphics::mtext(paste("CONDOR community", mapping$condor_community,
-                             "| resolution", mapping$resolution), side = 3, line = .5)
+        graphics::par(mar = c(1, 0, 3, 1))
+        graphics::plot.new()
+        graphics::title(main = "Significant GO terms", cex.main = 1)
+        labels <- term_labels[[k]]
+        graphics::text(rep(0, length(labels)), seq(1, 0, length.out = length(labels) + 1L)[seq_along(labels)],
+                       labels = labels, adj = c(0, 1), cex = .8)
     }
     graphics::mtext(paste("Top TF qscores in GO-enriched communities -", tissue),
                     outer = TRUE, side = 3, line = 1, font = 2)

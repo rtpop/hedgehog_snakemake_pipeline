@@ -96,6 +96,7 @@ jaccard_boxplot: "jaccard_boxplot_selected_communities.pdf" # Relative to output
 # Uses src/run_leiden.py; included in rule all when benchmark is true.
 # CONDOR runs first on prior-filtered PANDA networks, followed by run_leiden.py.
 leiden_resolutions: [1.25, 1.5, 1.75]
+leiden_boxplot: "modularity_condor_leiden_boxplot.pdf" # Relative to leiden_benchmark/
 leiden_condor_resolutions: [1.25, 1.5, 1.75]
 leiden_condor_membership_dir: "{tissue_type}/condor_output" # Relative to leiden_benchmark/
 # run_condor writes target/regulator memberships and selected community files here.

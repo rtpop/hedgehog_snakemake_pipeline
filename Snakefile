@@ -73,6 +73,7 @@ UNFILTERED = config["plot_unfiltered"]
 # Existing CONDOR and Leiden scripts, using the same prior-filtered PANDA inputs.
 LEIDEN_BENCHMARK_DIR = os.path.join(OUTPUT_DIR, "leiden_benchmark")
 LEIDEN_SUMMARY = os.path.join(LEIDEN_BENCHMARK_DIR, "modularity_condor_leiden_gene_projection.tsv")
+LEIDEN_BOXPLOT = os.path.join(LEIDEN_BENCHMARK_DIR, config["leiden_boxplot"])
 LEIDEN_TISSUE_SUMMARY = os.path.join(
     LEIDEN_BENCHMARK_DIR, "{tissue_type}", "modularity_condor_leiden_gene_projection.tsv"
 )
@@ -189,6 +190,7 @@ rule all:
         expand(SELECTED_QSCORE_MATCHES, tissue_type=TISSUE),
         expand(SELECTED_QSCORE_COVERAGE, tissue_type=TISSUE),
         LEIDEN_SUMMARY if BENCHMARK else [],
+        LEIDEN_BOXPLOT if BENCHMARK else [],
         expand(FILTERING_BENCH, tissue_type=TISSUE, bench_resolution=BENCH_RESOLUTION) if BENCHMARK else [],
         expand(FILTERING_BENCH_DF, tissue_type=TISSUE) if BENCHMARK else [],
         FILTERING_BENCH_CONSOLIDATED if BENCHMARK else [],
@@ -287,6 +289,19 @@ rule run_leiden:
         "Combining CONDOR-Leiden comparison summaries across tissues"
     script:
         os.path.join("src", "new", "consolidate_leiden_summaries.py")
+
+
+rule plot_leiden_benchmark:
+    input:
+        summary = LEIDEN_SUMMARY
+    output:
+        plot = LEIDEN_BOXPLOT
+    container:
+        R_CONTAINER
+    message:
+        "Plotting CONDOR and Leiden benchmark modularity across tissues"
+    script:
+        os.path.join(SRC, "plot_leiden_benchmark.R")
 
 
 rule run_leiden_tissue:

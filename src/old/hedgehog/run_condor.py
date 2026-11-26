@@ -1,7 +1,7 @@
 """Run CONDOR on prior-filtered PANDA networks and export selected communities."""
 import os
 
-from netZooPy import condor
+import condor
 import pandas as pd
 
 
